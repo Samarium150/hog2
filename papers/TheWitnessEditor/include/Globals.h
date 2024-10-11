@@ -13,8 +13,8 @@
 #include "WitnessPuzzleEntropy.h"
 #include "PuzzleEntropy.h"
 
-constexpr int puzzleWidth = 3;
-constexpr int puzzleHeight = 3;
+constexpr int puzzleWidth = 4;
+constexpr int puzzleHeight = 4;
 const int minSolutions = 5000;
 constexpr double inf = std::numeric_limits<double>::max();
 extern unsigned long currBoard;

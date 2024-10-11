@@ -56,7 +56,7 @@ static void InitTetrisPieces()
 static void temp()
 {
 //    witness.AddSeparationConstraint(0, 0, Colors::blue);
-//    witness.AddSeparationConstraint(2, 0, Colors::blue);
+//    witness.AddSeparationConstraint(3, 0, Colors::blue);
 //    witness.AddSeparationConstraint(1, 1, Colors::orange);
 //    witness.AddSeparationConstraint(3, 1, Colors::orange);
 //    witness.AddSeparationConstraint(0, 2, Colors::orange);
@@ -69,7 +69,13 @@ static void temp()
 //    witness.AddMustCrossConstraint(true, 1, 2);
 //    witness.AddMustCrossConstraint(false, 1, 2);
 //    witness.AddMustCrossConstraint(true, 3, 3);
-    witness.AddTriangleConstraint(1, 1, 3);
+//    witness.AddStarConstraint(0, 3, Colors::orange);
+//    witness.AddTriangleConstraint(1, 1, 2);
+//    witness.AddTriangleConstraint(2, 1, 2);
+//    witness.AddTriangleConstraint(1, 2, 2);
+//    witness.AddTriangleConstraint(2, 2, 2);
+    witness.AddSeparationConstraint(0, 0, Colors::blue);
+    witness.AddSeparationConstraint(0, 1, Colors::orange);
 }
 
 static void InitPuzzle()
@@ -77,8 +83,8 @@ static void InitPuzzle()
     entropy.ruleSet.SetRules(gInferenceRules);
     gUseRelativeEntropy = false;
     entropy.SetRelative(gUseRelativeEntropy).SetBase2(true);
-    witness.SetStart(2, 0);
-//    witness.SetGoal(5, 0);
+//    witness.SetStart(2, 0);
+//    witness.SetGoal(2, 5);
     GetAllSolutions(witness, allSolutions);
 //    k87fxsr();
     temp();
@@ -142,6 +148,8 @@ int main(int argc, char *argv[])
 #endif
     InitTetrisPieces();
     InitPuzzle();
+//    witness.AddMustCrossConstraint(true, 1, 0);
+//    witness.AddCannotCrossConstraint(true, 0, 0);
     InstallHandlers();
     RunHOGGUI(argc, argv, 1280, 640);
     return 0;
