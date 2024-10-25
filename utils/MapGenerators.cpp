@@ -235,7 +235,8 @@ void BuildRandomRoomMap(Map *map, int roomSize, int openingProbability)
     int width = map->GetMapWidth();
     int height = map->GetMapHeight();
 	
-	map->SetTerrainType(0, 0, width-1, height-1, kGround);
+	map->SetRectHeight(0, 0, width-1, height-1, 0, kGround);
+	//map->SetTerrainType(0, 0, width-1, height-1, kGround);
     for (int x = 0; x < height; x += roomSize)
     {
         // draw a horizontal line
