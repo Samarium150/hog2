@@ -143,6 +143,13 @@ struct rect {
 	}
 };
 
+struct roundedRect {
+	roundedRect(rect r, float rad) :r(r), rad(rad) {}
+	rect r;
+	float rad;
+};
+
+
 inline std::ostream &operator<<(std::ostream &o, const rect&r)
 { o << r.left << ", " << r.top  << ", " << r.right << ", " << r.bottom; return o; }
 
@@ -157,6 +164,8 @@ inline std::ostream &operator<<(std::ostream &out, const triangle &t)
 
 //bool PointInRect(const point3d &p, const rect &r);
 bool PointInRect(const point &p, const rect &r);
+bool PointInRect(const point &p, const roundedRect &r);
+point BezierHelper(const point &from1, const point &to1, const point &from2, const point &to2, float mix);
 
 struct viewport {
 	Graphics::rect bounds;
@@ -185,6 +194,9 @@ public:
 	int GetNumViewports() { return numViewports; }
 	void FrameRect(rect r, rgbColor c, float lineWidth);
 	void FillRect(rect r, rgbColor c);
+	void FrameRect(roundedRect r, rgbColor c, float lineWidth);
+	void FillRect(roundedRect r, rgbColor c);
+
 	void FrameSquare(point p, float radius, rgbColor c, float lineWidth);
 	void FillSquare(point p, float radius, rgbColor c);
 	void FrameCircle(rect r, rgbColor c, float lineWidth); // FIXME: Should be a point and a radius!
@@ -208,6 +220,11 @@ public:
 	void DrawText(const char *text, point location, rgbColor c, float height, textAlign align, const char *typeface = 0);
 	void DrawText(const char *text, point location, rgbColor c, float height, textAlign align, textBaseline base, const char *typeface = 0);
 
+	struct rrInfo {
+		roundedRect r;
+		rgbColor c;
+		float width;
+	};
 	struct drawInfo {
 		rect r;
 		rgbColor c;
@@ -244,6 +261,8 @@ public:
 	};
 	enum tDrawClass
 	{
+		kFillRoundedRectangle,
+		kFrameRoundedRectangle,
 		kFillRectangle,
 		kFrameRectangle,
 		kFillTriangle,
@@ -267,6 +286,12 @@ public:
 			shape = d;
 			viewport = view;
 		}
+		data(rrInfo d, tDrawClass t, uint8_t view)
+		{
+			what = t;
+			rr = d;
+			viewport = view;
+		}
 		data(lineInfo l, uint8_t view)
 		{
 			what = kLine;
@@ -282,6 +307,7 @@ public:
 		tDrawClass what;
 		union {
 			drawInfo shape;
+			rrInfo rr;
 			shapeInfo polygon;
 			lineInfo line;
 			triangleInfo triangle;

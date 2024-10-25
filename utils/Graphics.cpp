@@ -19,6 +19,18 @@ bool PointInRect(const point &p, const rect &r)
 	return p.y >= r.top && p.x >= r.left && p.y <= r.bottom && p.x <= r.right;
 }
 
+// TODO: Handle rounded rect properly
+bool PointInRect(const point &p, const roundedRect &r)
+{
+	return PointInRect(p, r.r);
+}
+
+point BezierHelper(const point &from1, const point &to1, const point &from2, const point &to2, float mix)
+{
+	return (from1*(1-mix)+to1*mix)*(1-mix) + (from2*(1-mix)+to2*mix)*mix;
+}
+
+
 Display::Display()
 {
 	currViewport = 0;
@@ -76,6 +88,15 @@ void Display::SetViewport(uint8_t v)
 	currViewport = v;
 }
 
+void Display::FrameRect(roundedRect r, rgbColor c, float lineWidth)
+{
+	rrInfo i = {r, c, lineWidth};
+	if (drawingBackground)
+		backgroundDrawCommands.push_back({i, kFrameRoundedRectangle, currViewport});
+	else
+		drawCommands.push_back({i, kFrameRoundedRectangle, currViewport});
+}
+
 void Display::FrameRect(rect r, rgbColor c, float lineWidth)
 {
 	drawInfo i = {r, c, lineWidth};
@@ -102,6 +123,15 @@ void Display::FillSquare(point p, float radius, rgbColor c)
 		backgroundDrawCommands.push_back({i, kFillRectangle, currViewport});
 	else
 		drawCommands.push_back({i, kFillRectangle, currViewport});
+}
+
+void Display::FillRect(roundedRect r, rgbColor c)
+{
+	rrInfo i = {r, c, 0};
+	if (drawingBackground)
+		backgroundDrawCommands.push_back({i, kFillRoundedRectangle, currViewport});
+	else
+		drawCommands.push_back({i, kFillRoundedRectangle, currViewport});
 }
 
 void Display::FillRect(rect r, rgbColor c)
