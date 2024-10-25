@@ -54,6 +54,7 @@ PROJECTS = \
   demos/fastmap \
   demos/pancake \
   demos/racetrack \
+  demos/bidir \
   demos/multiTarget \
   demos/rc \
   papers/IBEX \
@@ -115,6 +116,7 @@ PROJECTS_ALL = \
   demos/DFID \
   demos/dijkstra \
   demos/astar \
+  demos/bidir \
   demos/idastar \
   apps/snakebird \
   papers/DSDWA \
