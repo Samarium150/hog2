@@ -22,6 +22,7 @@ PROJECTS = \
   mapalgorithms \
   utils \
   apps/snakebird \
+  apps/arm \
   demos/fastmap \
   demos/pancake \
   demos/suboptimal-map \
@@ -46,8 +47,8 @@ PROJECTS = \
   demos/racetrack \
   demos/multi-target \
   demos/ACA \
-  papers/DWA \
-  papers/TheWitnessEditor
+  papers/DWA
+#  papers/TheWitnessEditor
 
 # Include projects with broken compilation
 PROJECTS_ALL = \
@@ -99,8 +100,8 @@ PROJECTS_ALL = \
   demos/idastar \
   demos/multi-target \
   papers/ACA \
-  papers/DWA \
-  papers/TheWitnessEditor
+  papers/DWA 
+#  papers/TheWitnessEditor
 
 # sequentially to avoid same sub-target in sub-make invoked twice
 default:

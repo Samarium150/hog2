@@ -31,5 +31,6 @@ default : all
 
 SRC_CPP = \
 	envutil/VoxelTriangleExtraction.cpp \
+	envutil/STPInstances.cpp \
 	envutil/PancakeInstances.cpp \
 	envutil/GraphInconsistencyInstances.cpp \

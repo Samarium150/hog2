@@ -32,6 +32,7 @@ default : all
 SRC_CPP = \
   grids/CanonicalDijkstra.cpp \
   grids/Reach.cpp \
+  grids/GridHeuristics.cpp \
   grids/CanonicalReach.cpp \
   grids/BoundingBox.cpp \
   grids/Transit.cpp \
