@@ -38,8 +38,98 @@ static std::vector<mouseCallbackData2 *> mouseCallbacks2;
 static std::vector<windowCallbackData *> windowCallbacks;
 static std::vector<frameCallbackData *> glDrawCallbacks;
 //static std::vector<dataCallbackData> dataCallbacks;
+static std::vector<buttonData> buttons;
 
-static keyboardCallbackData *keyboardCallbacks[256] = 
+
+bool ButtonHandler(unsigned long windowID, int viewport, int windowX, int windowY, point3d loc, tButtonType button, tMouseEventType mType)
+{
+	for (auto &b : buttons)
+	{
+		if (mType == kMouseDown)
+		{
+			if (b.active)
+				b.tracking = b.hilighted = Graphics::PointInRect(loc, b.r);
+			else
+				b.tracking = b.hilighted = false;
+		}
+		if (mType == kMouseDrag && b.tracking)
+			b.hilighted = Graphics::PointInRect(loc, b.r);
+		if (mType == kMouseUp && b.tracking)
+		{
+			b.hilighted = false;
+			b.tracking = false;
+			if (Graphics::PointInRect(loc, b.r))
+				DoKeyboardCommand(GetContext(windowID), b.hit, false, false, false);
+		}
+	}
+	return false;
+}
+
+void DrawButton(const buttonData &b, Graphics::Display &disp)
+{
+	if (!b.valid)
+		return;
+	
+	disp.FillRect(b.r, b.hilighted?b.fillHitColor:b.fillColor);
+	if (b.active)
+	{
+		disp.FrameRect(b.r, b.borderColor, b.borderSize);
+		disp.DrawText(b.text.c_str(),
+					  {0.5f*b.r.r.right+0.5f*b.r.r.left,0.5f*b.r.r.top+0.5f*b.r.r.bottom},
+					  b.textColor, (b.r.r.bottom-b.r.r.top)*0.7f, Graphics::textAlignCenter, Graphics::textBaselineMiddle);
+	}
+	else {
+		disp.FrameRect(b.r, b.inactiveBorderColor, b.borderSize);
+		disp.DrawText(b.text.c_str(),
+					  {0.5f*b.r.r.right+0.5f*b.r.r.left,0.5f*b.r.r.top+0.5f*b.r.r.bottom},
+					  b.inactiveBorderColor, (b.r.r.bottom-b.r.r.top)*0.7f, Graphics::textAlignCenter, Graphics::textBaselineMiddle);
+	}
+}
+
+void DrawButtons(unsigned long windowID, int viewport)
+{
+	Graphics::Display &disp = GetContext(windowID)->display;
+	disp.SetViewport(viewport);
+	for (auto const &b : buttons)
+		if (b.viewport == viewport)
+			DrawButton(b, disp);
+}
+
+int CreateButton(unsigned long windowID, int viewport,
+				 Graphics::roundedRect r, const char *txt, char hit, float borderSize,
+				 rgbColor textColor, rgbColor lineColor, rgbColor fillColor,
+				 rgbColor fillHitColor, rgbColor inactiveLineColor)
+{
+	bool found = false;
+	if (buttons.size() == 0)
+		InstallMouseClickHandler(ButtonHandler);
+	buttons.push_back({true, false, false, true, windowID, viewport, r, txt, hit,
+		borderSize, textColor, lineColor, fillColor, fillHitColor, inactiveLineColor});
+	return buttons.size()-1;
+}
+
+void SetButtonActive(bool active, int which)
+{
+	buttons[which].active = active;
+}
+
+//bool valid;
+//Graphics::roundedRect r;
+//std::string s;
+//char hit;
+//float borderSize;
+//rgbColor textColor;
+//rgbColor lineColor;
+//rgbColor fillColor;
+//rgbColor fillHitColor;
+
+void RemoveButton(int identifier)
+{
+	buttons[identifier].valid = false;
+}
+
+
+static keyboardCallbackData *keyboardCallbacks[256] =
 { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -169,6 +259,7 @@ void HandleFrame(pRecContext pContextInfo, int viewport)
 		if (glDrawCallbacks[x]->windowID == pContextInfo->windowID)
 			glDrawCallbacks[x]->glCall(pContextInfo->windowID, viewport, glDrawCallbacks[x]->userData);
 	}
+	DrawButtons(pContextInfo->windowID, viewport);
 	pContextInfo->display.EndFrame(); // end last frame
 	for (int x = 0; x < pContextInfo->display.numViewports; x++)
 	{

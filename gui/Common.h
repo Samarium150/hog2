@@ -254,6 +254,34 @@ bool HandleMouse(pRecContext pContextInfo, int xWindow, int yWindow, point3d whe
 bool HandleMouseClick(pRecContext pContextInfo, int x, int y, point3d where, tButtonType, tMouseEventType);
 bool HandleMouseClick(pRecContext pContextInfo, int viewport, int x, int y, point3d where, tButtonType, tMouseEventType);
 
+struct buttonData
+{
+	bool valid;
+	bool hilighted;
+	bool tracking;
+	bool active;
+	// todo - allow buttons to be inactivated
+	unsigned long windowID;
+	int viewport;
+	Graphics::roundedRect r;
+	std::string text;
+	char hit;
+	float borderSize;
+	rgbColor textColor;
+	rgbColor borderColor;
+	rgbColor fillColor;
+	rgbColor fillHitColor;
+	rgbColor inactiveBorderColor;
+};
+
+void DrawButtons(unsigned long windowID, int viewport);
+int CreateButton(unsigned long windowID, int viewport,
+				 Graphics::roundedRect r, const char *txt, char hit, float borderSize,
+				 rgbColor textColor, rgbColor lineColor, rgbColor fillColor,
+				 rgbColor fillHitColor, rgbColor inactiveLineColor);
+void SetButtonActive(bool, int);
+void RemoveButton(int identifier);
+
 void InstallWindowHandler(WindowCallback wC);
 void RemoveWindowHandler(WindowCallback wC);
 void HandleWindowEvent(pRecContext pContextInfo, tWindowEventType);
