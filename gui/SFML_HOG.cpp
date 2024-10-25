@@ -625,6 +625,28 @@ Graphics::point WindowToHOG(const Graphics::point &p)
 						   -1*(1-yperc)+1*yperc);
 }
 
+void Bezier(const Graphics::point &p1, const Graphics::point &p2, const Graphics::point &p3, const Graphics::point &p4)
+{
+	for (float f = 0.2f; fless(f, 1); f += 0.2f)
+	{
+		Graphics::point p = BezierHelper(p1, p2, p3, p4, f);
+		glVertex2f(p.x, p.y);
+	}
+}
+
+void BezierLine(const Graphics::point &p1a, const Graphics::point &p2a, const Graphics::point &p3a, const Graphics::point &p4a,
+				const Graphics::point &p1b, const Graphics::point &p2b, const Graphics::point &p3b, const Graphics::point &p4b)
+{
+	for (float f = 0.0f; flesseq(f, 1); f += 0.2f)
+	{
+		Graphics::point p = BezierHelper(p1a, p2a, p3a, p4a, f);
+		glVertex2f(p.x, p.y);
+		p = BezierHelper(p1b, p2b, p3b, p4b, f);
+		glVertex2f(p.x, p.y);
+	}
+}
+
+
 void DoDrawCommands(Graphics::Display &display, int port, sf::Window &window, std::vector<Graphics::Display::data> &commands)
 {
 	for (auto &i: commands)
@@ -634,7 +656,56 @@ void DoDrawCommands(Graphics::Display &display, int port, sf::Window &window, st
 			continue;
 		switch (i.what)
 		{
-		case Graphics::Display::kFillRectangle:
+			case Graphics::Display::kFillRoundedRectangle:
+				{
+					glColor3f(i.rr.c.r, i.rr.c.g, i.rr.c.b);
+					Graphics::rect outer = ViewportToScreen(i.rr.r.r, i.viewport);
+					Graphics::rect inner = ViewportToScreen(i.rr.r.r.inset(i.rr.r.rad), i.viewport);
+					glBegin(GL_TRIANGLE_FAN);
+					Bezier({outer.left, inner.top}, {outer.left, outer.top},
+						   {outer.left, outer.top}, {inner.left, outer.top});
+					Bezier({inner.right, outer.top}, {outer.right, outer.top},
+						   {outer.right, outer.top}, {outer.right, inner.top});
+					Bezier({outer.right, inner.bottom}, {outer.right, outer.bottom},
+						   {outer.right, outer.bottom}, {inner.right, outer.bottom});
+					Bezier({inner.left, outer.bottom}, {outer.left, outer.bottom},
+						   {outer.left, outer.bottom}, {outer.left, inner.bottom});
+					glEnd();
+					break;
+				}
+			case Graphics::Display::kFrameRoundedRectangle:
+				{
+					glColor3f(i.rr.c.r, i.rr.c.g, i.rr.c.b);
+					Graphics::rect outer1 = ViewportToScreen(i.rr.r.r, i.viewport);
+					Graphics::rect inner1 = ViewportToScreen(i.rr.r.r.inset(i.rr.r.rad), i.viewport);
+					Graphics::rect outer2 = ViewportToScreen(i.rr.r.r.inset(i.rr.width), i.viewport);
+					Graphics::rect inner2 = ViewportToScreen(i.rr.r.r.inset(i.rr.r.rad+i.rr.width), i.viewport);
+
+					glBegin(GL_TRIANGLE_STRIP);
+					BezierLine({outer1.left, inner1.top}, {outer1.left, outer1.top},
+							   {outer1.left, outer1.top}, {inner1.left, outer1.top},
+							   {outer2.left, inner2.top}, {outer2.left, outer2.top},
+							   {outer2.left, outer2.top}, {inner2.left, outer2.top});
+					BezierLine({inner1.right, outer1.top}, {outer1.right, outer1.top},
+							   {outer1.right, outer1.top}, {outer1.right, inner1.top},
+							   {inner2.right, outer2.top}, {outer2.right, outer2.top},
+							   {outer2.right, outer2.top}, {outer2.right, inner2.top});
+					BezierLine({outer1.right, inner1.bottom}, {outer1.right, outer1.bottom},
+							   {outer1.right, outer1.bottom}, {inner1.right, outer1.bottom},
+							   {outer2.right, inner2.bottom}, {outer2.right, outer2.bottom},
+							   {outer2.right, outer2.bottom}, {inner2.right, outer2.bottom});
+					BezierLine({inner1.left, outer1.bottom}, {outer1.left, outer1.bottom},
+							   {outer1.left, outer1.bottom}, {outer1.left, inner1.bottom},
+							   {inner2.left, outer2.bottom}, {outer2.left, outer2.bottom},
+							   {outer2.left, outer2.bottom}, {outer2.left, inner2.bottom});
+					glVertex2f(outer1.left, inner1.top);
+					glVertex2f(outer2.left, outer2.top);
+					glEnd();
+
+
+					break;
+				}		
+			case Graphics::Display::kFillRectangle:
 			{
 				glColor3f(i.shape.c.r, i.shape.c.g, i.shape.c.b);
 				//Graphics::rect tmp = GlobalHOGToViewport(i.shape.r, i.viewport);
