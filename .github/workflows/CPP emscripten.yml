@@ -1,0 +1,28 @@
+name: C/C++ emscripten Build
+
+on:
+  push:
+    branches: [ "PDB-refactor" ]
+  pull_request:
+    branches: [ "PDB-refactor" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Configure Emscripten
+      shell: bash
+
+      # Change the directory to be emsdk instead of the project root
+      run: |
+          git clone https://github.com/emscripten-core/emsdk.git
+          ./emsdk/emsdk install latest
+          ./emsdk/emsdk activate latest
+
+    - name: make
+      working-directory: ./build/web/
+      run: |
+           make
