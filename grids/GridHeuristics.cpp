@@ -354,7 +354,7 @@ void GridEmbedding::Draw(Graphics::Display &disp) const
 			continue;
 		float xDim = 0.9*(2*(l1-scale[0].first)/(scale[0].second-scale[0].first)-1);
 		float yDim = 0.9*(2*(l2-scale[1].first)/(scale[1].second-scale[1].first)-1);
-		disp.FillRect({{xDim, yDim}, rad}, Colors::white);
+		disp.FillRect(Graphics::rect({xDim, yDim}, rad), Colors::white);
 	}
 }
 
@@ -460,7 +460,7 @@ void GridEmbedding::Draw(Graphics::Display &disp, float tween) const
 		env->GetStateFromHash(i, l);
 		GLdouble px, py, tmp, rad2;
 		env->GetMap()->GetOpenGLCoord(l.x, l.y, px, py, tmp, rad2);
-		disp.FillRect({{lerp(px, xDim, tween), lerp(py, yDim, tween)}, rad}, Colors::white);
+		disp.FillRect(Graphics::rect({lerp(px, xDim, tween), lerp(py, yDim, tween)}, rad), Colors::white);
 	}
 }
 
