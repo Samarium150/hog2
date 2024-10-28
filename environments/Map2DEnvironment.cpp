@@ -1042,14 +1042,27 @@ void MapEnvironment::Draw(Graphics::Display &disp) const
 //	kTerrainBorderLines = 0x2,
 //	kCellBorderLines = 0x4
 
-	rgbColor groundColor = {0.9, 0.9, 0.9};
-	rgbColor treeColor = {0.0, 0.5, 0.0};
-	rgbColor waterColor = {0.0, 0.0, 1.0};
-	rgbColor swampColor = {0.5, 0.7, 0.8};
-	rgbColor grassColor = {0.5, 1.0, 0.6};
+	rgbColor groundColor = {0.9f, 0.9f, 0.9f};
+	rgbColor treeColor = {0.0f, 0.5f, 0.0f};
+	rgbColor waterColor = {0.0f, 0.0f, 1.0f};
+	rgbColor swampColor = {0.5f, 0.7f, 0.8f};
+	rgbColor grassColor = {0.5f, 1.0f, 0.6f};
 	rgbColor otherColor = Colors::black;
 	
-	disp.FillRect({-1, -1, 1, 1}, Colors::black);
+	if (drawParams&kLightMode)
+	{
+		groundColor = Colors::gray;
+//		rgbColor treeColor = {0.0f, 0.5f, 0.0f};
+//		rgbColor waterColor = {0.0f, 0.0f, 1.0f};
+//		rgbColor swampColor = {0.5f, 0.7f, 0.8f};
+//		rgbColor grassColor = {0.5f, 1.0f, 0.6f};
+		otherColor = Colors::white;
+		
+		disp.FillRect({-1, -1, 1, 1}, Colors::white);
+	}
+	else {
+		disp.FillRect({-1, -1, 1, 1}, Colors::black);
+	}
 
 	// draw tiles
 	if (drawParams&kEfficientCells)

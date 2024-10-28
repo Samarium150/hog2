@@ -31,7 +31,8 @@ enum drawOptions {
 	kNoOptions = 0x0,
 	kEfficientCells = 0x1, // This is expensive because the regions are optimized, but results in far fewer drawing commands
 	kTerrainBorderLines = 0x2, // This is expensive because the lines are optimized, but results in far fewer drawing commands
-	kCellBorderLines = 0x4
+	kCellBorderLines = 0x4,
+	kLightMode = 0x8
 };
 
 struct xyLoc {
