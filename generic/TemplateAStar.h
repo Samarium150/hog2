@@ -79,6 +79,7 @@ public:
 		phi = [](double h, double g){ return g+h; };
 	}
 	virtual ~TemplateAStar() {}
+	void Reset();
 	void GetPath(environment *env, const state& from, const state& to, std::vector<state> &thePath);
 	void GetPath(environment *, const state&, const state&, std::vector<action> & );
 	
@@ -243,6 +244,17 @@ void TemplateAStar<state,action,environment,openList>::GetPath(environment *_env
 	}
 }
 
+/**
+ * Reset data structures for the A* search
+ * @author Nathan Sturtevant
+ * @date 04/3/24
+ */
+template <class state, class action, class environment, class openList>
+void TemplateAStar<state,action,environment,openList>::Reset()
+{
+	openClosedList.Reset(0);
+	ResetNodeCount();
+}
 
 /**
  * Initialize the A* search
