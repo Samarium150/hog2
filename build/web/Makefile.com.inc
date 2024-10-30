@@ -5,7 +5,8 @@
 # $Source: /usr/cvsroot/project_hog/build/gmake/Makefile.com.inc,v $
 #-----------------------------------------------------------------------------
 
-CXX = emcc # clang++
+SHELL = /bin/bash
+CXX = em++ # clang++
 COMMON_CXXFLAGS += -Wall -std=gnu++17 # -stdlib=libc++
 
 #COMMON_CXXFLAGS += -ansi -pedantic
@@ -35,8 +36,8 @@ REL_CXXFLAGS = $(PROJ_REL_CXXFLAGS) $(COMMON_CXXFLAGS) -g -O3 #-DNDEBUG
 DBG_CFLAGS = $(PROJ_DBG_CFLAGS) $(COMMON_CFLAGS) -g
 REL_CFLAGS = $(PROJ_REL_CFLAGS) $(COMMON_CFLAGS) -g -O3 #-DNDEBUG
 
-DBG_LNFLAGS = $(PROJ_DBG_LNFLAGS) $(COMMON_LNFLAGS) -g -sEXPORTED_FUNCTIONS="['_InitHOG', '_InitHOGArg', '_DoFrame', '_MouseEvent', '_HitKey', '_SetCanvasSize']" -sEXPORTED_RUNTIME_METHODS="['cwrap', 'stringToNewUTF8']" -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1 
-REL_LNFLAGS = $(PROJ_REL_LNFLAGS) $(COMMON_LNFLAGS) -g -O3 -sEXPORTED_FUNCTIONS="['_InitHOG', '_InitHOGArg', '_DoFrame', '_MouseEvent', '_HitKey', '_SetCanvasSize']" -sEXPORTED_RUNTIME_METHODS="['cwrap', 'stringToNewUTF8']" -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1 
+DBG_LNFLAGS = $(PROJ_DBG_LNFLAGS) $(COMMON_LNFLAGS) -g -sEXPORTED_FUNCTIONS="['_InitHOG', '_InitHOGArg', '_DoFrame', '_MouseEvent', '_HitKey', '_SetCanvasSize']" -sEXPORTED_RUNTIME_METHODS="['cwrap', 'stringToNewUTF8']" -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1
+REL_LNFLAGS = $(PROJ_REL_LNFLAGS) $(COMMON_LNFLAGS) -g -O3 -sEXPORTED_FUNCTIONS="['_InitHOG', '_InitHOGArg', '_DoFrame', '_MouseEvent', '_HitKey', '_SetCanvasSize']" -sEXPORTED_RUNTIME_METHODS="['cwrap', 'stringToNewUTF8']" -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1
 
 DBG_OBJS = \
   $(patsubst %.cpp, $(DBG_OBJDIR)/%.o, $(SRC_CPP)) \

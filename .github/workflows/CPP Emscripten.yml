@@ -1,4 +1,4 @@
-name: C/C++ emscripten Build
+name: C/C++ Emscripten Build
 
 on:
   push:
@@ -8,21 +8,16 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Configure Emscripten
       shell: bash
-
-      # Change the directory to be emsdk instead of the project root
       run: |
-          git clone https://github.com/emscripten-core/emsdk.git
-          ./emsdk/emsdk install latest
-          ./emsdk/emsdk activate latest
-
+        git clone https://github.com/emscripten-core/emsdk.git
+        ./emsdk/emsdk install latest
+        ./emsdk/emsdk activate latest
+        echo "$GITHUB_WORKSPACE/emsdk/upstream/emscripten" >> $GITHUB_PATH
     - name: make
       working-directory: ./build/web/
-      run: |
-           make
+      run: make

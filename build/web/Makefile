@@ -100,7 +100,7 @@ PROJECTS_ALL = \
   demos/idastar \
   demos/multi-target \
   papers/ACA \
-  papers/DWA 
+  papers/DWA
 #  papers/TheWitnessEditor
 
 # sequentially to avoid same sub-target in sub-make invoked twice
