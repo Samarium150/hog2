@@ -258,35 +258,9 @@ public:
 
     void IncrementTime()
     {
-        switch (currState)
-    	{
-            case kWaitingStart:
-                trackFrac = false;
-            	frac += 0.04;
-            	if (frac > 3)
-                    frac = 0;
-            	break;
-
-        	case kWaitingRestart:
-                if (!trackFrac)
-                {
-                    frac = 0;
-                    trackFrac = true;
-                }
-                frac += 0.04;
-                if (frac > 3)
-                {
-                    frac = 0;
-                    Reset();
-                }
-                break;
-
-            case kInPoint:
-                frac += 0.04;
-            	if (frac > 3)
-                    frac = 0;
-            	break;
-    	}
+        if (currState != kWaitingStart) return;
+        frac += 0.04;
+        if (frac > 3) frac = 0;
     }
 
     WitnessState<width, height> ws;
@@ -2782,7 +2756,7 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
 
     // Didn't hit end of puzzle
     if (node.path.empty()) return false;
-    
+
     if (node.path.back().second <= height && node.path.back().first <= width && node.path.back().second >= 0 &&
         node.path.back().first >= 0)
         return false;
@@ -2913,10 +2887,10 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
         for (auto &v: regionList)
         {
             if (v->empty()) continue;
-            
+
             bool hasNegations = false;
             tetrisBlocksInRegion.resize(0);
-            
+
             // Get bit map of board
             uint64_t board = 0;
 
