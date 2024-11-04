@@ -752,6 +752,8 @@ public:
 
     bool GoalTest(const WitnessState<width, height> &node) const;
 
+    bool GoalTestWithTracking(const WitnessState<width, height> &node) const;
+
     bool RegionTest(const WitnessState<width, height> &node) const;
 
     bool PathTest(const WitnessState<width, height> &node) const;
@@ -2928,6 +2930,294 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
         return true; // didn't find a way to place them
     }
     return true;
+}
+
+template<int width, int height>
+bool Witness<width, height>::GoalTestWithTracking(const WitnessState<width, height> &node) const
+{
+    // Didn't hit end of puzzle
+    if (node.path.empty()) return false;
+    else if (node.path.back().second <= height && node.path.back().first <= width && node.path.back().second >= 0 &&
+        node.path.back().first >= 0)
+        return false;
+
+    // verdict is being used instead of the return statements to make sure all constraints are checked
+    bool verdict = true;
+
+    // TODO: make this more efficient
+    for (int x = 0; x < width + 1; ++x)
+    {
+        for (int y = 0; y < height + 1; ++y)
+        {
+            if (GetMustCrossConstraint(x, y) && (!node.Occupied(x, y)))
+            {
+                int xx = (width * (height + 1) + (width + 1) * height + (width + 1) * y + x);
+                TrackInvalidConstraints(kRegionConstraintCount + kMustCross, xx, y); // y is useless here, xx stores the index
+                verdict = false;
+            }
+            else if (GetMustCrossConstraint(x, y) && (node.Occupied(x, y)))
+            {
+                int xx = (width * (height + 1) + (width + 1) * height + (width + 1) * y + x);
+                TrackMustCross(xx, y);
+            }
+            if (GetCannotCrossConstraint(x, y) && (node.Occupied(x, y))) verdict = false;
+        }
+    }
+    for (int x = 0; x < width; ++x)
+    {
+        for (int y = 0; y <= height; ++y)
+        {
+            if (GetMustCrossConstraint(true, x, y) && !node.OccupiedEdge(x, y, x + 1, y))
+            {
+                int xx = (x + y * width);
+                TrackInvalidConstraints(kRegionConstraintCount + kMustCross, xx, y);
+                verdict = false;
+            }
+            else if (GetMustCrossConstraint(true, x, y) && node.OccupiedEdge(x, y, x + 1, y))
+            {
+                int xx = (x + y * width);
+                TrackMustCross(xx, y);
+            }
+            if (GetCannotCrossConstraint(true, x, y) && node.OccupiedEdge(x, y, x + 1, y)) verdict = false;
+        }
+    }
+    for (int x = 0; x <= width; ++x)
+    {
+        for (int y = 0; y < height; ++y)
+        {
+            if (GetMustCrossConstraint(false, x, y) && !node.OccupiedEdge(x, y, x, y + 1))
+            {
+                int xx = (width * (height + 1) + x * height + y);
+                TrackInvalidConstraints(kRegionConstraintCount + kMustCross, xx, y);
+                verdict = false;
+            }
+            else if (GetMustCrossConstraint(false, x, y) && node.OccupiedEdge(x, y, x, y + 1))
+            {
+                int xx = (width * (height + 1) + x * height + y);
+                TrackMustCross(xx, y);
+            }
+            if (GetCannotCrossConstraint(false, x, y) && node.OccupiedEdge(x, y, x, y + 1)) verdict = false;
+        }
+    }
+
+    if (constraintCount[kTriangle] > 0)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            for (int y = 0; y < height; ++y)
+            {
+                if (regionConstraints[x][y].type == kTriangle) // if (triangleConstraints[y*width+x] > 0)
+                {
+                    int count = node.OccupiedEdge(x, y, x, y + 1);
+                    count += node.OccupiedEdge(x, y, x + 1, y);
+                    count += node.OccupiedEdge(x + 1, y, x + 1, y + 1);
+                    count += node.OccupiedEdge(x, y + 1, x + 1, y + 1);
+                    // if (count != triangleConstraints[y*width+x])
+                    if (count != regionConstraints[x][y].parameter)
+                    {
+                        TrackInvalidConstraints(kTriangle, x, y);
+                        verdict = false;
+                    }
+                }
+            }
+        }
+    }
+
+    if (constraintCount[kSeparation] == 0 && constraintCount[kTetris] == 0 && constraintCount[kStar] == 0 &&
+        constraintCount[kEraser] == 0)
+        return true;
+
+    LabelRegions(node);
+
+    // TODO: Verify matched constraints by region.
+    // TODO: Count the total number of unmatched constraints for checking eraser constraints and for displaying failed
+    // constraints
+    if (constraintCount[kSeparation] > 0)
+    {
+        for (auto &v: regionList) // vector of locations
+        {
+            bool found = false;
+            rgbColor c;
+            int x_c = 0;
+            int y_c = 0;
+            for (auto &i: *v)
+            {
+                int x = GetRegionFromX(i); // l%width;
+                int y = GetRegionFromY(i); // l/width;
+                if (regionConstraints[x][y].type == kSeparation)
+                {
+                    if (!found)
+                    {
+                        c = regionConstraints[x][y].color;
+                        x_c = x;
+                        y_c = y;
+                        found = true;
+                    }
+                    else if (c != regionConstraints[x][y].color)
+                    {
+                        TrackInvalidConstraints(kSeparation, x, y);
+                        TrackInvalidConstraints(kSeparation, x_c, y_c);
+                        verdict = false;
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO: After this is working, see if we can merge the tetris constraints into the separation code
+    if (constraintCount[kTetris] == 0 && constraintCount[kNegativeTetris] > 0)
+    {
+        for (auto &v: regionList)
+        {
+            for (auto &l: *v)
+            {
+                if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kNegativeTetris)
+                    TrackInvalidConstraints(kNegativeTetris, GetRegionFromX(l), GetRegionFromY(l));
+            }
+        }
+        verdict = false;
+    }
+
+    if (constraintCount[kStar] > 0)
+    {
+        for (auto &v: regionList) // vector of locations
+        {
+            for (auto &i: *v)
+            {
+                int x = GetRegionFromX(i); // l%width;
+                int y = GetRegionFromY(i); // l/width;
+                rgbColor finishedColor(1.0 / 512.0, 1.0 / 512.0, 1.0 / 512.0);
+                if (regionConstraints[x][y].type == kStar)
+                {
+                    if (regionConstraints[x][y].color == finishedColor) continue;
+
+                    finishedColor = regionConstraints[x][y].color; // separationConstraints[i].color;
+                    int count = 0;
+                    for (auto &r: *v)
+                    {
+                        int xx = GetRegionFromX(r); // l%width;
+                        int yy = GetRegionFromY(r); // l/width;
+
+                        if (regionConstraints[xx][yy].type != kNoRegionConstraint &&
+                            regionConstraints[x][y].color == regionConstraints[xx][yy].color)
+                        {
+                            ++count;
+                            if (count > 2)
+                            {
+                                TrackInvalidConstraints(kStar, x, y);
+                                verdict = false;
+                            }
+                        }
+                    }
+                    if (count != 2)
+                    {
+                        TrackInvalidConstraints(kStar, x, y);
+                        verdict = false;
+                    }
+                }
+            }
+        }
+    }
+
+    if (constraintCount[kTetris] > 0)
+    {
+        tetrisBlockCount.resize(regionList.size());
+
+        // 1. Collect the tetris constraints for each region
+        for (int x = 0; x < regionList.size(); ++x)
+        {
+            tetrisBlockCount[x] = 0;
+            for (auto &l: *regionList[x]) // individual location
+            {
+                if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kTetris)
+                {
+                    int whichConstraint = regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].parameter;
+                    int numPieces = tetrisSize[whichConstraint];
+                    tetrisBlockCount[x] += numPieces;
+                }
+                else if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kNegativeTetris)
+                {
+                    int whichConstraint = regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].parameter;
+                    int numPieces = tetrisSize[whichConstraint];
+                    tetrisBlockCount[x] -= numPieces;
+                }
+            }
+            // 2. Make sure the counts of tetris blocks matches the region size
+            if (tetrisBlockCount[x] > 0 && tetrisBlockCount[x] != regionList[x]->size())
+            {
+                // printf("Region %d has %d tetris blocks and size %lu\n", x, tetrisBlockCount[x],
+                // regionList[x].size());
+                for (auto &l: *regionList[x])
+                {
+                    if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kTetris)
+                        TrackInvalidConstraints(kTetris, GetRegionFromX(l), GetRegionFromY(l));
+                    else if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kNegativeTetris)
+                        TrackInvalidConstraints(kNegativeTetris, GetRegionFromX(l), GetRegionFromY(l));
+                }
+                verdict = false;
+            }
+        }
+
+        // 3. Do the full layout
+        for (int x = 0; x < regionList.size(); ++x)
+        {
+            bool hasNegations = false;
+            const auto &v = *regionList[x]; // v is vector of locations in this region
+            if (v.empty()) continue;
+
+            tetrisBlocksInRegion.resize(0);
+            // Get bit map of board
+            uint64_t board = 0;
+
+            for (auto &l: v) // individual location
+            {
+                uint64_t xx = GetRegionFromX(l); // l%width;
+                uint64_t yy = GetRegionFromY(l); // l/width;
+                // x and y are offset from bottom left (screen space)
+                // need to convert to 8x8 bitmaps space
+                board |= ((1ull << (7 - xx)) << ((7 - yy) * 8));
+
+                if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kTetris)
+                {
+                    int whichConstraint = regionConstraints[xx][yy].parameter; // tetrisConstraints[l];
+                    tetrisBlocksInRegion.push_back(whichConstraint);
+                }
+                if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kNegativeTetris)
+                {
+                    int whichConstraint = regionConstraints[xx][yy].parameter; // tetrisConstraints[l];
+                    tetrisBlocksInRegion.push_back(-whichConstraint);
+                    hasNegations = true;
+                }
+            }
+
+            if (tetrisBlocksInRegion.empty()) continue;
+
+            // Get out of bounds map -- places pieces can't go
+            uint64_t oob = ~board;
+            if (hasNegations) oob = 0;
+
+            // 4. Now we have all pieces, recursively try to place them
+            if (!RecursivelyPlacePieces(0, board, oob, 0, 0))
+            {
+                verdict = false; //remove double
+
+                for (auto l: v)
+                {
+                    if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kTetris)
+                        TrackInvalidConstraints(kTetris, GetRegionFromX(l), GetRegionFromY(l));
+                    else if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kNegativeTetris)
+                        TrackInvalidConstraints(kNegativeTetris, GetRegionFromX(l), GetRegionFromY(l));
+                }
+                verdict = false; // No way to place them
+            //            printf("-%d-\n", 0);
+            //            DebugPrint(board, 0);
+            //            printf("Region %d successful\n", x);
+            }
+        }
+        return verdict; // didn't find a way to place them
+    }
+
+    return verdict;
 }
 
 template<int width, int height>
