@@ -175,7 +175,7 @@ public:
 
 	virtual void Draw(Graphics::Display &display, const RubiksState &s) const
 	{ 
-		c.Draw(display, s.corner);
+//		c.Draw(display, s.corner);
 		e.Draw(display, s.edge);
 	}
 
