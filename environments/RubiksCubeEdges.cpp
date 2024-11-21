@@ -831,9 +831,66 @@ void RubikEdge::MRUnrank2(int n, uint64_t r, uint64_t &perm)
 //		node.SetCubeInLoc(x, puzzle[x]);
 //}
 
+static Graphics::point transform(const Graphics::point &p)
+{
+	const float cosr = cos(-1.11f);
+	const float sinr = sin(-1.11f);
+	return Graphics::point(p.x+0.5*p.z*cosr, p.y+0.5*p.z*sinr);
+}
+
+static Graphics::triangle transform(const Graphics::triangle &t)
+{
+	return Graphics::triangle(transform(t.p1), transform(t.p2), transform(t.p3));
+}
+
+static bool operator<(const RubikEdge::triangleColor &s1, const RubikEdge::triangleColor &s2)
+{
+	float z1 = s1.t.p1.z+s1.t.p2.z+s1.t.p3.z;
+	float z2 = s2.t.p1.z+s2.t.p2.z+s2.t.p3.z;
+	if (z1 == z2)
+	{
+		float y1 = (s1.t.p1.y+s1.t.p2.y+s1.t.p3.y);
+		float y2 = (s2.t.p1.y+s2.t.p2.y+s2.t.p3.y);
+		if (y1 == y2)
+		{
+			float x1 = (s1.t.p1.x+s1.t.p2.x+s1.t.p3.x);
+			float x2 = (s2.t.p1.x+s2.t.p2.x+s2.t.p3.x);
+			return x1 > x2;
+		}
+		return y1 > y2;
+	}
+	return z1 > z2;
+//	)	return  > ;
+}
+
 void RubikEdge::Draw(Graphics::Display &display, const RubikEdgeState &s) const
 {
+	rgbColor colors[7] = {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0, 0.0}, {1.0, 0.75, 0.0},{1.0, 1.0, 1.0},};
+	triangles.resize(0);
+	// Get triangles
 	
+	
+	for (int x = 1; x <= 7; x+=2)
+		GetTriangles(s, x);
+	for (int x = 9; x <= 25; x+=2)
+		GetTriangles(s, x);
+
+	// Do transform
+	// Sort by z
+//	for (int x = 0; x < triangles.size(); x++)
+//		triangles[x].t = transform(triangles[x].t);
+	std::sort(triangles.begin(),triangles.end());
+
+	// Transform and draw into display
+	for (auto &t : triangles)
+	{
+		display.FillTriangle(transform(t.t), colors[1+t.color]);
+//		display.FillTriangle(transform(t.t.p1),
+//							 transform(t.t.p2),
+//							 transform(t.t.p3),
+//							 colors[1+t.color]);
+	}
+
 }
 
 void RubikEdge::OpenGLDraw() const
@@ -866,6 +923,368 @@ void RubikEdge::OpenGLDraw(const RubikEdgeState&, const RubikEdgeState&, float) 
 void RubikEdge::OpenGLDraw(const RubikEdgeState&, const RubikEdgeAction&) const
 {
 	
+}
+
+void RubikEdge::GetTriangles(const RubikEdgeState &s, int cube) const
+{
+	const float scale = 0.3;
+	const float offset = 0.95*2.0*scale/3.0;
+	const float offset2 = 2.0*scale/3.0;
+	const float epsilon = 0.002;
+	Graphics::triangle t1, t2;
+	int color;
+	switch(cube)
+	{
+		case 1: // cube 1
+		{
+			// Face 0 - cube 1
+			color = GetCubeColor(3, false, s);
+			t1 = {{-offset/2.0f, -scale, -scale}, {-offset/2.0f, -scale, -scale+offset}, {offset/2.0f, -scale, -scale+offset}};
+			t2 = {{offset/2.0f, -scale, -scale+offset}, {offset/2.0f, -scale, -scale}, {-offset/2.0f, -scale, -scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{-offset2/2.0f, -scale+epsilon, -scale},
+				{-offset2/2.0f, -scale+epsilon, -scale+offset2},
+				{offset2/2.0f, -scale+epsilon, -scale+offset2}};
+			t2 = {{offset2/2.0f, -scale+epsilon, -scale+offset2},
+				{offset2/2.0f, -scale+epsilon, -scale},
+				{-offset2/2.0f, -scale+epsilon, -scale}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+			
+			// Face 2 - cube 1
+			color = GetCubeColor(3, true, s);
+			t1 = {{-offset/2.0f, -scale+offset, -scale},{offset/2.0f, -scale+offset, -scale},{offset/2.0f, -scale, -scale}};
+			t2 = {{offset/2.0f, -scale, -scale},{-offset/2.0f, -scale, -scale},{-offset/2.0f, -scale+offset, -scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{-offset2/2.0f, -scale+offset2, -scale+epsilon},{offset2/2.0f, -scale+offset2, -scale+epsilon},{offset2/2.0f, -scale, -scale+epsilon}};
+			t2 = {{offset2/2.0f, -scale, -scale+epsilon},{-offset2/2.0f, -scale, -scale+epsilon},{-offset2/2.0f, -scale+offset2, -scale+epsilon}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+		} break;
+		case 3: // cube 3
+		{
+			// Face 0 - cube 3
+			color = GetCubeColor(1, false, s);
+			t1 = {{-scale, -scale, offset/2.0f},{-scale, -scale, -offset/2.0f},{-scale+offset, -scale, -offset/2.0f}};
+			t2 = {{-scale+offset, -scale, -offset/2.0f},{-scale+offset, -scale, offset/2.0f},{-scale, -scale, offset/2.0f}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{-scale, -scale+epsilon, offset2/2.0f},{-scale, -scale+epsilon, -offset2/2.0f},{-scale+offset2, -scale+epsilon, -offset2/2.0f}};
+			t2 = {{-scale+offset2, -scale+epsilon, -offset2/2.0f},{-scale+offset2, -scale+epsilon, offset2/2.0f},{-scale, -scale+epsilon, offset2/2.0f}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+			// Face 1 - cube 3
+			color = GetCubeColor(1, true, s);
+			t1 = {{-scale, -scale+offset, -offset/2.0f},{-scale, -scale+offset, offset/2.0f},{-scale, -scale, offset/2.0f}};
+			t2 = {{-scale, -scale, offset/2.0f},{-scale, -scale, -offset/2.0f},{-scale, -scale+offset, -offset/2.0f}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{-scale+epsilon, -scale+offset2, -offset2/2.0f},{-scale+epsilon, -scale+offset2, offset2/2.0f},{-scale+epsilon, -scale, offset2/2.0f}};
+			t2 = {{-scale+epsilon, -scale, offset2/2.0f},{-scale+epsilon, -scale, -offset2/2.0f},{-scale+epsilon, -scale+offset2, -offset2/2.0f}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+		} break;
+		case 5: // cube 5
+		{
+			// Face 0 - cube 5
+			color = GetCubeColor(5, false, s);
+			t1 = {{scale, -scale, offset/2.0f},{scale, -scale, -offset/2.0f},{scale-offset, -scale, -offset/2.0f}};
+			t2 = {{scale-offset, -scale, -offset/2.0f},{scale-offset, -scale, offset/2.0f},{scale, -scale, offset/2.0f}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{scale, -scale+epsilon, offset2/2.0f},{scale, -scale+epsilon, -offset2/2.0f},{scale-offset2, -scale+epsilon, -offset2/2.0f}};
+			t2 = {{scale-offset2, -scale+epsilon, -offset2/2.0f},{scale-offset2, -scale+epsilon, offset2/2.0f},{scale, -scale+epsilon, offset2/2.0f}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+			// Face 3 - cube 5
+			color = GetCubeColor(5, true, s);
+			t1 = {{scale, -scale+offset, -offset/2.0f},{scale, -scale+offset, offset/2.0f},{scale, -scale, offset/2.0f}};
+			t2 = {{scale, -scale, offset/2.0f},{scale, -scale, -offset/2.0f},{scale, -scale+offset, -offset/2.0f}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{scale-epsilon, -scale+offset2, -offset2/2.0f},{scale-epsilon, -scale+offset2, offset2/2.0f},{scale-epsilon, -scale, offset2/2.0f}};
+			t2 = {{scale-epsilon, -scale, offset2/2.0f},{scale-epsilon, -scale, -offset2/2.0f},{scale-epsilon, -scale+offset2, -offset2/2.0f}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+		} break;
+		case 7: // cube 7
+		{
+			// Face 0 - cube 7
+			color = GetCubeColor(7, false, s);
+			t1 = {{-offset/2.0f, -scale, scale},{-offset/2.0f, -scale, scale-offset},{offset/2.0f, -scale, scale-offset}};
+			t2 = {{offset/2.0f, -scale, scale-offset},{offset/2.0f, -scale, scale},{-offset/2.0f, -scale, scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{-offset2/2.0f, -scale+epsilon, scale},{-offset2/2.0f, -scale+epsilon, scale-offset2},{offset2/2.0f, -scale+epsilon, scale-offset2}};
+			t2 = {{offset2/2.0f, -scale+epsilon, scale-offset2},{offset2/2.0f, -scale+epsilon, scale},{-offset2/2.0f, -scale+epsilon, scale}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+			// Face 4 - cube 7
+			color = GetCubeColor(7, true, s);
+			t1 = {{-offset/2.0f, -scale+offset, scale},{offset/2.0f, -scale+offset, scale},{offset/2.0f, -scale, scale}};
+			t2 = {{offset/2.0f, -scale, scale},{-offset/2.0f, -scale, scale},{-offset/2.0f, -scale+offset, scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{-offset2/2.0f, -scale+offset2, scale-epsilon},{offset2/2.0f, -scale+offset2, scale-epsilon},{offset2/2.0f, -scale, scale-epsilon}};
+			t2 = {{offset2/2.0f, -scale, scale-epsilon},{-offset2/2.0f, -scale, scale-epsilon},{-offset2/2.0f, -scale+offset2, scale-epsilon}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+		} break;
+		case 9: // cube 9
+		{
+			// Face 1 - cube 9
+			color = GetCubeColor(2, false, s);
+			t1 = {{-scale, -offset/2.0f, -scale+offset},{-scale, offset/2.0f, -scale+offset},{-scale, offset/2.0f, -scale}};
+			t2 = {{-scale, offset/2.0f, -scale},{-scale, -offset/2.0f, -scale},{-scale, -offset/2.0f, -scale+offset}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+			
+			color = GetCubeColor(-1, false, s);
+			t1 = {{-scale+epsilon, -offset2/2.0f, -scale+offset2},{-scale+epsilon, offset2/2.0f, -scale+offset2},{-scale+epsilon, offset2/2.0f, -scale}};
+			t2 = {{-scale+epsilon, offset2/2.0f, -scale},{-scale+epsilon, -offset2/2.0f, -scale},{-scale+epsilon, -offset2/2.0f, -scale+offset2}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+			
+			
+			// Face 2 - cube 9
+			color = GetCubeColor(2, true, s);
+			t1 = {{-scale+offset, -offset/2.0f, -scale},{-scale+offset, offset/2.0f, -scale},{-scale, offset/2.0f, -scale}};
+			t2 = {{-scale, offset/2.0f, -scale},{-scale, -offset/2.0f, -scale},{-scale+offset, -offset/2.0f, -scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+			
+			color = GetCubeColor(-1, true, s);
+			t1 = {{-scale+offset2, -offset2/2.0f, -scale+epsilon},{-scale+offset2, offset2/2.0f, -scale+epsilon},{-scale, offset2/2.0f, -scale+epsilon}};
+			t2 = {{-scale, offset2/2.0f, -scale+epsilon},{-scale, -offset2/2.0f, -scale+epsilon},{-scale+offset2, -offset2/2.0f, -scale+epsilon}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+		} break;
+		case 11: // cube 11
+		{
+			// Face 2 - cube 11
+			color = GetCubeColor(4, false, s);
+			t1 = {{scale-offset, -offset/2.0f, -scale},{scale-offset, offset/2.0f, -scale},{scale, offset/2.0f, -scale}};
+			t2 = {{scale, offset/2.0f, -scale},{scale, -offset/2.0f, -scale},{scale-offset, -offset/2.0f, -scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{scale-offset2, -offset2/2.0f, -scale+epsilon},{scale-offset2, offset2/2.0f, -scale+epsilon},{scale, offset2/2.0f, -scale+epsilon}};
+			t2 = {{scale, offset2/2.0f, -scale+epsilon},{scale, -offset2/2.0f, -scale+epsilon},{scale-offset2, -offset2/2.0f, -scale+epsilon}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+			
+			// Face 3 - cube 11
+			color = GetCubeColor(4, true, s);
+			t1 = {{scale, -offset/2.0f, -scale+offset},{scale, offset/2.0f, -scale+offset},{scale, offset/2.0f, -scale}};
+			t2 = {{scale, offset/2.0f, -scale},{scale, -offset/2.0f, -scale},{scale, -offset/2.0f, -scale+offset}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{scale-epsilon, -offset2/2.0f, -scale+offset2},{scale-epsilon, offset2/2.0f, -scale+offset2},{scale-epsilon, offset2/2.0f, -scale}};
+			t2 = {{scale-epsilon, offset2/2.0f, -scale},{scale-epsilon, -offset2/2.0f, -scale},{scale-epsilon, -offset2/2.0f, -scale+offset2}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+		} break;
+		case 15: // cube 15
+		{
+			// Face 1 - cube 15
+			color = GetCubeColor(8, false, s);
+			t1 = {{-scale, -offset/2.0f, scale-offset},{-scale, offset/2.0f, scale-offset},{-scale, offset/2.0f, scale}};
+			t2 = {{-scale, offset/2.0f, scale},{-scale, -offset/2.0f, scale},{-scale, -offset/2.0f, scale-offset}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{-scale+epsilon, -offset2/2.0f, scale-offset2},{-scale+epsilon, offset2/2.0f, scale-offset2},{-scale+epsilon, offset2/2.0f, scale}};
+			t2 = {{-scale+epsilon, offset2/2.0f, scale},{-scale+epsilon, -offset2/2.0f, scale},{-scale+epsilon, -offset2/2.0f, scale-offset2}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+			// Face 4 - cube 17
+			color = GetCubeColor(8, true, s);
+			t1 = {{-scale+offset, -offset/2.0f, scale},{-scale+offset, offset/2.0f, scale},{-scale, offset/2.0f, scale}};
+			t2 = {{-scale, offset/2.0f, scale},{-scale, -offset/2.0f, scale},{-scale+offset, -offset/2.0f, scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{-scale+offset2, -offset2/2.0f, scale-epsilon},{-scale+offset2, offset2/2.0f, scale-epsilon},{-scale, offset2/2.0f, scale-epsilon}};
+			t2 = {{-scale, offset2/2.0f, scale-epsilon},{-scale, -offset2/2.0f, scale-epsilon},{-scale+offset2, -offset2/2.0f, scale-epsilon}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+		} break;
+		case 17: // cube 17
+		{
+			// Face 3 - cube 17
+			color = GetCubeColor(6, false, s);
+			t1 = {{scale, -offset/2.0f, scale-offset},{scale, offset/2.0f, scale-offset},{scale, offset/2.0f, scale}};
+			t2 = {{scale, offset/2.0f, scale},{scale, -offset/2.0f, scale},{scale, -offset/2.0f, scale-offset}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{scale-epsilon, -offset2/2.0f, scale-offset2},{scale-epsilon, offset2/2.0f, scale-offset2},{scale-epsilon, offset2/2.0f, scale}};
+			t2 = {{scale-epsilon, offset2/2.0f, scale},{scale-epsilon, -offset2/2.0f, scale},{scale-epsilon, -offset2/2.0f, scale-offset2}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+			// Face 4 - cube 15
+			color = GetCubeColor(6, true, s);
+			t1 = {{scale-offset, -offset/2.0f, scale},{scale-offset, offset/2.0f, scale},{scale, offset/2.0f, scale}};
+			t2 = {{scale, offset/2.0f, scale},{scale, -offset/2.0f, scale},{scale-offset, -offset/2.0f, scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{scale-offset2, -offset2/2.0f, scale-epsilon},{scale-offset2, offset2/2.0f, scale-epsilon},{scale, offset2/2.0f, scale-epsilon}};
+			t2 = {{scale, offset2/2.0f, scale-epsilon},{scale, -offset2/2.0f, scale-epsilon},{scale-offset2, -offset2/2.0f, scale-epsilon}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+		} break;
+		case 19: // cube 19
+		{
+			// Face 2 - cube 19
+			color = GetCubeColor(10, false, s);
+			t1 = {{-offset/2.0f, scale-offset, -scale},{offset/2.0f, scale-offset, -scale},{offset/2.0f, scale, -scale}};
+			t2 = {{offset/2.0f, scale, -scale},{-offset/2.0f, scale, -scale},{-offset/2.0f, scale-offset, -scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{-offset2/2.0f, scale-offset2, -scale+epsilon},{offset2/2.0f, scale-offset2, -scale+epsilon},{offset2/2.0f, scale, -scale+epsilon}};
+			t2 = {{offset2/2.0f, scale, -scale+epsilon},{-offset2/2.0f, scale, -scale+epsilon},{-offset2/2.0f, scale-offset2, -scale+epsilon}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+			// Face 5 - cube 19
+			color = GetCubeColor(10, true, s);
+			t1 = {{-offset/2.0f, scale, -scale},{-offset/2.0f, scale, -scale+offset},{offset/2.0f, scale, -scale+offset}};
+			t2 = {{offset/2.0f, scale, -scale+offset},{offset/2.0f, scale, -scale},{-offset/2.0f, scale, -scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{-offset2/2.0f, scale-epsilon, -scale},{-offset2/2.0f, scale-epsilon, -scale+offset2},{offset2/2.0f, scale-epsilon, -scale+offset2}};
+			t2 = {{offset2/2.0f, scale-epsilon, -scale+offset2},{offset2/2.0f, scale-epsilon, -scale},{-offset2/2.0f, scale-epsilon, -scale}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+		} break;
+		case 21: // cube 21
+		{
+			// Face 1 - cube 21
+			color = GetCubeColor(9, false, s);
+			t1 = {{-scale, scale-offset, -offset/2.0f},{-scale, scale-offset, offset/2.0f},{-scale, scale, offset/2.0f}};
+			t2 = {{-scale, scale, offset/2.0f},{-scale, scale, -offset/2.0f},{-scale, scale-offset, -offset/2.0f}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{-scale+epsilon, scale-offset2, -offset2/2.0f},{-scale+epsilon, scale-offset2, offset2/2.0f},{-scale+epsilon, scale, offset2/2.0f}};
+			t2 = {{-scale+epsilon, scale, offset2/2.0f},{-scale+epsilon, scale, -offset2/2.0f},{-scale+epsilon, scale-offset2, -offset2/2.0f}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+			// Face 5 - cube 21
+			color = GetCubeColor(9, true, s);
+			t1 = {{-scale, scale, offset/2.0f},{-scale, scale, -offset/2.0f},{-scale+offset, scale, -offset/2.0f}};
+			t2 = {{-scale+offset, scale, -offset/2.0f},{-scale+offset, scale, offset/2.0f},{-scale, scale, offset/2.0f}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{-scale, scale-epsilon, offset2/2.0f},{-scale, scale-epsilon, -offset2/2.0f},{-scale+offset2, scale-epsilon, -offset2/2.0f}};
+			t2 = {{-scale+offset2, scale-epsilon, -offset2/2.0f},{-scale+offset2, scale-epsilon, offset2/2.0f},{-scale, scale-epsilon, offset2/2.0f}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+		} break;
+		case 23: // cube 23
+		{
+			// Face 3 - cube 23
+			color = GetCubeColor(11, false, s);
+			t1 = {{scale, scale-offset, -offset/2.0f},{scale, scale-offset, offset/2.0f},{scale, scale, offset/2.0f}};
+			t2 = {{scale, scale, offset/2.0f},{scale, scale, -offset/2.0f},{scale, scale-offset, -offset/2.0f}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{scale-epsilon, scale-offset2, -offset2/2.0f},{scale-epsilon, scale-offset2, offset2/2.0f},{scale-epsilon, scale, offset2/2.0f}};
+			t2 = {{scale-epsilon, scale, offset2/2.0f},{scale-epsilon, scale, -offset2/2.0f},{scale-epsilon, scale-offset2, -offset2/2.0f}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+			// Face 5 - cube 23
+			color = GetCubeColor(11, true, s);
+			t1 = {{scale, scale, offset/2.0f},{scale, scale, -offset/2.0f},{scale-offset, scale, -offset/2.0f}};
+			t2 = {{scale-offset, scale, -offset/2.0f},{scale-offset, scale, offset/2.0f},{scale, scale, offset/2.0f}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{scale, scale-epsilon, offset2/2.0f},{scale, scale-epsilon, -offset2/2.0f},{scale-offset2, scale-epsilon, -offset2/2.0f}};
+			t2 = {{scale-offset2, scale-epsilon, -offset2/2.0f},{scale-offset2, scale-epsilon, offset2/2.0f},{scale, scale-epsilon, offset2/2.0f}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+		} break;
+		case 25: // cube 25
+		{
+			// Face 4 - cube 25
+			color = GetCubeColor(12, false, s);
+			t1 = {{-offset/2.0f, scale-offset, scale},{offset/2.0f, scale-offset, scale},{offset/2.0f, scale, scale}};
+			t2 = {{offset/2.0f, scale, scale},{-offset/2.0f, scale, scale},{-offset/2.0f, scale-offset, scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, false, s);
+			t1 = {{-offset2/2.0f, scale-offset2, scale-epsilon},{offset2/2.0f, scale-offset2, scale-epsilon},{offset2/2.0f, scale, scale-epsilon}};
+			t2 = {{offset2/2.0f, scale, scale-epsilon},{-offset2/2.0f, scale, scale-epsilon},{-offset2/2.0f, scale-offset2, scale-epsilon}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+			// Face 5 - cube 25
+			color = GetCubeColor(12, true, s);
+			t1 = {{-offset/2.0f, scale, scale},{-offset/2.0f, scale, scale-offset},{offset/2.0f, scale, scale-offset}};
+			t2 = {{offset/2.0f, scale, scale-offset},{offset/2.0f, scale, scale},{-offset/2.0f, scale, scale}};
+			triangles.push_back({t1, color});
+			triangles.push_back({t2, color});
+
+			color = GetCubeColor(-1, true, s);
+			t1 = {{-offset2/2.0f, scale-epsilon, scale},{-offset2/2.0f, scale-epsilon, scale-offset2},{offset2/2.0f, scale-epsilon, scale-offset2}};
+			t2 = {{offset2/2.0f, scale-epsilon, scale-offset2},{offset2/2.0f, scale-epsilon, scale},{-offset2/2.0f, scale-epsilon, scale}};
+//			triangles.push_back({t1, color});
+//			triangles.push_back({t2, color});
+
+		} break;
+	}
 }
 
 void RubikEdge::OpenGLDrawCube(const RubikEdgeState &s, int cube) const
@@ -1225,6 +1644,33 @@ void RubikEdge::OpenGLDrawCube(const RubikEdgeState &s, int cube) const
 
 		} break;
 	}
+}
+
+int RubikEdge::GetCubeColor(int which, bool face, const RubikEdgeState &s) const
+{
+	int cubes_first[12] = { 0, 1, 0, 2, 0, 3, 0, 1, 1, 2, 3, 4};
+	int cubes_second[12] = { 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5};
+	
+	if (which == -1)
+	{
+		glColor3f(0.0, 0.0, 0.0);
+		return -1;
+	}
+	
+	int theColor = -1;
+	int cube = s.GetCubeInLoc(which-1);
+	if (cube == 0xF)
+	{
+		glColor3f(0.0, 0.0, 0.0);
+		return -1;
+	}
+	bool flipped = s.GetCubeOrientation(cube);
+	if (flipped == face)
+		theColor = cubes_first[cube];
+	else
+		theColor = cubes_second[cube];
+	
+	return theColor;
 }
 
 void RubikEdge::SetCubeColor(int which, bool face, const RubikEdgeState &s) const
