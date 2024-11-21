@@ -7,7 +7,7 @@
  *
  * This file is part of HOG2. See https://github.com/nathansttt/hog2 for licensing information.
  *
- */ 
+ */
 
 #include <iostream>
 #include <vector>
@@ -69,7 +69,7 @@ void DrawButton(const buttonData &b, Graphics::Display &disp)
 {
 	if (!b.valid)
 		return;
-	
+
 	disp.FillRect(b.r, b.hilighted?b.fillHitColor:b.fillColor);
 	if (b.active)
 	{
@@ -232,7 +232,7 @@ bool DoKeyboardCallbacks(pRecContext pContextInfo, unsigned char keyHit, tKeyboa
 
 void InstallFrameHandler(FrameCallback glCall, unsigned long windowID, void *userdata)
 {
-	glDrawCallbacks.push_back(new frameCallbackData(glCall, windowID, userdata));	
+	glDrawCallbacks.push_back(new frameCallbackData(glCall, windowID, userdata));
 }
 
 void RemoveFrameHandler(FrameCallback glCall, unsigned long windowID, void *userdata)
@@ -263,13 +263,14 @@ void HandleFrame(pRecContext pContextInfo, int viewport)
 	pContextInfo->display.EndFrame(); // end last frame
 	for (int x = 0; x < pContextInfo->display.numViewports; x++)
 	{
-		pContextInfo->display.viewports[x].bounds.lerp(pContextInfo->display.viewports[x].finalBound, 0.1);
+	    auto &v = pContextInfo->display.viewports[x];
+	    v.bounds.lerp(v.finalBound, v.lerpPercentage);
 	}
 }
 
 void InstallJoystickHandler(JoystickCallback jC, void *userdata)
 {
-	joystickCallbacks.push_back(new joystickCallbackData(jC, userdata));	
+	joystickCallbacks.push_back(new joystickCallbackData(jC, userdata));
 }
 
 void RemoveJoystickHandler(JoystickCallback jC, void *userdata)
@@ -510,7 +511,7 @@ void initialConditions(pRecContext pContextInfo)
 
 bool DoKeyboardCommand(pRecContext pContextInfo, unsigned char keyHit, bool shift, bool cntrl, bool alt)
 {
-	DoKeyboardCallbacks(pContextInfo, tolower(keyHit), 
+	DoKeyboardCallbacks(pContextInfo, tolower(keyHit),
 											shift?kShiftDown:(cntrl?kControlDown:(alt?kAltDown:kNoModifier)));
 	return false;
 }
@@ -573,10 +574,9 @@ int AddViewport(unsigned long windowID, const Graphics::rect &initial, const Gra
 	return pContextInfo->display.AddViewport(initial, fin, v);
 }
 
-void MoveViewport(unsigned long windowID, int viewport, const Graphics::rect &newLocation)
+void MoveViewport(unsigned long windowID, int viewport, const Graphics::rect &newLocation, float lerpPercentage)
 {
-	pRecContext pContextInfo = GetContext(windowID);
-	pContextInfo->display.MoveViewport(viewport, newLocation);
+	GetContext(windowID)->display.MoveViewport(viewport, newLocation, lerpPercentage);
 }
 
 Graphics::point ViewportToGlobalHOG(pRecContext pContextInfo, const Graphics::viewport &v, Graphics::point where)

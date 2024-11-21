@@ -113,7 +113,7 @@ void Display::FrameSquare(point p, float radius, rgbColor c, float lineWidth)
 		backgroundDrawCommands.push_back({i, kFrameRectangle, currViewport});
 	else
 		drawCommands.push_back({i, kFrameRectangle, currViewport});
-	
+
 }
 
 void Display::FillSquare(point p, float radius, rgbColor c)
@@ -227,7 +227,7 @@ void Display::FillNGon(point p, float radius, int sides, float rotation, rgbColo
 void Display::FrameNGon(point p, float radius, float width, int sides, float rotation, rgbColor c)
 {
 	shapeInfo i = {p, c, radius, sides, rotation, width};
-	
+
 	if (drawingBackground)
 		backgroundDrawCommands.push_back({i, kFrameNGon, currViewport});
 	else
@@ -351,9 +351,10 @@ int Graphics::Display::AddViewport(const Graphics::rect &initial, const Graphics
 	return numViewports-1;
 }
 
-void Graphics::Display::MoveViewport(int port, const Graphics::rect &newLocation)
+void Graphics::Display::MoveViewport(int port, const Graphics::rect &newLocation, float lerpPercentage)
 {
 	viewports[port].finalBound = newLocation;
+    viewports[port].lerpPercentage = lerpPercentage;
 }
 
 float Graphics::Display::GlobalHOGToViewportX(float x, int v) const
@@ -466,19 +467,19 @@ Graphics::point Graphics::Display::GlobalHOGToViewport(const viewport &v, Graphi
 		float yRatio = actualHeight/actualWidth;
 		xRatio = std::max(xRatio, 1.f);
 		yRatio = std::max(yRatio, 1.f);
-		
+
 		where.x *= xRatio;
 		where.x -= v.bounds.left;
 		where.x /= (v.bounds.right-v.bounds.left);
 		where.x = where.x*2.0f-1.0f;
 
-		
+
 		where.y *= yRatio;
 		where.y -= v.bounds.bottom;
 		where.y /= (v.bounds.top-v.bounds.bottom);
 		where.y = (-where.y)*2.0f+1.0f;
 
-		
+
 		return where;
 
 	}
@@ -516,12 +517,12 @@ Graphics::point Graphics::Display::ViewportToGlobalHOG(const viewport &v, Graphi
 		float yRatio = actualHeight/actualWidth;
 		xRatio = std::max(xRatio, 1.f);
 		yRatio = std::max(yRatio, 1.f);
-		
+
 		where.x = (where.x+1.0f)/2.0f;
 		where.x *= (v.bounds.right-v.bounds.left);
 		where.x += v.bounds.left;
 		where.x /= xRatio;
-		
+
 		where.y = -(where.y-1.0f)/2.0f;
 		where.y *= (v.bounds.top-v.bounds.bottom);
 		where.y += v.bounds.bottom;
