@@ -10,7 +10,7 @@
  *
  * This file is part of HOG2. See https://github.com/nathansttt/hog2 for licensing information.
  *
- */ 
+ */
 
 #include "Graphics.h"
 #include <stdio.h>
@@ -27,10 +27,10 @@ struct recContext
 {
 //	viewport viewports[MAXPORTS];
 //	int windowHeight, windowWidth;
-	
+
 	char message[256]; // buffer for message output
 	float msgTime; // message posting time for expiration
-	
+
 	Graphics::Display display;
 	unsigned long windowID;
 };
@@ -61,7 +61,7 @@ void ReinitViewports(unsigned long windowID, const Graphics::rect &r, viewportTy
  */
 int AddViewport(unsigned long windowID, const Graphics::rect &r, viewportType v);
 int AddViewport(unsigned long windowID, const Graphics::rect &initial, const Graphics::rect &fin, viewportType v);
-void MoveViewport(unsigned long windowID, int viewport, const Graphics::rect &newLocation);
+void MoveViewport(unsigned long windowID, int viewport, const Graphics::rect &newLocation, float lerpPercentage = 0.1f);
 
 /* Helper functions for converting coordinates between viewport and global hog coordinates */
 Graphics::point ViewportToGlobalHOG(pRecContext pContextInfo, Graphics::point where, int viewport);
@@ -169,7 +169,7 @@ public:
 
 	void Print()
 	{ printf("%s : %s\n     %s\n", argument, param, desc); }
-	
+
 	CommandLineCallback CLC;
 	const char *argument;
 	const char *param;
@@ -181,7 +181,7 @@ public:
 	keyboardCallbackData(KeyboardCallback kc, const char *_title, const char *_desc,
 											 tKeyboardModifier _mod, keyboardCallbackData *_next = 0)
 	:call(kc), title(_title), desc(_desc), mod(_mod), next(_next) {}
-	
+
 	KeyboardCallback call;
 	const char *title;
 	const char *desc;
@@ -231,7 +231,7 @@ public:
 	:glCall(_glCall)
 	{ windowID = _windowID;
 		userData = _userData; }
-	
+
 	FrameCallback glCall;
 	unsigned long windowID;
 	void *userData;

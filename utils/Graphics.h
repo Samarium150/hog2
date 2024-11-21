@@ -172,6 +172,7 @@ struct viewport {
 	Graphics::rect finalBound;
 	viewportType type;
 	bool active; // Is this viewport valid
+	float lerpPercentage{0.1f};
 };
 
 /*
@@ -341,7 +342,7 @@ public:
 	 */
 	int AddViewport(const Graphics::rect &r, viewportType v);
 	int AddViewport(const Graphics::rect &initial, const Graphics::rect &fin, viewportType v);
-	void MoveViewport(int viewport, const Graphics::rect &newLocation);
+	void MoveViewport(int viewport, const Graphics::rect &newLocation, float lerpPercentage = 0.1f);
 
 	Graphics::point ViewportToGlobalHOG(Graphics::point where, int viewport) const;
 	Graphics::point ViewportToGlobalHOG(Graphics::point where, int viewport, int wWidth, int wHeight) const;
