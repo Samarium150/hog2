@@ -194,10 +194,17 @@ public:
 	static void MRUnrank2(int n, uint64_t r, uint64_t &perm);
 	static uint64_t MRRank(int n, uint64_t perm, uint64_t dual);
 	static uint64_t MRRank2(int n, uint64_t perm, uint64_t dual);
+	void GetTriangles(const RubikEdgeState &s, int cube) const;
 
+	struct triangleColor {
+		Graphics::triangle t;
+		int color;
+	};
 private:
 	int piecesToRank;
-	
+	mutable std::vector<triangleColor> triangles;
+
+	int GetCubeColor(int which, bool face, const RubikEdgeState&) const;
 	void SetCubeColor(int which, bool face, const RubikEdgeState&) const;
 	RubikEdgeMove moves[18];
 };
