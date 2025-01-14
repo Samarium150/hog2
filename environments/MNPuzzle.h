@@ -57,7 +57,6 @@ public:
 
 	unsigned int blank;
 	std::array<int, width*height> puzzle;
-//	int puzzle[width*height];
 };
 
 namespace std {
@@ -73,7 +72,6 @@ namespace std {
 			return hash;
 		}
 	};
-	
 }
 
 
@@ -103,6 +101,7 @@ static std::ostream& operator <<(std::ostream & out, const slideDir &loc)
 		case kRight: out << "Right"; break;
 		case kUp: out << "Up"; break;
 		case kDown: out << "Down"; break;
+        case kNoSlide: out << "NoSlide"; break;
 	}
 	return out;
 }
@@ -170,8 +169,6 @@ public:
 	void GetStateFromPDBHash(uint64_t hash, MNPuzzleState<width, height> &s,
 							 int count, const std::vector<int> &pattern,
 							 std::vector<int> &dual);
-	//void LoadPDB(char *fname, const std::vector<int> &tiles, bool additive);
-	//virtual void FinishUnranking(MNPuzzleState<width, height> &s) const { s.FinishUnranking(); }
 
 	uint64_t GetActionHash(slideDir act) const;
 	void OpenGLDraw() const;
@@ -247,9 +244,6 @@ public:
 	void Set_Use_Manhattan_Heuristic(bool to_use){use_manhattan = to_use;}
 private:
 	bool pattern[width*height];
-//	double DoPDBLookup(const MNPuzzleState<width, height> &state);
-//	std::vector<std::vector<uint8_t> > PDB;
-//	std::vector<std::vector<int> > PDBkey;
 	std::vector<std::vector<slideDir> > operators; // stores the operators applicable at each blank position
 	std::vector<slideDir> ops_in_order;
 	bool goal_stored; // whether a goal is stored or not
@@ -315,7 +309,6 @@ protected:
 	using LexPermutationPDB<MNPuzzleState<width, height>, slideDir, MNPuzzle<width, height>, 8>::FactorialUpperK;
 };
 
-//typedef UnitSimulation<MNPuzzleState, slideDir, MNPuzzle> PuzzleSimulation;
 
 template <int width, int height>
 MNPuzzle<width, height>::MNPuzzle()
@@ -405,11 +398,11 @@ void MNPuzzle<width, height>::Change_Op_Order(std::vector<slideDir> op_order)
 			{
 				ops.push_back(kLeft);
 			}
-			if (op_order[op_num] == kRight && (blank % width) < width - 1)// && (blank != 0))
+			if (op_order[op_num] == kRight && (blank % width) < width - 1)
 			{
 				ops.push_back(kRight);
 			}
-			if (op_order[op_num] == kDown && blank < width * height - width)// && (blank != 1))
+			if (op_order[op_num] == kDown && blank < width * height - width)
 			{
 				ops.push_back(kDown);
 			}
@@ -427,46 +420,12 @@ const std::string MNPuzzle<width, height>::GetName(){
 	s += std::to_string(height);
 	s += ")";
 	return s;
-//	std::stringstream name;
-//	name << width;
-//	name << "x";
-//	name << height;
-//	name << " Sliding Tile Puzzle";
-//	
-////	if (PDB_distincts.size() > 0)
-////	{
-////		name << ", PDBS:";
-////		for (unsigned i = 0; i < PDB_distincts.size(); i++)
-////		{
-////			name << " <";
-////			for (unsigned j = 0; j < PDB_distincts[i].size() - 1; j++)
-////			{
-////				name << PDB_distincts[i][j];
-////				name << ", ";
-////			}
-////			name << PDB_distincts[i].back();
-////			name << ">";
-////		}
-////		name << ", Manhattan Distance";
-////	}
-//	{
-//		name << ", Manhattan Distance";
-//	}
-//	
-//	name << ", Op Order: ";
-//	for (unsigned op_num = 0; op_num < ops_in_order.size() - 1; op_num++){
-//		name << ops_in_order[op_num];
-//		name << ", ";
-//	}
-//	name << ops_in_order.back();
-//	return name.str();
 }
 
 template <int width, int height>
 Graph *MNPuzzle<width, height>::GetGraph()
 {
 	Graph *g = new Graph();
-	//Factorial(width*height);
 	
 	for (int x = 0; x < 362880; x++)
 	{
@@ -493,40 +452,12 @@ Graph *MNPuzzle<width, height>::GetGraph()
 				g->AddEdge(new edge(x, hash, 1));
 		}
 	}
-	// 362880 states
-	// 2x2 area -- roughly 600x600 states, or distance 1 = 1/600
-	//	for (int t = 0; t < 362880; t++)
-	//	{
-	//		node *n = g->GetNode(t);
-	//		neighbor_iterator ni = n->getNeighborIter();
-	//		for (long tmp = n->nodeNeighborNext(ni); tmp != -1; tmp = n->nodeNeighborNext(ni))
-	//		{
-	//			double x, y, z;
-	//			x = n->GetLabelF(GraphSearchConstants::kXCoordinate);
-	//			y = n->GetLabelF(GraphSearchConstants::kYCoordinate);
-	//			z = n->GetLabelF(GraphSearchConstants::kZCoordinate);
-	//
-	//			double x1, y1, z1;
-	//			node *nb = g->GetNode(tmp);
-	//			x1 = nb->GetLabelF(GraphSearchConstants::kXCoordinate);
-	//			y1 = nb->GetLabelF(GraphSearchConstants::kYCoordinate);
-	//			z1 = nb->GetLabelF(GraphSearchConstants::kZCoordinate);
-	//			// now move n to be 1/600 away from nb!
-	//			n->SetLabelF(GraphSearchConstants::kXCoordinate, 0.5*x + 0.5*x1);
-	//			n->SetLabelF(GraphSearchConstants::kYCoordinate, 0.5*y + 0.5*y1);
-	//			n->SetLabelF(GraphSearchConstants::kZCoordinate, 0.5*z + 0.5*z1);
-	//
-	//		}
-	//	}
 	return g;
 }
 
 template <int width, int height>
 void MNPuzzle<width, height>::StoreGoal(MNPuzzleState<width, height> &s)
 {
-//	assert(s.height == height);
-//	assert(s.width == width);
-	
 	// makes sure goal contains all legal
 	bool goal_tester[width*height];
 	for (unsigned int i = 0; i < width*height; i++)
@@ -549,12 +480,10 @@ void MNPuzzle<width, height>::StoreGoal(MNPuzzleState<width, height> &s)
 	}
 	
 	h_increment.resize(width*height);
-	//h_increment = new unsigned*[width*height];
 	
 	for (unsigned int i = 1; i < width*height; i++)
 	{
 		h_increment[i].resize(width*height);
-		//h_increment[i] = new unsigned [width*height];
 	}
 	
 	for (unsigned goal_pos = 0; goal_pos < width*height; goal_pos++)
@@ -587,12 +516,6 @@ void MNPuzzle<width, height>::ClearGoal()
 	if (goal_stored)
 	{
 		goal_stored = false;
-		//		// clears memory allocated for h_increment
-		//		for (unsigned int i = 1; i < width*height; i++)
-		//		{
-		//			delete h_increment[i];
-		//		}
-		//		delete h_increment;
 	}
 }
 
@@ -716,6 +639,8 @@ void MNPuzzle<width, height>::ApplyAction(MNPuzzleState<width, height> &s, slide
 				exit(0);
 			}
 			break;
+        case kNoSlide:
+            break;
 	}
 }
 
@@ -728,6 +653,7 @@ bool MNPuzzle<width, height>::InvertAction(slideDir &a) const
 		case kUp: a = kDown; break;
 		case kDown: a = kUp; break;
 		case kRight: a = kLeft; break;
+		case kNoSlide: a = kNoSlide; break;
 	}
 	return true;
 }
@@ -743,20 +669,8 @@ double MNPuzzle<width, height>::HCost(const MNPuzzleState<width, height> &state1
 {
 	if (goal_stored)
 		return HCost(state1);
-//	if (state1.height != height || state1.width != width)
-//	{
-//		fprintf(stderr, "ERROR: HCost called with a state with wrong size.\n");
-//		exit(1);
-//	}
-//	if (state2.height != height || state2.width != width)
-//	{
-//		fprintf(stderr, "ERROR: HCost called with a state with wrong size.\n");
-//		exit(1);
-//	}
 	
 	double hval = 0;
-	//	if (PDB.size() != 0)
-	//		hval = std::max(hval, PDB_Lookup(state1));
 	
 	if (use_manhattan)
 	{
@@ -794,25 +708,11 @@ double MNPuzzle<width, height>::HCost(const MNPuzzleState<width, height> &state1
 							man_dist += tmp*absDist;
 						}
 					}
-//					if (weighted)
-//						man_dist += (abs((int)(xloc[state1.puzzle[x + y*width]] - x))
-//									 + abs((int)(yloc[state1.puzzle[x + y*width]] - y)))*state1.puzzle[x + y*width]*state1.puzzle[x + y*width];
-//					else
-//						man_dist += (abs((int)(xloc[state1.puzzle[x + y*width]] - x))
-//									 + abs((int)(yloc[state1.puzzle[x + y*width]] - y)));
 				}
 			}
 		}
 		hval = std::max(hval, man_dist);
 	}
-//	// if no heuristic
-//	else if (PDB.size()==0)
-//	{
-//		if (state1 == state2)
-//			return 0;
-//		else
-//			return 1;
-//	}
 	
 	return hval;
 }
@@ -875,23 +775,6 @@ static int costs[25] =
 	3, 5, 4, 7, 10, 5, 3, 3, 8, 9, 2, 10, 10, 1, 2, 1, 1, 4, 7, 9, 6, 10, 2, 8, 8
 };
 
-//template <int width, int height>
-//double MNPuzzle<width, height>::AdditiveGCost(const MNPuzzleState<width, height> &s, const slideDir &d)
-//{
-//	int tile;
-//	switch (d)
-//	{
-//		case kLeft: tile = s.puzzle[s.blank-1]; break;
-//		case kUp: tile = s.puzzle[s.blank-height]; break;
-//		case kDown: tile = s.puzzle[s.blank+height]; break;
-//		case kRight: tile = s.puzzle[s.blank+1]; break;
-//	}
-//	if (tile == -1)
-//		return 0;
-//	if (weighted)
-//		return costs[s.blank];
-//	return 1;
-//}
 
 template <int width, int height>
 double MNPuzzle<width, height>::GCost(const MNPuzzleState<width, height> &a, const MNPuzzleState<width, height> &b) const
@@ -908,9 +791,6 @@ double MNPuzzle<width, height>::GCost(const MNPuzzleState<width, height> &a, con
 		case kSquareRoot: return sqrt(a.puzzle[b.blank]);
 		case kSquarePlusOneRoot: return sqrt(1+a.puzzle[b.blank]*a.puzzle[b.blank]);
 	}
-//	if (weighted)
-//		return a.puzzle[b.blank]*a.puzzle[b.blank];
-////		return costs[a.blank];
 	return 1;
 }
 
@@ -959,6 +839,7 @@ double MNPuzzle<width, height>::GCost(const MNPuzzleState<width, height> &s, con
 				case kUp: return 1.0+1.0/(1.0+s.puzzle[s.blank-width]);
 				case kDown: return 1.0+1.0/(1.0+s.puzzle[s.blank+width]);
 				case kRight: return 1.0+1.0/(1.0+s.puzzle[s.blank+1]);
+                default: assert(!"Illegal move"); break;
 			}
 		}
 		case kSquared:
@@ -969,6 +850,7 @@ double MNPuzzle<width, height>::GCost(const MNPuzzleState<width, height> &s, con
 				case kUp: return s.puzzle[s.blank-width]*s.puzzle[s.blank-width];
 				case kDown: return s.puzzle[s.blank+width]*s.puzzle[s.blank+width];
 				case kRight: return s.puzzle[s.blank+1]*s.puzzle[s.blank+1];
+                default: assert(!"Illegal move"); break;
 			}
 		}
 		case kSquareRoot:
@@ -979,6 +861,7 @@ double MNPuzzle<width, height>::GCost(const MNPuzzleState<width, height> &s, con
 				case kUp: return sqrt(s.puzzle[s.blank-width]);
 				case kDown: return sqrt(s.puzzle[s.blank+width]);
 				case kRight: return sqrt(s.puzzle[s.blank+1]);
+                default: assert(!"Illegal move"); break;
 			}
 		}
 		case kSquarePlusOneRoot:
@@ -989,11 +872,11 @@ double MNPuzzle<width, height>::GCost(const MNPuzzleState<width, height> &s, con
 				case kUp: return sqrt(1+s.puzzle[s.blank-width]*s.puzzle[s.blank-width]);
 				case kDown: return sqrt(1+s.puzzle[s.blank+width]*s.puzzle[s.blank+width]);
 				case kRight: return sqrt(1+s.puzzle[s.blank+1]*s.puzzle[s.blank+1]);
+                default: assert(!"Illegal move"); break;
 			}
 		}
 	}
 
-	assert(!"Illegal move");
 	return 1;
 }
 
@@ -1013,8 +896,8 @@ uint64_t MNPuzzle<width, height>::GetActionHash(slideDir act) const
 		case kDown: return 1;
 		case kRight: return 2;
 		case kLeft: return 3;
+        default: return 4;
 	}
-	return 4;
 }
 
 template <int width, int height>
@@ -1295,7 +1178,7 @@ void MNPuzzle<width, height>::OpenGLDraw(const MNPuzzleState<width, height> &s1,
 				c2 = '0'+((s2.puzzle[x+y*width])%10);
 			if (s2.puzzle[x+y*width] == -1)
 				c1 = ' ';
-			
+
 			if (s1.puzzle[x+y*width] == s2.puzzle[x+y*width])
 			{
 				DrawTile(x, y, c1, c2, width, height);
@@ -1414,7 +1297,6 @@ MNPuzzleState<width, height> MNPuzzle<width, height>::Generate_Random_Puzzle()
 template <int width, int height>
 void MNPuzzle<width, height>::GetStateFromHash(MNPuzzleState<width, height> &s, uint64_t hash) const
 {
-//	s.puzzle.resize(width*height);
 	int count = width*height;
 	int countm2 = width*height-2;
 	uint64_t hashVal = hash;
@@ -1488,17 +1370,6 @@ void MNPuzzle<width, height>::GetStateFromHash(MNPuzzleState<width, height> &s, 
 		s.puzzle[loc2] = countm2;
 	}
 }
-
-//uint64_t Factorial(int val)
-//{
-//	static uint64_t table[21] =
-//	{ 1ll, 1ll, 2ll, 6ll, 24ll, 120ll, 720ll, 5040ll, 40320ll, 362880ll, 3628800ll, 39916800ll, 479001600ll,
-//		6227020800ll, 87178291200ll, 1307674368000ll, 20922789888000ll, 355687428096000ll,
-//		6402373705728000ll, 121645100408832000ll, 2432902008176640000ll };
-//	if (val > 20)
-//		return (uint64_t)-1;
-//	return table[val];
-//}
 
 template <int width, int height>
 uint64_t MNPuzzle<width, height>::GetStateHash(const MNPuzzleState<width, height> &s) const
@@ -1608,15 +1479,6 @@ void MNPuzzle<width, height>::Create_Random_MN_Puzzles(MNPuzzleState<width, heig
 template <int width, int height>
 bool MNPuzzle<width, height>::State_Check(const MNPuzzleState<width, height> &to_check)
 {
-//	if (to_check.size() != width*height)
-//		return false;
-//	
-//	if (to_check.width != width)
-//		return false;
-//	
-//	if (to_check.height != width)
-//		return false;
-	
 	if (to_check.blank >= width*height)
 		return false;
 	
@@ -1632,7 +1494,6 @@ std::vector<slideDir> MNPuzzle<width, height>::Get_Op_Order_From_Hash(int order_
 	std::vector<slideDir> ops;
 	assert(order_num <= 23);
 	assert(order_num >= 0);
-	
 	
 	std::vector<int> op_nums(4);
 	
@@ -1657,30 +1518,25 @@ std::vector<slideDir> MNPuzzle<width, height>::Get_Op_Order_From_Hash(int order_
 	bool left_act = false;
 	bool right_act = false;
 
-//	printf("Op order: ");
 	for (unsigned i = 0; i < 4; i++)
 	{
 		if (op_nums[i] == 0)
 		{
-//			printf("Up ");
 			ops.push_back(kUp);
 			up_act = true;
 		}
 		else if (op_nums[i] == 1)
 		{
-//			printf("Left ");
 			ops.push_back(kLeft);
 			left_act = true;
 		}
 		else if (op_nums[i] == 2)
 		{
-//			printf("Right ");
 			ops.push_back(kRight);
 			right_act = true;
 		}
 		else if (op_nums[i] == 3)
 		{
-//			printf("Down ");
 			ops.push_back(kDown);
 			down_act = true;
 		}

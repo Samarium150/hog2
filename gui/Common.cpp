@@ -40,6 +40,8 @@ static std::vector<frameCallbackData *> glDrawCallbacks;
 //static std::vector<dataCallbackData> dataCallbacks;
 static std::vector<buttonData> buttons;
 
+void InstallSystemMouseClickHandler(MouseCallback2 mC, tMouseEventType which =
+									static_cast<tMouseEventType>(kMouseDown|kMouseUp|kMouseDrag));
 
 bool ButtonHandler(unsigned long windowID, int viewport, int windowX, int windowY, point3d loc, tButtonType button, tMouseEventType mType)
 {
@@ -102,7 +104,7 @@ int CreateButton(unsigned long windowID, int viewport,
 {
 	bool found = false;
 	if (buttons.size() == 0)
-		InstallMouseClickHandler(ButtonHandler);
+		InstallSystemMouseClickHandler(ButtonHandler); // makes button get first clicks
 	buttons.push_back({true, false, false, true, windowID, viewport, r, txt, hit,
 		borderSize, textColor, lineColor, fillColor, fillHitColor, inactiveLineColor});
 	return buttons.size()-1;
@@ -355,6 +357,14 @@ void InstallMouseClickHandler(MouseCallback2 mC, tMouseEventType which)
 {
 	mouseCallbacks2.push_back(new mouseCallbackData2(mC, which));
 }
+
+void InstallSystemMouseClickHandler(MouseCallback2 mC, tMouseEventType which)
+{
+	auto data = new mouseCallbackData2(mC, which);
+	mouseCallbacks2.insert(mouseCallbacks2.begin(), data);
+}
+
+
 
 void RemoveMouseClickHandler(MouseCallback mC)
 {
