@@ -276,7 +276,6 @@ void DoDrawCommand(const Graphics::Display::data &d, const char *which)
 				var ctx=c.getContext("2d");
 				ctx.fillStyle = "rgb("+$1+", "+$2+", "+$3+")";
 				ctx.fillRect($4,$5,$6,$7);
-				ctx.fill();
 			}, which, r,g,b,
 					floorf(PointXToCanvas(o.r.left, d.viewport)), floorf(PointYToCanvas(o.r.top, d.viewport)),
 					cWidth, cHeight);
@@ -293,7 +292,6 @@ void DoDrawCommand(const Graphics::Display::data &d, const char *which)
 			EM_ASM_({
 				var c=document.getElementById(UTF8ToString($0));
 				var ctx=c.getContext("2d");
-				ctx.beginPath();
 				ctx.strokeStyle = "rgb("+$1+", "+$2+", "+$3+")";
 				ctx.lineWidth = $8;
 				ctx.strokeRect($4,$5,$6,$7);
@@ -315,8 +313,8 @@ void DoDrawCommand(const Graphics::Display::data &d, const char *which)
 			EM_ASM_({
 				var c=document.getElementById(UTF8ToString($0));
 				var ctx=c.getContext("2d");
-				ctx.beginPath();
 				ctx.fillStyle = "rgb("+$1+", "+$2+", "+$3+")";
+				ctx.beginPath();
 				ctx.arc($4,$5,$6,0,2*Math.PI);
 				ctx.fill();
 			}, which, r,g,b,
@@ -336,9 +334,9 @@ void DoDrawCommand(const Graphics::Display::data &d, const char *which)
 			EM_ASM_({
 				var c=document.getElementById(UTF8ToString($0));
 				var ctx=c.getContext("2d");
-				ctx.beginPath();
 				ctx.strokeStyle = "rgb("+$1+", "+$2+", "+$3+")";
 				ctx.lineWidth = $7;
+				ctx.beginPath();
 				ctx.arc($4,$5,$6,0,2*Math.PI);
 				ctx.stroke();
 			}, which, r,g,b,
@@ -362,8 +360,8 @@ void DoDrawCommand(const Graphics::Display::data &d, const char *which)
 				var ctx=c.getContext("2d");
 				var resolution = 6.283185307/$8;
 
-				ctx.beginPath();
 				ctx.fillStyle = "rgb("+$1+", "+$2+", "+$3+")";
+				ctx.beginPath();
 				for (var x = 0; x <= $8; x++)
 				{
 					var nextx = $4+Math.sin(resolution*x+$7*0.01745329252)*$6;

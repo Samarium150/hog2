@@ -352,8 +352,8 @@ public:
 	void SetIntegerEdgeCosts(bool val) { integerEdgeCosts = val; }
 	void SetDrawEdgeCosts(bool val) { drawEdgeCosts = val; }
 	void SetDrawNodeLabels(bool val) { drawNodeLabels = val; }
-	void SetNodeScale(double v) { nodeScale = v; }
-	double GetNodeScale() { return nodeScale; }
+	void SetNodeScale(float v) { nodeScale = v; }
+	float GetNodeScale() { return nodeScale; }
 protected:
 	bool directed;
 	Map *m;
@@ -362,7 +362,7 @@ protected:
 	bool drawEdgeCosts;
 	bool integerEdgeCosts;
 	bool drawNodeLabels;
-	double nodeScale;
+	float nodeScale;
 };
 /*
 class AbstractionGraphEnvironment: public GraphEnvironment {

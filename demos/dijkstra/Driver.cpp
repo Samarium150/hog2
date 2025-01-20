@@ -122,27 +122,28 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 		display.FillRect({-1.0, -1.0, 1.0, 1}, Colors::white);
 		if (ge == 0 || g == 0)
 			return;
+		// Draw edges, costs/labels
 		ge->SetColor(Colors::gray);
 		ge->Draw(display);
 		if (from != -1 && to != -1)
 		{
-//			glLineWidth(3.);
 			ge->SetColor(0.5, 0, 0);
-//			ge->DrawLine(display, from, to);
-			//display.DrawLine(, currLoc, 2., Colors::lightgray);
 			auto loc1 = ge->GetLocation(from);
 			ge->DrawLine(display, loc1.x, loc1.y, currLoc.x, currLoc.y, 2);
 		}
 		
+		// Draw nodes
 		ge->SetColor(Colors::white);
 		for (int x = 0; x < g->GetNumNodes(); x++)
 			ge->Draw(display, x);
+		
+		// Draw search state
 		if (running)
 		{
-			//astar.DoSingleSearchStep(path);
 			astar.Draw(display);
 		}
 
+		// Draw path
 		if (path.size() > 0)
 		{
 			ge->SetColor(0, 0.5, 0);
@@ -314,7 +315,7 @@ void BuildGraphFromPuzzle(unsigned long windowID, tKeyboardModifier mod, char ke
 		g->GetNode(4)->SetLabelF(GraphSearchConstants::kXCoordinate, 0.0);
 		g->GetNode(4)->SetLabelF(GraphSearchConstants::kYCoordinate, 0.75);
 		g->GetNode(4)->SetLabelF(GraphSearchConstants::kZCoordinate, 0);
-	
+		from = to = -1;
 	}
 }
 
@@ -477,9 +478,10 @@ bool MyClickHandler(unsigned long , int vp, int windowX, int windowY, point3d lo
 			}
 			if (m == kAddEdges || m == kFindPath)
 			{
-				if (FindClosestNode(g, loc) == 0)
+				node *n = FindClosestNode(g, loc);
+				if (n == 0)
 					return true;
-				from = to = FindClosestNode(g, loc)->GetNum();
+				from = to = n->GetNum();
 				currLoc = ge->GetLocation(from);
 			}
 			if (m == kMoveNodes)
@@ -499,7 +501,7 @@ bool MyClickHandler(unsigned long , int vp, int windowX, int windowY, point3d lo
 		}
 		case kMouseDrag:
 		{
-			if (from != -1)
+			if (from == -1)
 			{
 				printf("Invalid from\n");
 				break;
