@@ -41,7 +41,14 @@
 //#define MAX_DIST_HEUR_TABLES
 #define FIXED_RANDOM_NUMBER_SEED 7
 
-
+int activeArm = 0;
+bool redrawBackground = true;
+enum armMouseMode {
+	kAddObstacle,
+	kSetTarget,
+	kManualMoveArm
+};
+armMouseMode mode = kAddObstacle;
 const int numArms = 2;
 RoboticArm *r = 0;
 armAngles config;
@@ -128,26 +135,27 @@ void CreateSimulation(int)
  */
 void InstallHandlers()
 {
-	//InstallKeyboardHandler(MyDisplayHandler, "Toggle Abstraction", "Toggle display of the ith level of the abstraction", kAnyModifier, '0', '9');
-	InstallKeyboardHandler(MyDisplayHandler, "Cycle Abs. Display", "Cycle which group abstraction is drawn", kAnyModifier, '\t');
-	InstallKeyboardHandler(MyDisplayHandler, "Step Simulation", "If the simulation is paused, step forward .1 sec.", kNoModifier, 'o');
-	InstallKeyboardHandler(MyDisplayHandler, "Step History", "If the simulation is paused, step forward .1 sec in history", kAnyModifier, '}');
-	InstallKeyboardHandler(MyDisplayHandler, "Step History", "If the simulation is paused, step back .1 sec in history", kAnyModifier, '{');
 	InstallKeyboardHandler(MyDisplayHandler, "Faster", "Increase search speed", kAnyModifier, ']');
 	InstallKeyboardHandler(MyDisplayHandler, "Slower", "Decrease search speed", kAnyModifier, '[');
 	
 	InstallKeyboardHandler(MyKeyHandler, "Config", "Build Configuration Space", kNoModifier, 'c');
-	InstallKeyboardHandler(MyKeyHandler, "Clear", "Clear Configuration Space", kNoModifier, '|');
-	InstallKeyboardHandler(MyKeyHandler, "Record", "Start recording frames to a file", kNoModifier, 'r');
-	InstallKeyboardHandler(MyKeyHandler, "Save", "Save a screen capture", kNoModifier, '&');
+	InstallKeyboardHandler(MyKeyHandler, "Remove Last", "Remove last obstacle from config space", kNoModifier, '|');
+	InstallKeyboardHandler(MyKeyHandler, "Reset", "Reset to initial position", kNoModifier, 'r');
+//	InstallKeyboardHandler(MyKeyHandler, "Save", "Save a screen capture", kNoModifier, '&');
 	InstallKeyboardHandler(MyKeyHandler, "0-9", "select segment", kNoModifier, '0', '9');
 	InstallKeyboardHandler(MyKeyHandler, "Rotate segment", "rotate segment CW", kNoModifier, 'a');
 	InstallKeyboardHandler(MyKeyHandler, "Rotate segment", "rotate segment CCW", kNoModifier, 's');
-	InstallKeyboardHandler(MyKeyHandler, "Build Heuristic", "Build differential heuristic", kNoModifier, 'b');
-	InstallKeyboardHandler(MyKeyHandler, "Test Heuristic", "Build & test differential heuristic", kNoModifier, 't');
-	InstallKeyboardHandler(MyKeyHandler, "JPS", "Build & test jps", kNoModifier, 'j');
-	
-	InstallCommandLineHandler(MyCLHandler, "-map", "-map filename", "Selects the default map to be loaded.");
+
+	InstallKeyboardHandler(MyKeyHandler, "Use PWXD(1.5)", "", kNoModifier, 'z');
+	InstallKeyboardHandler(MyKeyHandler, "Use XDP(1.5)", "", kNoModifier, 'x');
+	InstallKeyboardHandler(MyKeyHandler, "Use Weighted A*(1.5)", "", kNoModifier, 'w');
+	InstallKeyboardHandler(MyKeyHandler, "Use A*", "", kNoModifier, 'd');
+
+	InstallKeyboardHandler(MyKeyHandler, "Target", "Set target", kNoModifier, 't');
+	InstallKeyboardHandler(MyKeyHandler, "Obstacle", "Add obstacle", kNoModifier, 'o');
+	InstallKeyboardHandler(MyKeyHandler, "Move Arm", "Manually move arm", kNoModifier, 'm');
+//	InstallKeyboardHandler(MyKeyHandler, "JPS", "Build & test jps", kNoModifier, 'j');
+//	InstallCommandLineHandler(MyCLHandler, "-map", "-map filename", "Selects the default map to be loaded.");
 	
 	InstallWindowHandler(MyWindowHandler);
 	
@@ -186,6 +194,8 @@ void MyFrameHandler(unsigned long id, unsigned int viewport, void *)
 			{
 				//r->OpenGLDraw(config);
 				r->Draw(display, config);
+				if (mode == kManualMoveArm)
+					r->Draw(display, config, activeArm, Colors::lightblue);
 			}
 			else {
 				r->Draw(display,ourPath[(pathLoc++)%ourPath.size()]);
@@ -228,50 +238,67 @@ void MyFrameHandler(unsigned long id, unsigned int viewport, void *)
 			}
 			//astar.GetPath(r, config, goal, ourPath);
 		}
+		if (mode == kAddObstacle)
+			display.DrawText("Click to Add Obstacle", {-1, -1}, Colors::yellow, 0.05f, Graphics::textAlignLeft, Graphics::textBaselineTop);
+		if (mode == kSetTarget)
+			display.DrawText("Click to Set Target", {-1, -1}, Colors::yellow, 0.05f, Graphics::textAlignLeft, Graphics::textBaselineTop);
+		if (mode == kManualMoveArm)
+		{
+			static char text[] = "Moving arm segment X";
+			text[19] = '0'+activeArm;
+			display.DrawText(text, {-1, -1}, Colors::yellow, 0.05f, Graphics::textAlignLeft, Graphics::textBaselineTop);
+		}
+		display.DrawText("Work space ", {1, -1}, Colors::lightblue, 0.05f, Graphics::textAlignRight, Graphics::textBaselineTop);
 	}
 	if (viewport == 1)
 	{
-		// TODO: draw into background when config space changes
-		display.FillRect({-1, -1, 1, 1}, Colors::black);
 		rgbColor c;
-		if (configSpace.size() != 0)
+
+		if (redrawBackground)
 		{
-			float ratio = 2.0/configSpace.size();
-			float size = 2.0/configSpace.size();
-			for (int x = 0; x < configSpace.size(); x++)
+			display.StartBackground();
+			// TODO: draw into background when config space changes
+			display.FillRect({-1, -1, 1, 1}, Colors::black);
+			if (configSpace.size() != 0)
 			{
-				int start = -1;
-				for (int y = 0; y < configSpace[x].size(); y++)
+				float ratio = 2.0/configSpace.size();
+				float size = 2.0/configSpace.size();
+				for (int x = 0; x < configSpace.size(); x++)
 				{
-					if (configSpace[x][y] == false)
+					int start = -1;
+					for (int y = 0; y < configSpace[x].size(); y++)
 					{
-						if (start == -1)
-							start = y;
-					}
-					else {
-						if (start != -1)
+						if (configSpace[x][y] == false)
 						{
-							Graphics::rect r(-1+float(x)*size, -1+float(start)*size,
-											 -1+float(x+1)*size, -1+float(y+1)*size);
-							display.FillRect(r, Colors::red);
+							if (start == -1)
+								start = y;
 						}
-						start = -1;
+						else {
+							if (start != -1)
+							{
+								Graphics::rect r(-1+float(x)*size, -1+float(start)*size,
+												 -1+float(x+1)*size, -1+float(y+1)*size);
+								display.FillRect(r, Colors::red);
+							}
+							start = -1;
+						}
 					}
-				}
-				if (start != -1)
-				{
-					Graphics::rect r(-1+float(x)*size, -1+float(start)*size,
-									 -1+float(x+1)*size, -1+float(configSpace[x].size()+1)*size);
-					display.FillRect(r, Colors::red);
+					if (start != -1)
+					{
+						Graphics::rect r(-1+float(x)*size, -1+float(start)*size,
+										 -1+float(x+1)*size, -1+float(configSpace[x].size()+1)*size);
+						display.FillRect(r, Colors::red);
+					}
 				}
 			}
+			display.EndBackground();
+			redrawBackground = false;
 		}
-
+		
 		// Draw cursors, etc
 		{
 			float size = 4.0f/512.0f;
 
-			//if (!validSearch)
 			{
 				double x, y;
 				if (validSearch)
@@ -293,81 +320,14 @@ void MyFrameHandler(unsigned long id, unsigned int viewport, void *)
 						c = Colors::green;
 					}
 				}
-				//double x, y;
-				//r->GetTipPosition(config, x, y);
 				Graphics::rect rec(point3d(x, y), 1.5f*size);
 				display.FillRect(rec, c);
-
-//				c = Colors::white;
-//				draw = true;
-//				big = true;
+				
 			}
-//			{
-//				{
-//					bool draw = false;
-//					bool big = false;
-//					if (!validSearch && ourPath.size() == 0 && config.GetAngle(0) == x*2 && config.GetAngle(1) == y*2)
-//					{
-//						c = Colors::white;
-////						glColor3f(1, 1, 1);
-//						draw = true;
-//						big = true;
-//					}
-//					if (!validSearch && ourPath.size() != 0 && ourPath[(pathLoc)%ourPath.size()].GetAngle(0) == x*2 && ourPath[(pathLoc)%ourPath.size()].GetAngle(1) == y*2)
-//					{
-//						c = Colors::white;
-////						glColor3f(1, 1, 1);
-//						draw = true;
-//						big = true;
-//					}
-//					if (validSearch && astar.CheckNextNode().GetAngle(0) == x*2 && astar.CheckNextNode().GetAngle(1) == y*2)
-//					{
-//						c = Colors::green;
-////						glColor3f(0, 1, 0);
-//						draw = true;
-//						big = true;
-//					}
-//					else if (!configSpace[x][y])
-//					{
-//						c = Colors::red;
-////						glColor3f(1, 0, 0);
-//						draw = true;
-//					}
-//					if (draw)
-//					{
-//						float currSize = size;
-//						if (big) currSize*=4;
-//						
-//						display.FillRect(Graphics::rect({-1+float(x)*ratio, -1+float(y)*ratio}, currSize), c);
-//					}
-//				}
-//			}
-			
 			// labeling axes (needs to be updated)
-			if (0)
-			{
-				char txt[16];
-				//			glColor3f(1.0, 1.0, 1.0);
-				for (double x = 0; x <= 1024; x+=1024.0/(2.0*4))
-				{
-					if (x != 512)
-					{
-						//					sprintf(txt, "%d", int(360.0*x/1024.0));
-						//					DrawTextCentered(2.0*x/1024.0-1, -1.05, 0, .1, txt);
-					}
-				}
-				for (double y = 0; y <= 1024; y+=1024.0/(2.0*4))
-				{
-					if (y != 512)
-					{
-						//					sprintf(txt, "%d", int(360.0*y/1024.0));
-						//					DrawTextCentered(-1.05, 2.0*y/1024.0-1, 0, .1, txt);
-					}
-				}
-				//			glColor3f(0.0, 1.0, 1.0);
-				//			DrawTextCentered(0, -1.05, 0, .15, "A1");
-				//			DrawTextCentered(-1.05, 0, 0, .15, "A2");
-			}
+			display.DrawText("Segment 2 angle", {-1, -1}, Colors::yellow, 0.05f, Graphics::textAlignLeft, Graphics::textBaselineTop);
+			display.DrawText("Segment 1 angle", {1, 1}, Colors::yellow, 0.05f, Graphics::textAlignRight, Graphics::textBaselineBottom);
+			display.DrawText("Config space ", {1, -1}, Colors::lightblue, 0.05f, Graphics::textAlignRight, Graphics::textBaselineTop);
 		}
 	}
 //	if (recording && viewport == GetNumPorts((int)id)-1)
@@ -485,10 +445,9 @@ void TestJPS()
 
 void MyKeyHandler(unsigned long wid, tKeyboardModifier mod, char key)
 {
-	static int which = 0;
-	if ((key >= '0') && (key <= '9'))
+	if ((key >= '0') && (key <= '1'))
 	{
-		which = key-'0';
+		activeArm = key-'0';
 		return;
 	}
 	if (key == 'c')
@@ -519,33 +478,17 @@ void MyKeyHandler(unsigned long wid, tKeyboardModifier mod, char key)
 	}
 	if (key == 'r')
 	{
-		recording = !recording;
-	}
-	if (key == 'a')
-	{
-		std::vector<armRotations> actions;
-
-		armRotations rot;
-		rot.SetRotation(which, kRotateCW);
-		r->GetActions(config, actions);
-		for (unsigned int x = 0; x < actions.size(); x++)
-		{
-			if (rot == actions[x])
-			{
-				r->ApplyAction(config, rot);
-				ourPath.resize(0);
-			}
-		}
 		for (int x = 0; x < numArms; x++)
-			printf(" %d:%d", x, config.GetAngle(x));
-		printf("\n");
+			config.SetAngle( x, 2 );
+		ourPath.clear();
+		//recording = !recording;
 	}
-	if (key == 's')
+	if (key == 'a' && mode == kManualMoveArm)
 	{
 		std::vector<armRotations> actions;
 		
 		armRotations rot;
-		rot.SetRotation(which, kRotateCCW);
+		rot.SetRotation(activeArm, kRotateCW);
 		r->GetActions(config, actions);
 		for (unsigned int x = 0; x < actions.size(); x++)
 		{
@@ -555,17 +498,51 @@ void MyKeyHandler(unsigned long wid, tKeyboardModifier mod, char key)
 				ourPath.resize(0);
 			}
 		}
-		for (int x = 0; x < numArms; x++)
-			printf(" %d:%d", x, config.GetAngle(x));
-		printf("\n");
+		//		for (int x = 0; x < numArms; x++)
+		//			printf(" %d:%d", x, config.GetAngle(x));
+		//		printf("\n");
+	}
+	if (key == 's' && mode == kManualMoveArm)
+	{
+		std::vector<armRotations> actions;
+		
+		armRotations rot;
+		rot.SetRotation(activeArm, kRotateCCW);
+		r->GetActions(config, actions);
+		for (unsigned int x = 0; x < actions.size(); x++)
+		{
+			if (rot == actions[x])
+			{
+				r->ApplyAction(config, rot);
+				ourPath.resize(0);
+			}
+		}
+		//		for (int x = 0; x < numArms; x++)
+		//			printf(" %d:%d", x, config.GetAngle(x));
+		//		printf("\n");
 	}
 	
 	if (key == 't')
 	{
-		BuildTipTables();
-		//TestArms();
-		TestArms2(true);
-		//TestArms2();
+		mode = kSetTarget;
+		ourPath.clear();
+	}
+	if (key == 'o')
+	{
+		mode = kAddObstacle;
+		ourPath.clear();
+	}
+	if (key == 'm')
+	{
+		mode = kManualMoveArm;
+		ourPath.clear();
+	}
+	if (key == 't')
+	{
+		//		BuildTipTables();
+		//		//TestArms();
+		//		TestArms2(true);
+		//		//TestArms2();
 	}
 	
 	if (key == 'b')
@@ -582,6 +559,24 @@ void MyKeyHandler(unsigned long wid, tKeyboardModifier mod, char key)
 	{
 		TestJPS();
 	}
+	if (key == 'd')
+	{
+		astar.SetWeight(1.0);
+	}
+	if (key == 'w')
+	{
+		astar.SetWeight(1.5);
+	}
+	if (key == 'x')
+	{
+		float proveBound = 1.5;
+		astar.SetPhi([=](double x,double y){return (y+(2*proveBound-1)*x+sqrt((y-x)*(y-x)+4*proveBound*y*x))/(2*proveBound);});
+	}
+	if (key == 'z')
+	{
+		float proveBound = 1.5;
+		astar.SetPhi([=](double h,double g){return (h>g)?(g+h):(g/proveBound+h*(2*proveBound-1)/proveBound);});
+	}
 }
 
 
@@ -594,7 +589,7 @@ bool MyClickHandler(unsigned long , int viewport, int x, int y, point3d loc, tBu
 	{
 		return false;
 	}
-	if ((mouseEvent == kMouseDown) && (whichButton == kLeftButton))
+	if ((mouseEvent == kMouseDown) && mode == kAddObstacle)//(whichButton == kLeftButton))
 	{
 		validSearch = false;
 		s.x = loc.x;
@@ -606,7 +601,7 @@ bool MyClickHandler(unsigned long , int viewport, int x, int y, point3d loc, tBu
 		r->AddObstacle(l);
 		BuildConfigSpace(true);
 	}
-	if ((mouseEvent == kMouseDrag) && (whichButton == kLeftButton) && drag)
+	if ((mouseEvent == kMouseDrag) && (mode == kAddObstacle) && drag)
 	{
 		r->PopObstacle();
 		e.x = loc.x;
@@ -616,7 +611,7 @@ bool MyClickHandler(unsigned long , int viewport, int x, int y, point3d loc, tBu
 		r->AddObstacle(l);
 		BuildConfigSpace(true);
 	}
-	if ((mouseEvent == kMouseUp) && (whichButton == kLeftButton) && drag)
+	if ((mouseEvent == kMouseUp) && (mode == kAddObstacle) && drag)
 	{
 		r->PopObstacle();
 		e.x = loc.x;
@@ -630,9 +625,8 @@ bool MyClickHandler(unsigned long , int viewport, int x, int y, point3d loc, tBu
 		}
 		BuildConfigSpace();
 	}
-	if ((mouseEvent == kMouseDown) && (whichButton == kRightButton))
+	if ((mouseEvent == kMouseDown) && (mode == kSetTarget))
 	{
-		
 		goal.SetGoal(loc.x, loc.y);
 		if (aa)
 		{
@@ -697,6 +691,7 @@ void BuildConfigSpace(bool fast)
 			configSpace[x/multiplier][y/multiplier] = r->LegalState(a);
 		}
 	}
+	redrawBackground = true;
 }
 
 
