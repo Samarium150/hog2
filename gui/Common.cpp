@@ -47,6 +47,8 @@ bool ButtonHandler(unsigned long windowID, int viewport, int windowX, int window
 {
 	for (auto &b : buttons)
 	{
+		if (!(b.windowID == windowID && b.viewport == viewport))
+			continue;
 		if (mType == kMouseDown)
 		{
 			if (b.active)
