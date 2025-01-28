@@ -127,11 +127,15 @@ void SetButtonActive(bool active, int which)
 //rgbColor fillColor;
 //rgbColor fillHitColor;
 
-void RemoveButton(int identifier)
+void ShowButton(int identifier)
+{
+	buttons[identifier].valid = true;
+}
+
+void HideButton(int identifier)
 {
 	buttons[identifier].valid = false;
 }
-
 
 static keyboardCallbackData *keyboardCallbacks[256] =
 { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
