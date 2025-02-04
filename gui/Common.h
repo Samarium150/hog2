@@ -280,7 +280,8 @@ int CreateButton(unsigned long windowID, int viewport,
 				 rgbColor textColor, rgbColor lineColor, rgbColor fillColor,
 				 rgbColor fillHitColor, rgbColor inactiveLineColor);
 void SetButtonActive(bool, int);
-void RemoveButton(int identifier);
+void ShowButton(int identifier);
+void HideButton(int identifier);
 
 void InstallWindowHandler(WindowCallback wC);
 void RemoveWindowHandler(WindowCallback wC);

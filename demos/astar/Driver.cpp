@@ -117,8 +117,10 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 		SetNumPorts(windowID, 2);
 		g = new Graph();
 		ge = new GraphEnvironment(g);
+		ge->SetNodeScale(2.0);
 		ge->SetDrawEdgeCosts(true);
 		ge->SetDrawNodeLabels(true);
+		ge->SetIntegerEdgeCosts(false);
 		astar.SetWeight(1.0);
 		astar.SetHeuristic(&h);
 		te.AddLine("A* algorithm sample code");
@@ -148,8 +150,6 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 			ge->SetColor(Colors::lightgray);
 			auto loc1 = ge->GetLocation(from);
 			ge->DrawLine(display, loc1.x, loc1.y, currLoc.x, currLoc.y, 2);
-//			ge->SetColor(1, 0, 0);
-//			ge->DrawLine(display, from, to, 4);
 		}
 		
 		ge->SetColor(Colors::white);
@@ -160,11 +160,6 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 		{
 			astar.Draw(display);
 		}
-//		else {
-//			ge->SetColor(Colors::white);
-//			for (int x = 0; x < g->GetNumNodes(); x++)
-//				ge->Draw(display, x);
-//		}
 		
 		if (path.size() > 0)
 		{
@@ -429,6 +424,7 @@ void BuildGraphFromPuzzle(unsigned long windowID, tKeyboardModifier mod, char ke
 		g->AddEdge(new edge(2, 4, distance(2, 4)));
 		g->AddEdge(new edge(3, 4, distance(3, 4)));
 
+		from = to = -1;
 		// switch to move nodes
 		MyDisplayHandler(windowID, kNoModifier, 'm');
 
@@ -645,8 +641,12 @@ bool MyClickHandler(unsigned long , int windowX, int windowY, point3d loc, tButt
 			}
 			if (m == kAddEdges || m == kFindPath)
 			{
-				from = to = FindClosestNode(g, loc)->GetNum();
-				currLoc = ge->GetLocation(from);
+				node *n = FindClosestNode(g, loc);
+				if (n)
+				{
+					from = to = n->GetNum();
+					currLoc = ge->GetLocation(from);
+				}
 			}
 			if (m == kMoveNodes)
 			{
@@ -669,7 +669,10 @@ bool MyClickHandler(unsigned long , int windowX, int windowY, point3d loc, tButt
 		{
 			if (m == kAddEdges || m == kFindPath)
 			{
-				to = FindClosestNode(g, loc)->GetNum();
+				node *n = FindClosestNode(g, loc);
+				if (n == 0)
+					return false;
+				to = n->GetNum();
 				currLoc = loc;
 				if (dist(to, loc) < 0.2 && to != from)
 				{

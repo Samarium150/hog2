@@ -47,6 +47,8 @@ bool ButtonHandler(unsigned long windowID, int viewport, int windowX, int window
 {
 	for (auto &b : buttons)
 	{
+		if (!(b.windowID == windowID && b.viewport == viewport))
+			continue;
 		if (mType == kMouseDown)
 		{
 			if (b.active)
@@ -125,11 +127,15 @@ void SetButtonActive(bool active, int which)
 //rgbColor fillColor;
 //rgbColor fillHitColor;
 
-void RemoveButton(int identifier)
+void ShowButton(int identifier)
+{
+	buttons[identifier].valid = true;
+}
+
+void HideButton(int identifier)
 {
 	buttons[identifier].valid = false;
 }
-
 
 static keyboardCallbackData *keyboardCallbacks[256] =
 { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
