@@ -2006,6 +2006,7 @@ void Witness<width, height>::GetLeftRightRegions(const WitnessState<width, heigh
     rhs.clear();
     auto [x0, y0] = path[0];
     auto checkStart = true;
+    auto prevAction = kStart;
     for (auto i = 1; i < path.size(); ++i)
     {
         auto [x1, y1] = path[i];
@@ -2020,30 +2021,82 @@ void Witness<width, height>::GetLeftRightRegions(const WitnessState<width, heigh
         if (x1 == x0 + 1) // right
         {
             if (y0 < height)
+            {
                 lhs.emplace(GetRegionIndex(x0, y0));
+                if (prevAction == kUp && x0 > 0)
+                {
+                    lhs.emplace(GetRegionIndex(x0 - 1, y0));
+                }
+            }
             if (y0 > 0)
+            {
                 rhs.emplace(GetRegionIndex(x0, y0 - 1));
+                if (prevAction == kDown && x0 > 0)
+                {
+                    rhs.emplace(GetRegionIndex(x0 - 1, y0 - 1));
+                }
+            }
+            prevAction = kRight;
         }
         if (x1 == x0 - 1) // left
         {
             if (y0 > 0)
+            {
                 lhs.emplace(GetRegionIndex(x0 - 1, y0 - 1));
+                if (prevAction == kDown && x0 < width)
+                {
+                    lhs.emplace(GetRegionIndex(x0, y0 - 1));
+                }
+            }
             if (y0 < height)
+            {
                 rhs.emplace(GetRegionIndex(x0 - 1, y0));
+                if (prevAction == kUp && x0 < width)
+                {
+                    rhs.emplace(GetRegionIndex(x0, y0));
+                }
+            }
+            prevAction = kLeft;
         }
         if (y1 == y0 + 1) // up
         {
             if (x0 > 0)
+            {
                 lhs.emplace(GetRegionIndex(x0 - 1, y0));
+                if (prevAction == kLeft && y0 > 0)
+                {
+                    lhs.emplace(GetRegionIndex(x0 - 1, y0 - 1));
+                }
+            }
             if (x0 < width)
+            {
                 rhs.emplace(GetRegionIndex(x0, y0));
+                if (prevAction == kRight && y0 > 0)
+                {
+                    rhs.emplace(GetRegionIndex(x0, y0 - 1));
+                }
+            }
+            prevAction = kUp;
         }
         if (y1 == y0 - 1) // down
         {
             if (x0 < width)
+            {
                 lhs.emplace(GetRegionIndex(x0, y0 - 1));
+                if (prevAction == kRight && y0 < height)
+                {
+                    lhs.emplace(GetRegionIndex(x0, y0));
+                }
+            }
             if (x0 > 0)
+            {
                 rhs.emplace(GetRegionIndex(x0 - 1, y0 - 1));
+                if (prevAction == kLeft && y0 < height)
+                {
+                    rhs.emplace(GetRegionIndex(x0 - 1, y0));
+                }
+            }
+            prevAction = kDown;
         }
         x0 = x1;
         y0 = y1;
