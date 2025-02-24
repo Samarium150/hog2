@@ -134,6 +134,23 @@ public:
 class MapEnvironment : public SearchEnvironment<xyLoc, tDirection>
 {
 public:
+void SetTerrainCost(double costs[])
+    {
+        //[0]=kSwamp, [1]=kWater,[2]=kGrass, [3]=kTrees
+        for(int i=0; i<4; i++)
+            TerrainCosts[i] = costs[i];
+    }
+    /*
+    sets the input weight of the search.
+    */
+    void SetInputWeight(double w)
+    {
+        inputWeight=w;
+    }
+    double GetInputWeight()
+    {
+        return inputWeight;
+    }
 	MapEnvironment(Map *m, bool useOccupancy = false);
 	MapEnvironment(MapEnvironment *);
 	virtual ~MapEnvironment();
@@ -215,6 +232,8 @@ public:
 	//virtual xyLoc GetNextState(xyLoc &s, tDirection dir);
 //	double GetPathLength(std::vector<xyLoc> &neighbors);
 private:
+	double inputWeight;
+    double TerrainCosts[4]; //[0]=kWater,[1]kSwamp,[2]kGrass,[3]kTrees
 	void GetMaxRect(long terrain, int x, int y, int endx, int endy, std::vector<bool> &drawn, Graphics::rect &r) const;
 	void DrawSingleTerrain(long terrain, Graphics::Display &disp, std::vector<bool> &drawn) const;
 protected:

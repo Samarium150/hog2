@@ -294,6 +294,81 @@ void MakeRandomMap(Map *map, int obstacles)
 	}
 }
 
+void MakeDesignedMap(Map *map, int obstacleSize, int type)
+{
+    int xloc, yloc, tmp;
+    xloc = map->GetMapWidth()/2;
+    yloc = map->GetMapHeight()/2;
+    switch (type)
+    {
+    case 0:
+        /* Only cosists a square of obstacles in the center of empty map */
+        for(int i=xloc-obstacleSize; i<=xloc+obstacleSize; i++)
+            for(int j=yloc-obstacleSize; j<=yloc+obstacleSize; j++)
+                map->SetTerrainType(i, j, kOutOfBounds);
+        break;
+    
+    case 1:
+        /* Only cosists a square of swamp states in the center of empty map */
+        for(int i=xloc-obstacleSize; i<=xloc+obstacleSize; i++)
+            for(int j=yloc-obstacleSize; j<=yloc+obstacleSize; j++)
+                map->SetTerrainType(i, j, kSwamp);
+        break;
+
+    case 2:
+        /* Only cosists a diamond of obstacles in the center of empty map */
+        tmp = obstacleSize;
+        for(int i=yloc-obstacleSize; i<=yloc+obstacleSize; i++)
+        {    for(int k=xloc-abs(obstacleSize-tmp)/2; k<=xloc+abs(obstacleSize-tmp)/2; k++)
+                map->SetTerrainType(k, i, kOutOfBounds);
+            if(i>=yloc)
+                tmp -=2;
+            else
+                tmp +=2;
+        }
+        break;
+    
+    case 3:
+        /* Only cosists a diamond of swamp states in the center of empty map */
+        tmp = obstacleSize;
+        for(int i=yloc-obstacleSize; i<=yloc+obstacleSize; i++)
+        {    for(int k=xloc-abs(obstacleSize-tmp)/2; k<=xloc+abs(obstacleSize-tmp)/2; k++)
+                map->SetTerrainType(k, i, kSwamp);
+            if(i>=yloc)
+                tmp -=2;
+            else
+                tmp +=2;
+        }
+        break;
+    
+    case 4:
+        /* Only cosists a circle of obstacles in the center of empty map */
+        for(int i=xloc-obstacleSize; i<=xloc+obstacleSize; i++)
+            for(int j=yloc-obstacleSize; j<=yloc+obstacleSize; j++)
+                if(sqrt(pow(i-xloc,2) + pow(j-yloc,2)) <= obstacleSize)
+                    map->SetTerrainType(i, j, kOutOfBounds);
+        break;
+    
+    case 5:
+        /* Only cosists a circle of swamp states in the center of empty map */
+        for(int i=xloc-obstacleSize; i<=xloc+obstacleSize; i++)
+            for(int j=yloc-obstacleSize; j<=yloc+obstacleSize; j++)
+                if(sqrt(pow(i-xloc,2) + pow(j-yloc,2)) <= obstacleSize)
+                    map->SetTerrainType(i, j, kSwamp);
+        break;
+
+    case 6:
+        /* Some columns of swamp states in the center of empty map */
+        for(int i=xloc-obstacleSize; i<=xloc+obstacleSize; i++)
+            for(int j=0; j<map->GetMapHeight(); j++)
+                map->SetTerrainType(i, j, kSwamp);
+        break;
+    default:
+        break;
+    }
+}
+
+
 struct loc { int x; int y; };
 
 void StraightDir(Map *m, loc l, std::vector<loc> &dirs)

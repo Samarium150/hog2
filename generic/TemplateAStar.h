@@ -82,6 +82,7 @@ public:
 	void Reset();
 	void GetPath(environment *env, const state& from, const state& to, std::vector<state> &thePath);
 	void GetPath(environment *, const state&, const state&, std::vector<action> & );
+	void ExtendGoal(environment *env, const state& theNode, std::vector<state> &theList, int NumGoalStates);
 	
 	openList openClosedList;
 	state goal, start;
@@ -221,6 +222,12 @@ void TemplateAStar<state,action,environment,openList>::GetPath(environment *_env
   	}
   	while (!DoSingleSearchStep(thePath))
 	{
+		if (10000000 <= nodesExpanded)
+        {
+            //Terminate the search after 10 million node expansions.
+            // printf("%" PRId64 " nodes expanded, %" PRId64 " generated => Terminated.\n", nodesExpanded, nodesTouched);
+            break;
+        }
 //		if (0 == nodesExpanded%100000)
 //			printf("%" PRId64 " nodes expanded, %" PRId64 " generated\n", nodesExpanded, nodesTouched);
 	}
@@ -237,11 +244,96 @@ void TemplateAStar<state,action,environment,openList>::GetPath(environment *_env
 	path.resize(0);
 	while (!DoSingleSearchStep(thePath))
 	{
+		if (10000000 <= nodesExpanded)
+        {
+            //Terminate the search after 10 million node expansions.
+            // printf("%" PRId64 " nodes expanded, %" PRId64 " generated => Terminated.\n", nodesExpanded, nodesTouched);
+            break;
+        }
 	}
 	for (size_t x = 0; x < thePath.size()-1; x++)
 	{
 		path.push_back(_env->GetAction(thePath[x], thePath[x+1]));
 	}
+}
+
+template <class state, class action, class environment, class openList>
+void TemplateAStar<state,action,environment,openList>::ExtendGoal(environment *_env, const state& theNode, std::vector<state> &theList, int NumGoalStates)
+{
+    if (theHeuristic == 0)
+        theHeuristic = _env;
+    theList.resize(0);
+    env = _env;
+    openClosedList.Reset(env->GetMaxHash());
+    ResetNodeCount();
+    start = theNode;
+    goal = theNode;
+    double h=0;
+    
+    openClosedList.AddOpenNode(start, env->GetStateHash(start), phi(h, 0), 0, h);
+    theList.push_back(start);
+
+    while (nodesExpanded < NumGoalStates)
+    {
+        if (openClosedList.OpenSize() == 0)
+        {
+            return;
+        }
+        uint64_t nodeid = openClosedList.Close();
+
+        //Add the node to theList, so later we can change its type to goal type.
+        theList.push_back(openClosedList.Lookup(nodeid).data);
+
+        nodesExpanded++;
+        
+        neighbors.resize(0);
+        edgeCosts.resize(0);
+        neighborID.resize(0);
+        neighborLoc.resize(0);
+
+        env->GetSuccessors(openClosedList.Lookup(nodeid).data, neighbors);
+        // 1. load all the children
+        for (unsigned int x = 0; x < neighbors.size(); x++)
+        {
+            uint64_t theID;
+            neighborLoc.push_back(openClosedList.Lookup(env->GetStateHash(neighbors[x]), theID));
+            neighborID.push_back(theID);
+            edgeCosts.push_back(env->GCost(openClosedList.Lookup(nodeid).data, neighbors[x]));
+            
+        }
+        
+        // iterate again updating costs and writing out to memory
+        for (size_t x = 0; x < neighbors.size(); x++)
+        {
+            nodesTouched++;
+
+            switch (neighborLoc[x])
+            {
+                case kOpenList:
+                    //edgeCost = env->GCost(openClosedList.Lookup(nodeid).data, neighbors[x]);
+                    if (fless(openClosedList.Lookup(nodeid).g+edgeCosts[x], openClosedList.Lookup(neighborID[x]).g))
+                    {
+                        auto &i = openClosedList.Lookup(neighborID[x]);
+                        i.parentID = nodeid;
+                        i.g = openClosedList.Lookup(nodeid).g+edgeCosts[x];
+                        i.f = phi(i.h, i.g);
+                        i.data = neighbors[x];
+                        openClosedList.KeyChanged(neighborID[x]);
+                    }
+                    break;
+                case kNotFound:
+                    // add node to open list
+                    double h = theHeuristic->HCost(neighbors[x], goal);
+                    openClosedList.AddOpenNode(neighbors[x],
+                                                    env->GetStateHash(neighbors[x]),
+                                                    phi(h, openClosedList.Lookup(nodeid).g+edgeCosts[x]),
+                                                    openClosedList.Lookup(nodeid).g+edgeCosts[x],
+                                                    h,
+                                                    nodeid);
+                    break;
+            }
+        }
+    }
 }
 
 /**

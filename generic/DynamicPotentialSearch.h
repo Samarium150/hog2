@@ -173,11 +173,18 @@ void DynamicPotentialSearch<state,action,environment>::GetPath(environment *_env
 {
 	//discardcount=0;
 	if (!InitializeSearch(_env, from, to, thePath))
-	{
-		return;
-	}
-	while (!DoSingleSearchStep(thePath))
-	{ }
+    {
+        return;
+    }
+    while (!DoSingleSearchStep(thePath))
+    {
+        if (10000000 <= nodesExpanded){
+            //Terminate the search after 10 million node expansions.
+            printf("%" PRId64 " nodes expanded, %" PRId64 " generated. ", nodesExpanded, nodesTouched);
+            std::cout<<"DPS => Terminated.\n";
+            break;
+        }
+    }
 }
 
 template <class state, class action, class environment>
