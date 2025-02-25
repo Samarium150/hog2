@@ -160,8 +160,6 @@ void Racetrack::GetActions(const RacetrackState &nodeID, std::vector<RacetrackMo
 //	}
 }
 
-
-
 void Racetrack::ApplyAction(RacetrackState &s, RacetrackMove a) const
 { // When x y velocity and action is applied -- location changes when velocity changes
 	if (a.hitGoal)
@@ -215,9 +213,6 @@ void Racetrack::Boundaries(RacetrackState &s, RacetrackMove &v) const
 	
 	
 }
-
-
-
 
 bool Racetrack::InvertAction(RacetrackMove &a) const
 {
@@ -325,6 +320,7 @@ bool Racetrack::Legal(const RacetrackState &node1, RacetrackMove &act) const
 	}
 	return true;
 }
+
 double Racetrack::HCost(const RacetrackState &node1, const RacetrackState &node2) const
 {
 	return HCost(node1);

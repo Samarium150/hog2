@@ -485,10 +485,16 @@ double MapEnvironment::HCost(const xyLoc &l1, const xyLoc &l2) const
 double MapEnvironment::GCost(const xyLoc &l, const tDirection &act) const
 {
 	double multiplier = 1.0;
-//	if (map->GetTerrainType(l.x, l.y) == kSwamp)
-//	{
-//		multiplier = 3.0;
-//	}
+    if(map->GetTerrainType(l.x, l.y) != kGround){
+        if (map->GetTerrainType(l.x, l.y) == kSwamp)
+            multiplier = TerrainCosts[0];
+        if (map->GetTerrainType(l.x, l.y) == kWater)
+            multiplier = TerrainCosts[1];
+        if (map->GetTerrainType(l.x, l.y) == kGrass)
+            multiplier = TerrainCosts[2];
+        if (map->GetTerrainType(l.x, l.y) == kTrees)
+            multiplier = TerrainCosts[3];
+    }
 	switch (act)
 	{
 		case kN: return 1.0*multiplier;
@@ -507,10 +513,17 @@ double MapEnvironment::GCost(const xyLoc &l, const tDirection &act) const
 double MapEnvironment::GCost(const xyLoc &l1, const xyLoc &l2) const
 {
 	double multiplier = 1.0;
-	if (map->GetTerrainType(l1.x, l1.y) == kSwamp)
-	{
-		multiplier = 3.0;
-	}
+    if(map->GetTerrainType(l1.x, l1.y) != kGround){
+        if (map->GetTerrainType(l1.x, l1.y) == kSwamp)
+            multiplier = TerrainCosts[0];
+        if (map->GetTerrainType(l1.x, l1.y) == kWater)
+            multiplier = TerrainCosts[1];
+        if (map->GetTerrainType(l1.x, l1.y) == kGrass)
+            multiplier = TerrainCosts[2];
+        if (map->GetTerrainType(l1.x, l1.y) == kTrees)
+            multiplier = TerrainCosts[3];
+    }
+	
 	if (l1 == l2) return 0.0;
 	if (l1.x == l2.x) return 1.0*multiplier;
 	if (l1.y == l2.y) return 1.0*multiplier;
@@ -568,8 +581,6 @@ void MapEnvironment::OpenGLDraw() const
 //		}
 }
 	
-
-
 void MapEnvironment::OpenGLDraw(const xyLoc &l) const
 {
 	GLdouble xx, yy, zz, rad;
@@ -607,7 +618,6 @@ void MapEnvironment::OpenGLDraw(const xyLoc &l1, const xyLoc &l2, float v) const
 //	glColor3f(r,g,b);
 //	DrawSphere(xx, yy, zz, rad);
 //}
-
 
 void MapEnvironment::OpenGLDraw(const xyLoc& initial, const tDirection &dir) const
 {
@@ -1370,7 +1380,6 @@ void MapEnvironment::Draw(Graphics::Display &disp, const xyLoc &l1, const xyLoc 
 	disp.FillCircle(r, c);
 }
 
-
 void MapEnvironment::DrawAlternate(Graphics::Display &disp, const xyLoc &l) const
 {
 	GLdouble px, py, t, rad;
@@ -1439,7 +1448,6 @@ void MapEnvironment::DrawStateLabel(Graphics::Display &disp, const xyLoc &l1, co
 	disp.DrawText(txt, p, c, rad);
 }
 
-
 void MapEnvironment::DrawLine(Graphics::Display &disp, const xyLoc &a, const xyLoc &b, double width) const
 {
 	GLdouble xx1, yy1, zz1, rad;
@@ -1469,7 +1477,6 @@ void MapEnvironment::DrawArrow(Graphics::Display &disp, const xyLoc &a, const xy
 	disp.DrawArrow({static_cast<float>(xx1), static_cast<float>(yy1)},
 				   {static_cast<float>(xx2), static_cast<float>(yy2)}, 0.1*rad*width, c);
 }
-
 
 //void MapEnvironment::OpenGLDraw(const xyLoc& initial, const tDirection &dir, GLfloat r, GLfloat g, GLfloat b) const
 //{
@@ -1564,7 +1571,6 @@ BaseMapOccupancyInterface::BaseMapOccupancyInterface(Map* m)
 //		for (int j=0; j<m->GetMapHeight(); j++)
 //			bitvec->Set(CalculateIndex(i,j), false);
 }
-
 
 
 /** Destructor for the BaseMapOccupancyInterface
