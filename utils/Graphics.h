@@ -118,6 +118,14 @@ struct rect {
 	{ return rect(left+delta, top+delta, right-delta, bottom-delta); }
 	rect expand(float delta)
 	{ return rect(left-delta, top-delta, right+delta, bottom+delta); }
+	rect &operator+=(const rect &val)
+	{
+		left += val.left;
+		right += val.right;
+		top += val.top;
+		bottom += val.bottom;
+		return *this;
+	}
 	rect &operator*=(const point &val)
 	{
 		left = left*val.x;
@@ -188,6 +196,7 @@ public:
 	void EndFrame();
 	void StartBackground();
 	void EndBackground();
+	void ForceBackgroundRedraw();
 	bool BackgroundNeedsRedraw() const;
 	void SetViewport(uint8_t v);
 	void SetNumViewports(uint8_t v);

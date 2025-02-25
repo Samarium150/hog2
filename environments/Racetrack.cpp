@@ -281,6 +281,8 @@ bool Racetrack::Legal(const RacetrackState &node1, RacetrackMove &act) const
 	if (node1.xVelocity == 0 && act.xDelta == 0 && node1.yVelocity == 0 && act.yDelta == 0)
 		return false;
 	
+	auto currTerrain = map->GetTerrainType(node1.xLoc, node1.yLoc);
+
 	// Check locations - every x border and y border
 	act.hitGoal = false;
 	RacetrackState node2 = node1;
@@ -308,8 +310,10 @@ bool Racetrack::Legal(const RacetrackState &node1, RacetrackMove &act) const
 				return false;
 
 			auto terrain = map->GetTerrainType(xNext, yNext);
-			if (terrain == kObstacle)
+			if (!CanPass(currTerrain, terrain))
 				return false;
+//			if ((terrain&0x40) != 0x20)
+//				return false;
 			if (terrain == kEndTerrain)
 			{
 				act.hitGoal = true;

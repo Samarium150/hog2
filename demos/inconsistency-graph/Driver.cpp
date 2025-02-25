@@ -70,7 +70,7 @@ public:
 	}
 };
 
-GraphDistHeuristic h;
+GraphDistHeuristic searchHeuristic;
 
 int main(int argc, char* argv[])
 {
@@ -133,7 +133,7 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 		astar.SetReopenNodes(true);
 		astar.SetDirected(true);
 		astar.SetWeight(1.0);
-		astar.SetHeuristic(&h);
+		astar.SetHeuristic(&searchHeuristic);
 		BuildGraphFromPuzzle(windowID, kNoModifier, graphType);
 //		te.AddLine("A* with Inconsistent Heuristics");
 //		te.AddLine("Current mode: add nodes (click to add node)");
@@ -468,7 +468,7 @@ void BuildGraphFromPuzzle(unsigned long windowID, tKeyboardModifier mod, char ke
 		astar.SetWeight(weight);
 		astar.SetUseBPMX(BPMX?1:0);
 		astar.InitializeSearch(ge, from, to, path);
-		ibex.InitializeSearch(ge, from, to, &h, path);
+		ibex.InitializeSearch(ge, from, to, &searchHeuristic, path);
 		ShowSearchInfo();
 		running = true;
 		paused = true;
@@ -506,7 +506,7 @@ void BuildGraphFromPuzzle(unsigned long windowID, tKeyboardModifier mod, char ke
 		astar.SetWeight(weight);
 		astar.SetUseBPMX(BPMX?1:0);
 		astar.InitializeSearch(ge, from, to, path);
-		ibex.InitializeSearch(ge, from, to, &h, path);
+		ibex.InitializeSearch(ge, from, to, &searchHeuristic, path);
 		ShowSearchInfo();
 		running = true;
 		paused = true;
@@ -576,7 +576,7 @@ void ShowSearchInfo()
 					astar.GetClosedListGCost(x, gcost);
 					s += MyToString(gcost);
 					s += ", h: ";
-					s += MyToString(h.HCost(x, astar.goal));
+					s += MyToString(searchHeuristic.HCost(x, astar.goal));
 					s += ")";
 				}
 					break;
@@ -586,14 +586,14 @@ void ShowSearchInfo()
 					astar.GetOpenListGCost(x, gcost);
 					s += MyToString(gcost);
 					s += ", h: ";
-					s += MyToString(h.HCost(x, astar.goal));
+					s += MyToString(searchHeuristic.HCost(x, astar.goal));
 					s += ")";
 				}
 					break;
 					
 				case kNotFound:
 					s += ": Ungenerated (h: ";
-					s += MyToString(h.HCost(x, astar.goal));
+					s += MyToString(searchHeuristic.HCost(x, astar.goal));
 					s += ")";
 					break;
 			}
@@ -615,7 +615,7 @@ void ShowSearchInfo()
 			auto item = astar.GetOpenItem(x);
 			s = g->GetNode(item.data)->GetName();
 			s += ": ";
-			s += MyToString(item.g+item.h);
+			s += MyToString(astar.Phi(item.h,item.g));
 			s += "=";
 			s += MyToString(item.g);
 			s += "+";
@@ -813,7 +813,7 @@ bool MyClickHandler(unsigned long , int windowX, int windowY, point3d loc, tButt
 					to = FindClosestNode(g, loc)->GetNum();
 				if (from != to)
 				{
-					ibex.InitializeSearch(ge, from, to, &h, path);
+					ibex.InitializeSearch(ge, from, to, &searchHeuristic, path);
 					ShowSearchInfo();
 					running = true;
 				}

@@ -117,6 +117,13 @@ void SetButtonActive(bool active, int which)
 	buttons[which].active = active;
 }
 
+void SetButtonFillColor(int button, rgbColor c)
+{
+	if (button < buttons.size())
+		buttons[button].fillColor = c;
+}
+
+
 //bool valid;
 //Graphics::roundedRect r;
 //std::string s;

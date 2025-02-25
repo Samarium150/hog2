@@ -456,10 +456,72 @@
             filePath = "../../../apps/TOH/Driver.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "256"
-            endingLineNumber = "256"
+            startingLineNumber = "262"
+            endingLineNumber = "262"
             landmarkName = "MyDisplayHandler(windowID, mod, key)"
             landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "A807230D-3F74-4CE9-8035-5E4F17E9C7B7 - 3740f05661064d8e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MyDisplayHandler(unsigned long, tKeyboardModifier, char)"
+                  moduleName = "TOH"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/apps/TOH/Driver.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "258"
+                  endingLineNumber = "258"
+                  offsetFromSymbolStart = "132">
+               </Location>
+               <Location
+                  uuid = "A807230D-3F74-4CE9-8035-5E4F17E9C7B7 - 3740f05661064ded"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MyDisplayHandler(unsigned long, tKeyboardModifier, char)"
+                  moduleName = "TOH"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/apps/TOH/Driver.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "257"
+                  endingLineNumber = "257"
+                  offsetFromSymbolStart = "144">
+               </Location>
+               <Location
+                  uuid = "A807230D-3F74-4CE9-8035-5E4F17E9C7B7 - 3740f05661064269"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MyDisplayHandler(unsigned long, tKeyboardModifier, char)"
+                  moduleName = "TOH"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/apps/TOH/Driver.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "261"
+                  endingLineNumber = "261"
+                  offsetFromSymbolStart = "144">
+               </Location>
+               <Location
+                  uuid = "A807230D-3F74-4CE9-8035-5E4F17E9C7B7 - 3740f0566106420a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MyDisplayHandler(unsigned long, tKeyboardModifier, char)"
+                  moduleName = "TOH"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/apps/TOH/Driver.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "262"
+                  endingLineNumber = "262"
+                  offsetFromSymbolStart = "144">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -472,9 +534,9 @@
             filePath = "../../../search/PDBHeuristic.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "473"
-            endingLineNumber = "473"
-            landmarkName = "BuildPDBForwardBackward(goal, numThreads)"
+            startingLineNumber = "476"
+            endingLineNumber = "476"
+            landmarkName = "BuildPDBForwardBackward(goal, numThreads, verbose)"
             landmarkType = "9">
             <Locations>
                <Location
@@ -520,8 +582,8 @@
             filePath = "../../../utils/Graphics.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "494"
-            endingLineNumber = "494"
+            startingLineNumber = "500"
+            endingLineNumber = "500"
             landmarkName = "Graphics::Display::ViewportToGlobalHOG(v, where, wWidth, wHeight)"
             landmarkType = "7">
             <Locations>
@@ -598,8 +660,8 @@
             filePath = "../../../utils/Graphics.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "447"
-            endingLineNumber = "447"
+            startingLineNumber = "453"
+            endingLineNumber = "453"
             landmarkName = "Graphics::Display::GlobalHOGToViewport(v, where, width, height)"
             landmarkType = "7">
             <Locations>
@@ -920,6 +982,289 @@
             endingLineNumber = "137"
             landmarkName = "GetPath(env1, env2, from, to, thePath)"
             landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "11544F45-507A-410D-A7CE-9BF5236E9772"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../apps/example/Sample.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
+            landmarkName = "MyFrameHandler(windowID, viewport)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E2BF8B09-D771-42CF-AD5E-253DCF1198D0"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../apps/example/Sample.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "96"
+            endingLineNumber = "96"
+            landmarkName = "MyWindowHandler(windowID, eType)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A07B3C1F-213B-424A-8377-6967956DE90A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../apps/example/RoundRobin.h"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "129"
+            endingLineNumber = "129"
+            landmarkName = "DoSingleSearchStep(path)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CB85DEDC-BB8C-4FBC-9B0E-082013E142C7"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../apps/example/RoundRobin.h"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "394"
+            endingLineNumber = "394"
+            landmarkName = "roundRobinGetQtype(expansion)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3D873EDD-87D8-4B7F-80BF-5A5CCA1BE668"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../environments/MNPuzzle.h"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "281"
+            endingLineNumber = "281"
+            landmarkName = "GetPDBHash(s)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "51BA0259-5DE8-4F4A-B19A-363E14D220A1"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../tests/MNPuzzle/Driver.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "124"
+            endingLineNumber = "124"
+            landmarkName = "TestParallelIDA_PDB()"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "51BA0259-5DE8-4F4A-B19A-363E14D220A1 - 5f5f4adbf455b335"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TestParallelIDA_PDB()"
+                  moduleName = "Testing"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/tests/MNPuzzle/Driver.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "131"
+                  endingLineNumber = "131"
+                  offsetFromSymbolStart = "684">
+               </Location>
+               <Location
+                  uuid = "51BA0259-5DE8-4F4A-B19A-363E14D220A1 - 5f5f4adbf455b3b9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TestParallelIDA_PDB()"
+                  moduleName = "Testing"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/tests/MNPuzzle/Driver.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "135"
+                  endingLineNumber = "135"
+                  offsetFromSymbolStart = "604">
+               </Location>
+               <Location
+                  uuid = "51BA0259-5DE8-4F4A-B19A-363E14D220A1 - 5f5f4adbf455b21e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TestParallelIDA_PDB()"
+                  moduleName = "Testing"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/tests/MNPuzzle/Driver.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "138"
+                  endingLineNumber = "138"
+                  offsetFromSymbolStart = "604">
+               </Location>
+               <Location
+                  uuid = "51BA0259-5DE8-4F4A-B19A-363E14D220A1 - 5f5f4adbf455b23d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TestParallelIDA_PDB()"
+                  moduleName = "Testing"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/tests/MNPuzzle/Driver.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "139"
+                  endingLineNumber = "139"
+                  offsetFromSymbolStart = "604">
+               </Location>
+               <Location
+                  uuid = "51BA0259-5DE8-4F4A-B19A-363E14D220A1 - 5f5f4adbf455b377"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TestParallelIDA_PDB()"
+                  moduleName = "Testing"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/tests/MNPuzzle/Driver.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "129"
+                  endingLineNumber = "129"
+                  offsetFromSymbolStart = "604">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "055A16BD-8E4A-42AA-83DE-AD4CA599C806"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../search/LexPermutationPDB.h"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "46"
+            endingLineNumber = "46"
+            landmarkName = "locsCache()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E9C79EEE-20CB-40C4-919B-457B5E9D15D3"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../search/LexPermutationPDB.h"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "102"
+            endingLineNumber = "102"
+            landmarkName = "GetStateFromPDBHash(hash, s, threadID)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FC41D35A-877B-45D3-9D55-413B92068C2C"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../search/LexPermutationPDB.h"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "119"
+            endingLineNumber = "119"
+            landmarkName = "GetStateFromPDBHash(hash, s, threadID)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "FC41D35A-877B-45D3-9D55-413B92068C2C - dde242ba87de893c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LexPermutationPDB&lt;MNPuzzleState&lt;4, 4&gt;, slideDir, MNPuzzle&lt;4, 4&gt;, 8&gt;::GetStateFromPDBHash(unsigned long long, MNPuzzleState&lt;4, 4&gt;&amp;, int) const"
+                  moduleName = "Testing"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/search/LexPermutationPDB.h"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "124"
+                  endingLineNumber = "124"
+                  offsetFromSymbolStart = "176">
+               </Location>
+               <Location
+                  uuid = "FC41D35A-877B-45D3-9D55-413B92068C2C - dde242ba87de893c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LexPermutationPDB&lt;MNPuzzleState&lt;4, 4&gt;, slideDir, MNPuzzle&lt;4, 4&gt;, 8&gt;::GetStateFromPDBHash(unsigned long long, MNPuzzleState&lt;4, 4&gt;&amp;, int) const"
+                  moduleName = "Testing"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/search/LexPermutationPDB.h"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "124"
+                  endingLineNumber = "124"
+                  offsetFromSymbolStart = "256">
+               </Location>
+               <Location
+                  uuid = "FC41D35A-877B-45D3-9D55-413B92068C2C - 3a5c4fe3e7f72cc2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LexPermutationPDB&lt;MNPuzzleState&lt;4, 4&gt;, slideDir, MNPuzzle&lt;4, 4&gt;, 8&gt;::GetFileName(char const*)"
+                  moduleName = "Testing"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/string"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1698"
+                  endingLineNumber = "1698"
+                  offsetFromSymbolStart = "32">
+               </Location>
+               <Location
+                  uuid = "FC41D35A-877B-45D3-9D55-413B92068C2C - dde242ba87de89e3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LexPermutationPDB&lt;MNPuzzleState&lt;4, 4&gt;, slideDir, MNPuzzle&lt;4, 4&gt;, 8&gt;::GetStateFromPDBHash(unsigned long long, MNPuzzleState&lt;4, 4&gt;&amp;, int) const"
+                  moduleName = "Testing"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/search/LexPermutationPDB.h"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "125"
+                  endingLineNumber = "125"
+                  offsetFromSymbolStart = "272">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

@@ -42,7 +42,12 @@
 		<key>TOH.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>6</integer>
+			<integer>11</integer>
+		</dict>
+		<key>Tests.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>10</integer>
 		</dict>
 		<key>The Witness Editor.xcscheme_^#shared#^_</key>
 		<dict>
@@ -67,7 +72,22 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>C4838CED2D0A39E700836F4A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>C4DAA2302C66A52000BD4451</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>C4F8916629BEE5B300B49BB6</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>C4FB98D82C8F6B0500E0258C</key>
 		<dict>
 			<key>primary</key>
 			<true/>
