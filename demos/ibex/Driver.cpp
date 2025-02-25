@@ -97,7 +97,7 @@ private:
 	double weight;
 };
 
-GraphDistHeuristic h;
+GraphDistHeuristic searchHeuristic;
 //GraphDistHeuristic wh(5);
 
 int main(int argc, char* argv[])
@@ -174,8 +174,8 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 		
 		//mnp.SetWeighted(kUnitPlusFrac);
 		BuildGraphFromPuzzle();
-		ida.InitializeSearch(ge, from, 0, &h, path);
-		ibex.InitializeSearch(ge, from, 0, &h, path);
+		ida.InitializeSearch(ge, from, 0, &searchHeuristic, path);
+		ibex.InitializeSearch(ge, from, 0, &searchHeuristic, path);
 		RedrawTextDisplay();
 		ge->SetNodeScale(20);
 	}
@@ -190,9 +190,9 @@ void DrawEdgesInSearch(Graphics::Display &display)
 	{
 		edge *e = g->GetEdge(x);
 		double fromf = g->GetNode(e->getFrom())->GetLabelF(GraphSearchConstants::kTemporaryLabel);
-		fromf += h.HCost(e->getFrom(), 0);
+		fromf += searchHeuristic.HCost(e->getFrom(), 0);
 		double tof = g->GetNode(e->getTo())->GetLabelF(GraphSearchConstants::kTemporaryLabel);
-		tof += h.HCost(e->getTo(), 0);
+		tof += searchHeuristic.HCost(e->getTo(), 0);
 		double m = std::min(fromf, tof);
 		if (flesseq(m, limit))
 		{
@@ -220,9 +220,9 @@ void DrawEdgesInIteration(Graphics::Display &display)
 		for (edge *e = n->edgeIterNext(ei); e; e = n->edgeIterNext(ei))
 		{
 			double fromf = g->GetNode(e->getFrom())->GetLabelF(GraphSearchConstants::kTemporaryLabel);
-			fromf += h.HCost(e->getFrom(), 0);
+			fromf += searchHeuristic.HCost(e->getFrom(), 0);
 			double tof = g->GetNode(e->getTo())->GetLabelF(GraphSearchConstants::kTemporaryLabel);
-			tof += h.HCost(e->getTo(), 0);
+			tof += searchHeuristic.HCost(e->getTo(), 0);
 			double m = std::max(fromf, tof);
 			if (flesseq(m, useIDA?ida.GetCurrentFLimit():ibex.GetCurrentFLimit()))
 			{
@@ -272,11 +272,11 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 		
 		
 		ge->SetColor(0.75, 0.75, 1.0);
-		double startf = g->GetNode(from)->GetLabelF(GraphSearchConstants::kTemporaryLabel)+h.HCost(from, 0);
+		double startf = g->GetNode(from)->GetLabelF(GraphSearchConstants::kTemporaryLabel)+searchHeuristic.HCost(from, 0);
 		double goalf = g->GetNode(0)->GetLabelF(GraphSearchConstants::kTemporaryLabel);
 		for (int x = 0; x < g->GetNumNodes(); x++)
 		{
-			double cost = g->GetNode(x)->GetLabelF(GraphSearchConstants::kTemporaryLabel)+h.HCost(x, 0);
+			double cost = g->GetNode(x)->GetLabelF(GraphSearchConstants::kTemporaryLabel)+searchHeuristic.HCost(x, 0);
 			rgbColor c = Colors::GetColor(cost, startf, goalf, colorScheme);
 			if (hit == x)
 			{
@@ -416,16 +416,16 @@ void RedrawTextDisplay()
 		s = "Curr state f-cost: ";
 		if (currentPath.size() > 0)
 		{
-			s += to_string_with_precision((h.HCost(currentPath.back(), 0)+ge->GetPathLength(currentPath)), displayPrecision);
+			s += to_string_with_precision((searchHeuristic.HCost(currentPath.back(), 0)+ge->GetPathLength(currentPath)), displayPrecision);
 			s += " (g: "+to_string_with_precision(ge->GetPathLength(currentPath), displayPrecision);
-			s += " h: "+to_string_with_precision(h.HCost(currentPath.back(), 0), displayPrecision)+")";
+			s += " h: "+to_string_with_precision(searchHeuristic.HCost(currentPath.back(), 0), displayPrecision)+")";
 		}
 		else if (hit != -1)
 		{
-			s += to_string_with_precision((h.HCost(hit, 0))+g->GetNode(hit)->GetLabelF(GraphSearchConstants::kTemporaryLabel), displayPrecision);
+			s += to_string_with_precision((searchHeuristic.HCost(hit, 0))+g->GetNode(hit)->GetLabelF(GraphSearchConstants::kTemporaryLabel), displayPrecision);
 			s += " (g: ";
 			s += to_string_with_precision(g->GetNode(hit)->GetLabelF(GraphSearchConstants::kTemporaryLabel), displayPrecision);
-			s += " h: "+to_string_with_precision(h.HCost(hit, 0), displayPrecision)+")";
+			s += " h: "+to_string_with_precision(searchHeuristic.HCost(hit, 0), displayPrecision)+")";
 		}
 		else {
 			s += "-";
@@ -475,16 +475,16 @@ void RedrawTextDisplay()
 		s = "Curr f: ";
 		if (currentPath.size() > 0)
 		{
-			s += to_string_with_precision((h.HCost(currentPath.back(), 0)+ge->GetPathLength(currentPath)), displayPrecision);
+			s += to_string_with_precision((searchHeuristic.HCost(currentPath.back(), 0)+ge->GetPathLength(currentPath)), displayPrecision);
 			s += " (g: "+to_string_with_precision(ge->GetPathLength(currentPath), displayPrecision);
-			s += " h: "+to_string_with_precision(h.HCost(currentPath.back(), 0), displayPrecision)+")";
+			s += " h: "+to_string_with_precision(searchHeuristic.HCost(currentPath.back(), 0), displayPrecision)+")";
 		}
 		else if (hit != -1)
 		{
-			s += to_string_with_precision((h.HCost(hit, 0))+g->GetNode(hit)->GetLabelF(GraphSearchConstants::kTemporaryLabel), displayPrecision);
+			s += to_string_with_precision((searchHeuristic.HCost(hit, 0))+g->GetNode(hit)->GetLabelF(GraphSearchConstants::kTemporaryLabel), displayPrecision);
 			s += " (g: ";
 			s += to_string_with_precision(g->GetNode(hit)->GetLabelF(GraphSearchConstants::kTemporaryLabel), displayPrecision);
-			s += " h: "+to_string_with_precision(h.HCost(hit, 0), displayPrecision)+")";
+			s += " h: "+to_string_with_precision(searchHeuristic.HCost(hit, 0), displayPrecision)+")";
 		}
 		else {
 			s += "-";
@@ -580,8 +580,8 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 			break;
 		case '|':
 		{
-			ida.InitializeSearch(ge, from, 0, &h, path);
-			ibex.InitializeSearch(ge, from, 0, &h, path);
+			ida.InitializeSearch(ge, from, 0, &searchHeuristic, path);
+			ibex.InitializeSearch(ge, from, 0, &searchHeuristic, path);
 			RedrawTextDisplay();
 			
 			BuildGraphFromPuzzle();
@@ -686,11 +686,12 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 			//			break;
 		case 'p':
 			running = !running;
-			if (running)
+			if (running) {
 				submitTextToBuffer("Running automatically");
+				stopOnStageChange = false;
+			}
 			else
 				submitTextToBuffer("");
-			
 			break;
 		case 'g':
 			stopOnStageChange = true;
@@ -797,7 +798,7 @@ void BuildGraphFromPuzzle()
 		// TODO: Option to make these leaves
 		if (layoutFullTree == false)
 		{
-			if (fgreater(g1+h.HCost(next, 0), solutionCost)) // leaf node
+			if (fgreater(g1+searchHeuristic.HCost(next, 0), solutionCost)) // leaf node
 			{
 				//			printf("%d exceeds cost - is leaf\n", next);
 				g->GetNode(next)->SetLabelL(GraphSearchConstants::kFirstData, 1);

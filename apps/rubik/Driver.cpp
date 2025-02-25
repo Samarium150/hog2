@@ -32,6 +32,7 @@
 #include "MinBloom.h"
 #include <deque>
 #include <mutex>
+#include "ParallelAStarIDAStar.h"
 
 RubiksCube c;
 RubiksAction a;
@@ -41,7 +42,7 @@ RubikPDB *pdb1 = 0;
 Rubik7Edge e7;
 Rubik7EdgeState e7s;
 Rubik7EdgeAction e7a;
-
+void Test(int which);
 void TestMinBloom();
 void GetInstanceFromStdin(RubiksState &start);
 
@@ -62,6 +63,7 @@ const char *pdbLocation = "/Users/nathanst/Desktop/pdb";
 int main(int argc, char* argv[])
 {
 	setvbuf(stdout, NULL, _IONBF, 0);
+//	Test(0);
 	//PDBFaceTest();
 	//KorfAll();
 	//TestCornerRanking();
@@ -2832,3 +2834,189 @@ void GetSuperFlip(RubiksState &start)
 		c.ApplyAction(start, act);
 	}
 }
+
+void EnvTest()
+{
+	RubiksCube c1;
+	RubiksCube c2;
+	RubiksState s1;
+	RubiksState s2;
+	std::vector<RubiksAction> history, a1, a2;
+	
+	c1.SetPruneSuccessors(true);
+	
+	for (int t = 0; t < 1000; t++)
+	{
+		printf("Starting walk %d\n", t);
+		for (int x = 0; x < 10000; x++)
+		{
+			c1.GetActions(s1, a1);
+			if (history.size() > 0)
+				c2.GetActions(s2, a2, history.back());
+			else
+				c2.GetActions(s2, a2);
+			assert(a1.size() == a2.size());
+			
+			history.push_back(a1[random()%a1.size()]);
+			c1.ApplyAction(s1, history.back());
+			c2.ApplyAction(s2, history.back());
+		}
+		while (history.size() > 0)
+		{
+			c1.UndoAction(s1, history.back());
+			c2.UndoAction(s2, history.back());
+			history.pop_back();
+		}
+	}
+	printf("Completed\n");
+	exit(0);
+}
+
+void Test(int which)
+{
+	//EnvTest();
+	RubiksCube cubeAStar;
+	RubiksCube cubeIDAStar;
+	RubiksState goal;
+	RubiksState start;
+	
+	std::vector<int> edges1;
+	std::vector<int> edges2;
+	std::vector<int> corners;
+	
+	if (/*use1997heuristic*/true)
+	{
+		edges1 = {1, 3, 8, 9, 10, 11};
+		edges2 = {0, 2, 4, 5, 6, 7};
+		corners = {0, 1, 2, 3, 4, 5, 6, 7};
+	}
+	else {
+		edges1 = {0, 1, 2, 3, 4, 5, 6, 7};
+		edges2 = {1, 3, 5, 7, 8, 9, 10, 11};
+		corners = {0, 1, 2, 3, 4, 5, 6, 7}; // first 4
+	}
+	
+	std::vector<int> blank;
+	RubikPDB pdb1(&cubeAStar, goal, edges1, blank);
+	RubikPDB pdb2(&cubeAStar, goal, edges2, blank);
+	RubikPDB pdb3(&cubeAStar, goal, blank, corners);
+	if (!pdb1.Load(pdbLocation))
+	{
+		goal.Reset();
+		pdb1.BuildPDB(goal, std::thread::hardware_concurrency());
+//		pdb1.Save(pdbLocation);
+	}
+	if (!pdb2.Load(pdbLocation))
+	{
+		goal.Reset();
+		pdb2.BuildPDB(goal, std::thread::hardware_concurrency());
+//		pdb2.Save(pdbLocation);
+	}
+	if (!pdb3.Load(pdbLocation))
+	{
+		goal.Reset();
+		pdb3.BuildPDB(goal, std::thread::hardware_concurrency());
+//		pdb3.Save(pdbLocation);
+	}
+	Heuristic<RubiksState> h;
+	h.lookups.push_back({kMaxNode, 1, 3});
+	h.lookups.push_back({kLeafNode, 0, 0});
+	h.lookups.push_back({kLeafNode, 1, 0});
+	h.lookups.push_back({kLeafNode, 2, 0});
+	h.heuristics.push_back(&pdb1);
+	h.heuristics.push_back(&pdb2);
+	h.heuristics.push_back(&pdb3);
+		
+	cubeAStar.SetPruneSuccessors(false);
+	cubeIDAStar.SetPruneSuccessors(true);
+	Timer t;
+	std::vector<RubiksAction> path;
+
+//	// 1. Test A*+IDA* (parallel)
+//	t.StartTimer();
+//	GetKorfInstance(start, which);
+//	goal.Reset();
+//	// TODO: Need to verify that there aren't nodes on OPEN that have been generated suboptimally
+//	// So that searching from them results in wasted work
+//	ParallelAStarIDAStar<RubiksCube, RubiksState, RubiksAction> a_ida(1000, std::thread::hardware_concurrency());
+//	a_ida.SetHeuristic(&h);
+//	
+//	//	ParallelIDAStar<RubiksCube, RubiksState, RubiksAction> pida;
+//	//	pida.SetHeuristic(&h);
+//	a_ida.GetPath(&cubeAStar, &cubeIDAStar, start, goal, path);
+//	t.EndTimer();
+//	printf("%1.5fs elapsed\n", t.GetElapsedTime());
+//	printf("%llu nodes expanded (%1.3f nodes/sec)\n", a_ida.GetNodesExpanded(),
+//		   a_ida.GetNodesExpanded()/t.GetElapsedTime());
+////	printf("%llu nodes generated (%1.3f nodes/sec)\n", a_ida.GetNodesTouched(),
+////		   pida.GetNodesTouched()/t.GetElapsedTime());
+
+
+	// 3. Test Parallel IDA*
+	GetKorfInstance(start, which);
+	goal.Reset();
+	
+	ParallelIDAStar<RubiksCube, RubiksState, RubiksAction> pida1(1);
+	ParallelIDAStar<RubiksCube, RubiksState, RubiksAction> pida2(2);
+	ParallelIDAStar<RubiksCube, RubiksState, RubiksAction> pida4(4);
+	ParallelIDAStar<RubiksCube, RubiksState, RubiksAction> pida8(8);
+	pida1.SetFinishAfterSolution(true);
+	pida1.SetHeuristic(&h);
+	pida2.SetFinishAfterSolution(true);
+	pida2.SetHeuristic(&h);
+	pida4.SetFinishAfterSolution(true);
+	pida4.SetHeuristic(&h);
+	pida8.SetFinishAfterSolution(true);
+	pida8.SetHeuristic(&h);
+
+	t.StartTimer();
+	pida1.GetPath(&cubeIDAStar, start, goal, path);
+	t.EndTimer();
+	printf("%1.5fs elapsed\n", t.GetElapsedTime());
+	printf("%llu nodes expanded (%1.3f nodes/sec)\n", pida1.GetNodesExpanded(),
+		   pida1.GetNodesExpanded()/t.GetElapsedTime());
+	t.StartTimer();
+	pida2.GetPath(&cubeIDAStar, start, goal, path);
+	t.EndTimer();
+	printf("%1.5fs elapsed\n", t.GetElapsedTime());
+	printf("%llu nodes expanded (%1.3f nodes/sec)\n", pida2.GetNodesExpanded(),
+		   pida2.GetNodesExpanded()/t.GetElapsedTime());
+	t.StartTimer();
+	pida4.GetPath(&cubeIDAStar, start, goal, path);
+	t.EndTimer();
+	printf("%1.5fs elapsed\n", t.GetElapsedTime());
+	printf("%llu nodes expanded (%1.3f nodes/sec)\n", pida4.GetNodesExpanded(),
+		   pida4.GetNodesExpanded()/t.GetElapsedTime());
+	t.StartTimer();
+	pida8.GetPath(&cubeIDAStar, start, goal, path);
+	t.EndTimer();
+	printf("%1.5fs elapsed\n", t.GetElapsedTime());
+	printf("%llu nodes expanded (%1.3f nodes/sec)\n", pida8.GetNodesExpanded(),
+		   pida8.GetNodesExpanded()/t.GetElapsedTime());
+//	printf("%llu nodes generated (%1.3f nodes/sec)\n", a_ida.GetNodesTouched(),
+//		   pida.GetNodesTouched()/t.GetElapsedTime());
+
+	
+//	// 2. Test IDA*
+//	t.StartTimer();
+//	//GetInstance(start, which);
+//	GetKorfInstance(start, which);
+//	goal.Reset();
+//	IDAStar<RubiksState, RubiksAction> ida;
+//	ida.SetHeuristic(&h);
+//	
+//	ida.GetPath(&cubeIDAStar, start, goal, path);
+//	t.EndTimer();
+//	printf("%1.5fs elapsed\n", t.GetElapsedTime());
+//	printf("%llu nodes expanded (%1.3f nodes/sec)\n", ida.GetNodesExpanded(),
+//		   ida.GetNodesExpanded()/t.GetElapsedTime());
+//	printf("%llu nodes generated (%1.3f nodes/sec)\n", ida.GetNodesTouched(),
+//		   ida.GetNodesTouched()/t.GetElapsedTime());
+
+
+	exit(0);
+}
+//{
+//	printf("Testing\n");
+//	exit(0);
+//}

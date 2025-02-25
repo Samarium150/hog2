@@ -1893,7 +1893,7 @@ void WeightedCanAStarExperiments(char *scenario, double weight)
 	//TemplateAStar<CanonicalGrid::xyLoc, CanonicalGrid::tDirection, CanonicalGrid::CanonicalGrid> canAstar;
 	JPS jps(m);
 	
-	jps.SetJumpLimit(0);
+	jps.SetJumpLimit(5);
 	Timer t;
 	for (int x = 0; x < s.GetNumExperiments(); x++)
 	{
@@ -1917,6 +1917,12 @@ void WeightedCanAStarExperiments(char *scenario, double weight)
 			t.EndTimer();
 			printf("%1.4f %f %f %llu %llu %u\n",
 				   t.GetElapsedTime(), me->GetPathLength(path), s.GetNthExperiment(x).GetDistance(), jps.GetNodesExpanded(), jps.GetNodesTouched(), jps.GetNumOpenItems());
+			if (path.size() == 0 || me->GetPathLength(path) > s.GetNthExperiment(x).GetDistance()*weight)
+			  {
+			    fprintf(stderr, "Error: path not properly bounded.\n");
+			    printf("Error: path not properly bounded.\n");
+			    exit(1);
+			  }
 		}
 	}
 	exit(0);

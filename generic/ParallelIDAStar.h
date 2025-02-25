@@ -34,7 +34,7 @@ struct workUnit {
 template <class environment, class state, class action>
 class ParallelIDAStar {
 public:
-	ParallelIDAStar() { storedHeuristic = false; finishAfterSolution=false;}
+	ParallelIDAStar(int threads = std::thread::hardware_concurrency()):numThreads(threads) { storedHeuristic = false; finishAfterSolution=false;}
 	virtual ~ParallelIDAStar() {}
 	//	void GetPath(environment *env, state from, state to,
 	//				 std::vector<state> &thePath);
@@ -45,7 +45,7 @@ public:
 	uint64_t GetNodesTouched() { return nodesTouched; }
 	void ResetNodeCount() { nodesExpanded = nodesTouched = 0; }
 	void SetHeuristic(Heuristic<state> *heur) { heuristic = heur; if (heur != 0) storedHeuristic = true;}
-    void SetFinishAfterSolution(bool fas) { this->finishAfterSolution=fas;}
+	void SetFinishAfterSolution(bool fas) { this->finishAfterSolution=fas;}
 private:
 	unsigned long long nodesExpanded, nodesTouched;
 	
@@ -97,7 +97,8 @@ private:
 	std::vector<std::thread*> threads;
 	SharedQueue<int> q;
 	int foundSolution;
-    bool finishAfterSolution;
+	bool finishAfterSolution;
+	int numThreads;
 };
 
 //template <class state, class action>
@@ -113,7 +114,7 @@ void ParallelIDAStar<environment, state, action>::GetPath(environment *env,
 														  state from, state to,
 														  std::vector<action> &thePath)
 {
-	const auto numThreads = std::thread::hardware_concurrency();
+	//const auto numThreads =
 	if (!storedHeuristic)
 		heuristic = env;
 	nextBound = 0;

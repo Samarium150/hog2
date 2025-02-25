@@ -1860,7 +1860,7 @@ void HexagonEnvironment::GenerateInitialStates(int numColors, vector<vector<Hexa
         for (int j = 0; j < selectedSolutions[i].size(); j++)
         {
 //            cout<<"analyzing init for: " << j << "\n";
-            for (int pattern = 0; pattern < 11 ^ 10; pattern ++)
+            for (int pattern = 0; pattern < pow(11, 10); pattern ++)
             {
 //                cout<<pattern<<"\n";
                 bool unique = true;
@@ -3922,26 +3922,6 @@ void HexagonEnvironment::BuildLocationTable()
                             {printf("%d", bitsr[p]);if(p<(size-1))cout << ", ";}
                             cout << ")\n";
                         }
-                        
-                        //                        vector<int> b2;
-                        //
-                        //                        for (int t = 0; t < 54; t++)
-                        //                        {
-                        //                            if ((location>>t)&1)
-                        //                            {
-                        //                                b2.push_back(t);
-                        //                            }
-                        //                        }
-                        //
-                        //                        int size2 = b2.size();//sizeof(b)/sizeof(*b);
-                        //
-                        //                        if(true)
-                        //                        {
-                        //                            cout << "(";
-                        //                            for(int p = 0; p < size2; p++)
-                        //                            {printf("%d", b2[p]);if(p<(size2-1))cout << ", ";}
-                        //                            cout << ")\n";
-                        //                        }
                     }
                 }
             }
@@ -3978,25 +3958,7 @@ void HexagonEnvironment::BuildLocationTable()
         
         cout<< pieceNames[piece] << " " << locs.size() << "\n";
         
-        //        vector<int> b;
-        //
-        //        for (int t = 0; t < 54; t++)
-        //        {
-        //            if ((locations[0][10]>>t)&1)
-        //            {
-        //                b.push_back(t);
-        //            }
-        //        }
-        //
-        //        int size = b.size();//sizeof(b)/sizeof(*b);
-        //
-        //        if(true)
-        //        {
-        //            cout << "+++ (";
-        //            for(int p = 0; p < size; p++)
-        //            {printf("%d", b[p]);if(p<(size-1))cout << ", ";}
-        //            cout << ")\n";
-        //        }
+
         if(printLocTables)
             cout << "\n\n";
     }
@@ -4046,16 +4008,7 @@ void HexagonEnvironment::BuildLocationTable()
                         //hole flip normally? (confirm)
                     }
                     
-                    
-                    //                if(flip_loc != hole_flip_loc)
-                    //                {
-                    //
-                    //                    cout << "R 0: " << bitset<54>(flip_loc) << "\n";
-                    //                    cout << "R 1: " << bitset<54>(hole_flip_loc) << "\n";
-                    //
-                    //                }
-                    
-                    for (int rots = 0; rots < 6; rots++)
+                   for (int rots = 0; rots < 6; rots++)
                     {
                         uint64_t loc = flip_loc;//rots == 0 ? flip_loc : 0;
                         uint64_t hole_loc = hole_flip_loc;//rots == 0 ? flip_loc : 0;
@@ -4082,15 +4035,6 @@ void HexagonEnvironment::BuildLocationTable()
                             //hole rot normally? (confirm)
                         }
                         
-                        
-                        //                    if(loc != hole_loc)
-                        //                    {
-                        //
-                        //                        cout << "R 0: " << bitset<54>(loc) << "\n";
-                        //                        cout << "R 1: " << bitset<54>(hole_loc) << "\n";
-                        //
-                        //                    }
-                        
                         vector<int> b;
                         vector<int> hole_b;
                         
@@ -4113,7 +4057,10 @@ void HexagonEnvironment::BuildLocationTable()
                         {
                             cout << "(";
                             for(int p = 0; p < size; p++)
-                            {printf("%d", b[p]);if(p<(size-1))cout << ", ";}
+							{
+								printf("%d", b[p]);
+								if(p<(size-1))cout << ", ";
+							}
                             cout << ")\n";
                         }
                         
@@ -4137,14 +4084,6 @@ void HexagonEnvironment::BuildLocationTable()
                             hole_bits[p][1] = loc / 11;
                         }
                         
-//                        for(int p = 0; p < hole_size; p++)
-//                        {
-//                            if(b[p] != hole_b[p])// || bits[p][0] != hole_bits[p][0])
-//                            {
-//                                cout << b[p] << " " << hole_b[p] << "CATCH";
-//                                
-//                            }
-//                        }
                         if(V)
                         {
                             cout << "(";
@@ -4196,9 +4135,6 @@ void HexagonEnvironment::BuildLocationTable()
                                         break;
                                     }
                                     
-                                    //                                int bit = bits2[p][0] + 11*bits2[p][1];
-                                    //                                bit -= bits2[p][1] == 0 ? 2 : (bits2[p][1] == 1 ? 5 : (bits2[p][1] == 2 || bits2[p][1] == 3 ? 6 : (bits2[p][1] == 4 ? 7 : 10)));
-                                    //
                                 }
                                 
                                 if(!valid)
@@ -4239,9 +4175,7 @@ void HexagonEnvironment::BuildLocationTable()
                                 else
                                 {
                                     int w = find(locs.begin(), locs.end(), location) - locs.begin();
-                                    
-                                    //                                cout << "HOLE AGAIN " << w << " " << hole_locs[w].size() << "\n";
-                                    
+                                                                        
                                     if(find(hole_locs[w].begin(), hole_locs[w].end(), hole_location) == hole_locs[w].end())
                                     {
                                         hole_locs[w].push_back(hole_location);
@@ -4256,33 +4190,6 @@ void HexagonEnvironment::BuildLocationTable()
                                     }
                                 }
                                 
-                                if(V)
-                                {
-                                    //                                cout << "(";
-                                    //                                for(int p = 0; p < size; p++)
-                                    //                                {printf("%d", bitsr[p]);if(p<(size-1))cout << ", ";}
-                                    //                                cout << ")\n";
-                                }
-                                
-                                //                        vector<int> b2;
-                                //
-                                //                        for (int t = 0; t < 54; t++)
-                                //                        {
-                                //                            if ((location>>t)&1)
-                                //                            {
-                                //                                b2.push_back(t);
-                                //                            }
-                                //                        }
-                                //
-                                //                        int size2 = b2.size();//sizeof(b)/sizeof(*b);
-                                //
-                                //                        if(true)
-                                //                        {
-                                //                            cout << "(";
-                                //                            for(int p = 0; p < size2; p++)
-                                //                            {printf("%d", b2[p]);if(p<(size2-1))cout << ", ";}
-                                //                            cout << ")\n";
-                                //                        }
                             }
                         }
                     }
@@ -4295,207 +4202,13 @@ void HexagonEnvironment::BuildLocationTable()
                             (flip == 0 ? (even == 0 ? localized_holes_side1_odd : localized_holes_side1_even) : (even == 0 ? localized_holes_side2_odd : localized_holes_side2_even))[piece][loc+1][1+q] = hole_locs[loc][q];
                         }
                         
-//                        if(piece == 3)
-//                        {
-//
-//                            cout << "piece " << piece << " no flip moves " << noFlipMoveCount[piece] << " total moves " << locations[piece][0] << " 1o " << localized_holes_side1_odd[piece][loc][0]<< " 1e " << localized_holes_side1_even[piece][loc][0]<< " 2o " << localized_holes_side2_odd[piece][loc][0]<< " 2e " << localized_holes_side2_even[piece][loc][0] << "\n";
-//                        }
                     }
                     
                     hole_locs_size = hole_locs.size();
-//
-                    
                 }
             }
-            
-            
-            if(piece == 2)
-            {
-//                cout << "\n\n" << localized_holes_side1_odd[piece][1][0] << "\n" << bitset<54>(locations[piece][78]) << "\n" << bitset<54>(localized_holes_side1_odd[piece][78][1])<< "\n" << bitset<54>(localized_holes_side1_even[piece][78][1]) << "\n";
-
-                for(int loc = 0; loc < noFlipMoveCount[piece]; loc++)
-                {
-//                    cout << "piece " << piece << " loc " << (loc+1) <<  " no flip moves " << noFlipMoveCount[piece] << " total moves " << locations[piece][0] << " 1o " << localized_holes_side1_odd[piece][loc+1][0]<< " 1e " << localized_holes_side1_even[piece][loc+1][0] << "\n";
-                }
-
-                for(int loc = 0; loc < noFlipMoveCount[piece]; loc++)
-                {
-//                    cout << "piece " << piece << " loc " << (loc+1) <<  " no flip moves " << noFlipMoveCount[piece] << " total moves " << locations[piece][0] << " 2o " << localized_holes_side2_odd[piece][loc+1][0]<< " 2e " << localized_holes_side2_even[piece][loc+1][0] << "\n";
-                }
-
-            }
-            
-            
-
-//            localized_holes[piece][0] = hole_locs.size();
-            
-//            cout << "SIZE " << hole_locs.size() << "\n";
-
-//                uint64_t locz_holes = (flip == 0 ? localized_holes : localized_holes_flipped);
-            
-            
-
-
         }
         
-//                vector<int> b; EDIT: print function from here to end of "for"
-//
-//                for (int t = 0; t < 54; t++)
-//                {
-//                    if ((localized_holes[piece][1+loc]>>t)&1)
-//                    {
-//                        b.push_back(t);
-//                    }
-//                }
-//
-//                int size = b.size();//sizeof(b)/sizeof(*b);
-//
-//                if(true)
-//                {
-//                    cout << "["<<(loc+1)<<"] (";
-//                    for(int p = 0; p < size; p++)
-//                    {printf("%d", b[p]);if(p<(size-1))cout << ", ";}
-//                    cout << ")\n";
-//                }
-        
-        //        vector<int> b;
-        //
-        //        for (int t = 0; t < 54; t++)
-        //        {
-        //            if ((locations[0][10]>>t)&1)
-        //            {
-        //                b.push_back(t);
-        //            }
-        //        }
-        //
-        //        int size = b.size();//sizeof(b)/sizeof(*b);
-        //
-        //        if(true)
-        //        {
-        //            cout << "+++ (";
-        //            for(int p = 0; p < size; p++)
-        //            {printf("%d", b[p]);if(p<(size-1))cout << ", ";}
-        //            cout << ")\n";
-        //        }
-
-    //            cout << "\n\n";
-//
-//
-//    array<array<uint64_t, numPieces>, (14*6*2+1)> xs;
-//
-//    return xs;
-//    int bits[] = {0,1,2};
-//    bool done = false;
-//    int size = sizeof(bits)/sizeof(*bits), inc = 0, aff = bits[0] % 2 == 0 ? 1 : -1;
-//
-//    for (int j = 0; j < size; j++)
-//        bits[j] -= 2;
-//
-//
-//
-//
-//    while(true)
-//    {
-//        bool touchingLeft = false, touchingRight = false;
-//
-//        for (int j = 0; j < size; j++)
-//        {
-//            int bit = bits[j] + 2;
-//            touchingRight = touchingRight || bit == 6 || bit == 15 || bit == 26 || bit == 37 || bit == 46 || bit == 53;
-//            touchingLeft = touchingLeft || bit == 0 || bit == 7 || bit == 16 || bit == 27 || bit == 38 || bit == 47;
-//
-//            if(bit > 53)
-//            {
-//                done = true;
-//                break;
-//            }
-//
-//            if(((bits[j] <= 6 && bit > 6) || (bits[j] <= 15 && bit > 15)))
-//            {inc = -1 * aff; printf("\n");}
-//
-//            if(((bits[j] <= 37 && bit > 37) || (bits[j] <= 46 && bit > 46)))
-//            {inc = 1 * aff; printf("\n");}
-//
-//            bits[j] = bit + inc;
-//        }
-//
-//
-//        if(done)
-//            break;
-//
-//
-//
-//        if(!(touchingLeft && touchingRight))
-//        {
-////            table.add(bits);
-//            printf("(%d, %d, %d)  ", bits[0], bits[1], bits[2]);
-//        }
-////        else
-////        {
-////            for (int j = 0; j < size; j++)
-////                bits[j] += inc;
-////        }
-//
-//        inc = 0;
-//    }
-//
-//    bits(0, 1, 2), bits(2, 3, 4), bits(4, 5, 6),
-//    bits(7, 8, 9), bits(9, 10, 11), bits(11, 12, 13), bits(13, 14, 15),
-//    bits(16, 17, 18), bits(18, 19, 20), bits(20, 21, 22), bits(22, 23, 24), bits(24, 25, 26),
-//    bits(28, 29, 30), bits(30, 31, 32), bits(32, 33, 34), bits(34, 35, 36),
-//    bits(39, 40, 41), bits(41, 42, 43), bits(43, 44, 45),
-//    bits(48, 49, 50), bits(50, 51, 52),
-    
-    
-//
-//    // downward pieces
-//    bits(1, 2, 3), bits(3, 4, 5),
-//    bits(8, 9, 10), bits (10, 11, 12), bits(12, 13, 14),
-//    bits(17, 18, 19), bits(19, 20, 21), bits(21, 22, 23), bits(23, 24, 25),
-//    bits(27, 28, 29), bits(29, 30, 31), bits(31, 32, 33), bits(33, 34, 35), bits(35, 36, 37),
-//    bits(38, 39, 40), bits(40, 41, 42), bits(42, 43, 44), bits(44, 45, 46),
-//    bits(47, 48, 49), bits(49, 50, 51), bits(51, 52, 53),
-//    // one clockwise rotation
-//    bits(5, 6, 14), bits(14, 15, 25), bits(25, 26, 37),
-//    bits(3, 4, 12), bits(12, 13, 23), bits(23, 24, 35), bits(35, 36, 46),
-//    bits(1, 2, 10), bits(10, 11, 21), bits(21, 22, 33), bits(33, 34, 44), bits(44, 45, 53),
-//    bits(8, 9, 19), bits(19, 20, 31), bits(31, 32, 42), bits(42, 43, 51),
-//    bits(17, 18, 29), bits(29, 30, 40), bits(40, 41, 49),
-//    bits(27, 28, 38), bits(38, 39, 47),
-//    // one clockwise rotation downward
-//    bits(6, 14, 15), bits(15, 25, 26),
-//    bits(4, 12, 13), bits(13, 23, 24), bits(24, 35, 36),
-//    bits(2, 10, 11), bits(11, 21, 22), bits(22, 33, 34), bits(34, 44, 45),
-//    bits(0, 8, 9), bits(9, 19, 20), bits(20, 31, 32), bits(32, 42, 43), bits(43, 51, 52),
-//    bits(7, 17, 18), bits(18, 29, 30), bits(30, 40, 41), bits(41, 49, 50),
-//    bits(16, 27, 28), bits(28, 38, 39), bits(39, 47, 48),
-//    // two clockwise rotations
-//    bits(27, 16, 17), bits(17, 7, 8), bits(8, 0, 1),
-//    bits(38, 28, 29), bits(29, 18, 19), bits(19, 9, 10), bits(10, 2, 3),
-//    bits(47, 39, 40), bits(40, 30, 31), bits(31, 20, 21), bits(21, 11, 12), bits(12, 4, 5),
-//    bits(49, 41, 42), bits(42, 32, 33), bits(33, 22, 23), bits(23, 13, 14),
-//    bits(51, 43, 44), bits(44, 34, 35), bits(35, 24, 25),
-//    bits(53, 45, 46), bits(46, 36, 37),
-//    // two clockwise rotations downward
-//    bits(16, 17, 7), bits(7, 8, 0),
-//    bits(28, 29, 18), bits(18, 19, 9), bits(9, 10, 2),
-//    bits(39, 40, 30), bits(30, 31, 20), bits(20, 21, 11), bits(11, 12, 4),
-//    bits(48, 49, 41), bits(41, 42, 32), bits(32, 33, 22), bits(22, 23, 13), bits(13, 14, 6),
-//    bits(50, 51, 43), bits(43, 44, 34), bits(34, 35, 24), bits(24, 25, 15),
-//    bits(52, 53, 45), bits(45, 46, 36), bits(36, 37, 26)
-
-    //    bits(0, 1, 2, 3, 4, 5),
-//    bits(7, 8, 9, 10, 11, 12), bits(9, 10, 11, 12, 13, 14),
-//    bits(16, 17, 18, 19, 20, 21), bits(18, 19, 20, 21, 22, 23), bits(20, 21, 22, 23, 24, 25),
-//    bits(28, 29, 30, 31, 32, 33), bits(30, 31, 32, 33, 34, 35), bits(32, 33, 34, 35, 36, 37),
-//    bits(39, 40, 41, 42, 43, 44), bits(41, 42, 43, 44, 45, 46),
-//    bits(48, 49, 50, 51, 52, 53),
-    
-//    bits(28, 38, 39, 47, 48, 49), bits(16, 27, 28, 38, 39, 40),
-//    bits(30, 40, 41, 49, 50, 51), bits(18, 29, 30, 40, 41, 42), bits(7, 17, 18, 29, 30, 31),
-//    bits(32, 42, 43, 51, 52, 53), bits(20, 31, 32, 42, 43, 44), bits(9, 19, 20, 31, 32, 33), bits(0, 8, 9, 19, 20, 21),
-//    bits(22, 33, 34, 44, 45, 46), bits(11, 21, 22, 33, 34, 35), bits(2, 10, 11, 21, 22, 23),
-//    bits(13, 23, 24, 35, 36, 37),
 }
 
 /*
@@ -4679,22 +4392,6 @@ bool Hexagon::GetBorder(int x, int y, int xoff, int yoff, Graphics::point &p1, G
 			};
 		}
 		return true;
-//		// upper right
-//		p1 = {
-//			-1+margin+(x+2)*triangleHeight/2,
-//			-1+margin+(y)*triangleHeight
-//		};
-//		// upper left
-//		p2 = {
-//			-1+margin+(x)*triangleHeight/2,
-//			-1+margin+(y)*triangleHeight
-//		};
-//		// bottom tip
-//		p3 = {
-//			-1+margin+(x+1)*triangleHeight/2,
-//			-1+margin+(y+1)*triangleHeight
-//		};
-//		return false;
 	}
 }
 
@@ -5038,11 +4735,6 @@ void Hexagon::Draw(Graphics::Display &display, const HexagonState &s) const
     float dim = 0.1;
     float xLoc = -1 + dim/2.0f, yLoc = -1 + dim/2.0f;
     
-//    colors = rgbColor::hsl(convPiece < 2 ? 0 : ((convPiece == 3 || convPiece == 9) ? 0.2 : ((convPiece == 2 || convPiece == 8) ? 0.4 : ((convPiece == (pp1+4) || convPiece == (pp2+4)) ? 0.6 : 0.8))), 0.5, 0.5)
-//    cout << "NUM OF CONSTRAINTS " << s.constraints.size() << "\n";
-    
-    
-    
 
     for (auto con : s.constraints) {
         int constraintType = con % 5;
@@ -5117,67 +4809,5 @@ void Hexagon::Draw(Graphics::Display &display, const HexagonState &s) const
             }
         }
     }
-            
-//    index = -1;
-//
-//    for (int y = 0; y < 6; y++)
-//    {
-//        for (int x = 0; x < 11; x++)
-//        {
-//            if (!Valid(x, y))
-//                continue;
-//
-//            index++;
-//
-//            if(((locations[s.forbiddenPiece][1]>>index)&1) == 0) continue;
-//
-//            Graphics::point p1, p2, p3;
-//            GetCorners(x, y, p1, p2, p3);
-//
-//            p1 = { -0.75f + p1.x * 0.25f , 0.75f + p1.y * 0.25f};
-//            p2 = { -0.75f + p2.x * 0.25f , 0.75f + p2.y * 0.25f};
-//            p3 = { -0.75f + p3.x * 0.25f , 0.75f + p3.y * 0.25f};
-//
-////            int piece = s.state.Get(y*11+x);
-//            int piece = mapPiece[s.forbiddenPiece];
-//
-//            if ((x == 10) || (piece != s.state.Get(y*11+x+1)))
-//            {
-//                if (GetBorder(x, y, 1, 0, p1, p2))
-//                {
-//                    p1 = { -0.75f + p1.x * 0.25f , 0.75f + p1.y * 0.25f};
-//                    p2 = { -0.75f + p2.x * 0.25f , 0.75f + p2.y * 0.25f};
-//                    display.DrawLine(p1, p2, 0.02, Colors::black);
-//                }
-//            }
-//            if ((x == 0) || (x > 0 && piece != s.state.Get(y*11+x-1)))
-//            {
-//                if (GetBorder(x, y, -1, 0, p1, p2))
-//                {
-//                    p1 = { -0.75f + p1.x * 0.25f , 0.75f + p1.y * 0.25f};
-//                    p2 = { -0.75f + p2.x * 0.25f , 0.75f + p2.y * 0.25f};
-//                    display.DrawLine(p1, p2, 0.02, Colors::black);
-//                }
-//            }
-//            if ((y == 5) || (y < 5 && piece != s.state.Get((y+1)*11+x)))
-//            {
-//                if (GetBorder(x, y, 0, 1, p1, p2))
-//                {
-//                    p1 = { -0.75f + p1.x * 0.25f , 0.75f + p1.y * 0.25f};
-//                    p2 = { -0.75f + p2.x * 0.25f , 0.75f + p2.y * 0.25f};
-//                    display.DrawLine(p1, p2, 0.02, Colors::black);
-//                }
-//            }
-//            if ((y == 0) || (y > 0 && piece != s.state.Get((y-1)*11+x)))
-//            {
-//                if (GetBorder(x, y, 0, -1, p1, p2))
-//                {
-//                    p1 = { -0.75f + p1.x * 0.25f , 0.75f + p1.y * 0.25f};
-//                    p2 = { -0.75f + p2.x * 0.25f , 0.75f + p2.y * 0.25f};
-//                    display.DrawLine(p1, p2, 0.02, Colors::black);
-//                }
-//            }
-//        }
-//    }
 }
 
