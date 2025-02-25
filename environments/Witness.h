@@ -51,8 +51,8 @@ public:
     std::vector<std::pair<int, int>> path;
     std::bitset<(width + 1) * (height + 1)> occupiedCorners;
     std::bitset<(width + 1) * (height) + (width) * (height + 1)> occupiedEdges;
-    mutable std::unordered_set<int> lhs;
-    mutable std::unordered_set<int> rhs;
+    mutable std::vector<int> lhs;
+    mutable std::vector<int> rhs;
 
     WitnessState() { Reset(); }
 
@@ -2007,6 +2007,7 @@ void Witness<width, height>::GetLeftRightRegions(const WitnessState<width, heigh
     auto [x0, y0] = path[0];
     auto checkStart = true;
     auto prevAction = kStart;
+    auto r = -1;
     for (auto i = 1; i < path.size(); ++i)
     {
         auto [x1, y1] = path[i];
@@ -2022,18 +2023,26 @@ void Witness<width, height>::GetLeftRightRegions(const WitnessState<width, heigh
         {
             if (y0 < height)
             {
-                lhs.emplace(GetRegionIndex(x0, y0));
+                r = GetRegionIndex(x0, y0);
+                if (std::find(lhs.begin(), lhs.end(), r) == lhs.end())
+                    lhs.emplace_back(r);
                 if (prevAction == kUp && x0 > 0)
                 {
-                    lhs.emplace(GetRegionIndex(x0 - 1, y0));
+                    r = GetRegionIndex(x0 - 1, y0);
+                    if (std::find(lhs.begin(), lhs.end(), r) == lhs.end())
+                        lhs.emplace_back(r);
                 }
             }
             if (y0 > 0)
             {
-                rhs.emplace(GetRegionIndex(x0, y0 - 1));
+                r = GetRegionIndex(x0, y0 - 1);
+                if (std::find(rhs.begin(), rhs.end(), r) == rhs.end())
+                    rhs.emplace_back(r);
                 if (prevAction == kDown && x0 > 0)
                 {
-                    rhs.emplace(GetRegionIndex(x0 - 1, y0 - 1));
+                    r = GetRegionIndex(x0 - 1, y0 - 1);
+                    if (std::find(rhs.begin(), rhs.end(), r) == rhs.end())
+                        rhs.emplace_back(r);
                 }
             }
             prevAction = kRight;
@@ -2042,18 +2051,26 @@ void Witness<width, height>::GetLeftRightRegions(const WitnessState<width, heigh
         {
             if (y0 > 0)
             {
-                lhs.emplace(GetRegionIndex(x0 - 1, y0 - 1));
+                r = GetRegionIndex(x0 - 1, y0 - 1);
+                if (std::find(lhs.begin(), lhs.end(), r) == lhs.end())
+                    lhs.emplace_back(r);
                 if (prevAction == kDown && x0 < width)
                 {
-                    lhs.emplace(GetRegionIndex(x0, y0 - 1));
+                    r = GetRegionIndex(x0, y0 - 1);
+                    if (std::find(lhs.begin(), lhs.end(), r) == lhs.end())
+                        lhs.emplace_back(r);
                 }
             }
             if (y0 < height)
             {
-                rhs.emplace(GetRegionIndex(x0 - 1, y0));
+                r = GetRegionIndex(x0 - 1, y0);
+                if (std::find(rhs.begin(), rhs.end(), r) == rhs.end())
+                    rhs.emplace_back(r);
                 if (prevAction == kUp && x0 < width)
                 {
-                    rhs.emplace(GetRegionIndex(x0, y0));
+                    r = GetRegionIndex(x0, y0);
+                    if (std::find(rhs.begin(), rhs.end(), r) == rhs.end())
+                        rhs.emplace_back(r);
                 }
             }
             prevAction = kLeft;
@@ -2062,18 +2079,26 @@ void Witness<width, height>::GetLeftRightRegions(const WitnessState<width, heigh
         {
             if (x0 > 0)
             {
-                lhs.emplace(GetRegionIndex(x0 - 1, y0));
+                r = GetRegionIndex(x0 - 1, y0);
+                if (std::find(lhs.begin(), lhs.end(), r) == lhs.end())
+                    lhs.emplace_back(r);
                 if (prevAction == kLeft && y0 > 0)
                 {
-                    lhs.emplace(GetRegionIndex(x0 - 1, y0 - 1));
+                    r = GetRegionIndex(x0 - 1, y0 - 1);
+                    if (std::find(lhs.begin(), lhs.end(), r) == lhs.end())
+                        lhs.emplace_back(r);
                 }
             }
             if (x0 < width)
             {
-                rhs.emplace(GetRegionIndex(x0, y0));
+                r = GetRegionIndex(x0, y0);
+                if (std::find(rhs.begin(), rhs.end(), r) == rhs.end())
+                    rhs.emplace_back(r);
                 if (prevAction == kRight && y0 > 0)
                 {
-                    rhs.emplace(GetRegionIndex(x0, y0 - 1));
+                    r = GetRegionIndex(x0, y0 - 1);
+                    if (std::find(rhs.begin(), rhs.end(), r) == rhs.end())
+                        rhs.emplace_back(r);
                 }
             }
             prevAction = kUp;
@@ -2082,18 +2107,26 @@ void Witness<width, height>::GetLeftRightRegions(const WitnessState<width, heigh
         {
             if (x0 < width)
             {
-                lhs.emplace(GetRegionIndex(x0, y0 - 1));
+                r = GetRegionIndex(x0, y0 - 1);
+                if (std::find(lhs.begin(), lhs.end(), r) == lhs.end())
+                    lhs.emplace_back(r);
                 if (prevAction == kRight && y0 < height)
                 {
-                    lhs.emplace(GetRegionIndex(x0, y0));
+                    r = GetRegionIndex(x0, y0);
+                    if (std::find(lhs.begin(), lhs.end(), r) == lhs.end())
+                        lhs.emplace_back(r);
                 }
             }
             if (x0 > 0)
             {
-                rhs.emplace(GetRegionIndex(x0 - 1, y0 - 1));
+                r = GetRegionIndex(x0 - 1, y0 - 1);
+                if (std::find(rhs.begin(), rhs.end(), r) == rhs.end())
+                    rhs.emplace_back(r);
                 if (prevAction == kLeft && y0 < height)
                 {
-                    rhs.emplace(GetRegionIndex(x0 - 1, y0));
+                    r = GetRegionIndex(x0 - 1, y0);
+                    if (std::find(rhs.begin(), rhs.end(), r) == rhs.end())
+                        rhs.emplace_back(r);
                 }
             }
             prevAction = kDown;
@@ -2671,44 +2704,41 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
         }) != region->cend()) // only check incomplete regions
             rgs.insert(rgs.end(), region->cbegin(), region->cend());
     });
-    int found = 0;
-    rgbColor c{};
     GetLeftRightRegions(node);
-    for (auto r: node.lhs)
+    auto latest = node.lhs[node.lhs.size() - 1];
+    auto [lx, ly] = GetRegionXYFromIndex(latest);
+    auto latest_constraint = regionConstraints[lx][ly];
+    if (std::find(rgs.cbegin(), rgs.cend(), latest) != rgs.cend())
     {
-        if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
-            continue;
-        auto [x, y] = GetRegionXYFromIndex(r);
-        const auto &constraint = regionConstraints[x][y];
-        rgbColor finishedColor(1.0 / 512.0, 1.0 / 512.0, 1.0 / 512.0);
-        switch (constraint.type) {
+        switch (latest_constraint.type)
+        {
             case kSeparation:
             {
-                if (found == 0)
+                for (auto i = 0; i < node.lhs.size() - 1; ++i)
                 {
-                    c = constraint.color;
-                    found = r;
+                    auto r = node.lhs[i];
+                    if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
+                        continue;
+                    auto [x, y] = GetRegionXYFromIndex(r);
+                    const auto &[type, _, color] = regionConstraints[x][y];
+                    if (type == kSeparation && latest_constraint.color != color)
+                    {
+                        regionCache.returnItem(&rgs);
+                        return false;
+                    }
                 }
-                else if (c != constraint.color)
-                {
-                    regionCache.returnItem(&rgs);
-                    return false;
-                }
-                break;
             }
             case kStar:
             {
-                if (constraint.color == finishedColor)
-                    continue;
-                finishedColor = constraint.color;
                 unsigned count = 0;
-                for (auto rr: node.lhs)
+                for (auto i = 0; i < node.lhs.size() - 1; ++i)
                 {
-                    if (std::find(rgs.cbegin(), rgs.cend(), rr) == rgs.cend())
+                    auto r = node.lhs[i];
+                    if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
                         continue;
-                    auto [xx, yy] = GetRegionXYFromIndex(rr);
-                    const auto &[type, _, color] = regionConstraints[xx][yy];
-                    if (type != kNoRegionConstraint && constraint.color == color)
+                    auto [x, y] = GetRegionXYFromIndex(r);
+                    const auto &[type, _, color] = regionConstraints[x][y];
+                    if (type != kNoRegionConstraint && latest_constraint.color == color)
                     {
                         if (++count > 2)
                         {
@@ -2717,15 +2747,14 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
                         }
                     }
                 }
-                break;
             }
             case kTriangle:
             {
-                auto e = static_cast<unsigned>(node.OccupiedEdge(x, y, x, y + 1)) +
-                        static_cast<unsigned>(node.OccupiedEdge(x, y + 1, x + 1, y + 1)) +
-                        static_cast<unsigned>(node.OccupiedEdge(x + 1, y + 1, x + 1, y)) +
-                        static_cast<unsigned>(node.OccupiedEdge(x + 1, y, x, y));
-                if (e > constraint.parameter)
+                auto e = static_cast<unsigned>(node.OccupiedEdge(lx, ly, lx, ly + 1)) +
+                        static_cast<unsigned>(node.OccupiedEdge(lx, ly + 1, lx + 1, ly + 1)) +
+                        static_cast<unsigned>(node.OccupiedEdge(lx + 1, ly + 1, lx + 1, ly)) +
+                        static_cast<unsigned>(node.OccupiedEdge(lx + 1, ly, lx, ly));
+                if (e > latest_constraint.parameter)
                 {
                     regionCache.returnItem(&rgs);
                     return false;
@@ -2736,43 +2765,40 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
                 break;
         }
     }
-    found = 0;
-    c = rgbColor{};
-    for (auto r: node.rhs)
+    latest = node.rhs[node.rhs.size() - 1];
+    auto [rx, ry] = GetRegionXYFromIndex(latest);
+    latest_constraint = regionConstraints[rx][ry];
+    if (std::find(rgs.cbegin(), rgs.cend(), latest) != rgs.cend())
     {
-        if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
-            continue;
-        auto [x, y] = GetRegionXYFromIndex(r);
-        const auto &constraint = regionConstraints[x][y];
-        rgbColor finishedColor(1.0 / 512.0, 1.0 / 512.0, 1.0 / 512.0);
-        switch (constraint.type) {
+        switch (latest_constraint.type)
+        {
             case kSeparation:
             {
-                if (found == 0)
+                for (auto i = 0; i < node.lhs.size() - 1; ++i)
                 {
-                    c = constraint.color;
-                    found = r;
+                    auto r = node.lhs[i];
+                    if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
+                        continue;
+                    auto [x, y] = GetRegionXYFromIndex(r);
+                    const auto &[type, _, color] = regionConstraints[x][y];
+                    if (type == kSeparation && latest_constraint.color != color)
+                    {
+                        regionCache.returnItem(&rgs);
+                        return false;
+                    }
                 }
-                else if (c != constraint.color)
-                {
-                    regionCache.returnItem(&rgs);
-                    return false;
-                }
-                break;
             }
             case kStar:
             {
-                if (constraint.color == finishedColor)
-                    continue;
-                finishedColor = constraint.color;
-                int count = 0;
-                for (auto rr: node.rhs)
+                unsigned count = 0;
+                for (auto i = 0; i < node.lhs.size() - 1; ++i)
                 {
-                    if (std::find(rgs.cbegin(), rgs.cend(), rr) == rgs.cend())
+                    auto r = node.lhs[i];
+                    if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
                         continue;
-                    auto [xx, yy] = GetRegionXYFromIndex(rr);
-                    const auto &[type, _, color] = regionConstraints[xx][yy];
-                    if (type != kNoRegionConstraint && constraint.color == color)
+                    auto [x, y] = GetRegionXYFromIndex(r);
+                    const auto &[type, _, color] = regionConstraints[x][y];
+                    if (type != kNoRegionConstraint && latest_constraint.color == color)
                     {
                         if (++count > 2)
                         {
@@ -2781,15 +2807,14 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
                         }
                     }
                 }
-                break;
             }
             case kTriangle:
             {
-                auto e = static_cast<unsigned>(node.OccupiedEdge(x, y, x, y + 1)) +
-                        static_cast<unsigned>(node.OccupiedEdge(x, y + 1, x + 1, y + 1)) +
-                        static_cast<unsigned>(node.OccupiedEdge(x + 1, y + 1, x + 1, y)) +
-                        static_cast<unsigned>(node.OccupiedEdge(x + 1, y, x, y));
-                if (e > constraint.parameter)
+                auto e = static_cast<unsigned>(node.OccupiedEdge(rx, ry, rx, ry + 1)) +
+                        static_cast<unsigned>(node.OccupiedEdge(rx, ry + 1, rx + 1, ry + 1)) +
+                        static_cast<unsigned>(node.OccupiedEdge(rx + 1, ry + 1, rx + 1, ry)) +
+                        static_cast<unsigned>(node.OccupiedEdge(rx + 1, ry, rx, ry));
+                if (e > latest_constraint.parameter)
                 {
                     regionCache.returnItem(&rgs);
                     return false;

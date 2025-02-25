@@ -279,6 +279,7 @@ int CreateButton(unsigned long windowID, int viewport,
 				 Graphics::roundedRect r, const char *txt, char hit, float borderSize,
 				 rgbColor textColor, rgbColor lineColor, rgbColor fillColor,
 				 rgbColor fillHitColor, rgbColor inactiveLineColor);
+void SetButtonFillColor(int, rgbColor);
 void SetButtonActive(bool, int);
 void ShowButton(int identifier);
 void HideButton(int identifier);

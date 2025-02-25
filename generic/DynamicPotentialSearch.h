@@ -126,9 +126,6 @@ private:
 	uint64_t nodesTouched, nodesExpanded;
 	
 	std::vector<state> neighbors;
-//	std::vector<uint64_t> neighborID;
-//	std::vector<double> edgeCosts;
-//	std::vector<dataLocation> neighborLoc;
 	environment *env;
 	double bestSolution;
 	double weight;
@@ -219,7 +216,6 @@ template <class state, class action, class environment>
 bool DynamicPotentialSearch<state,action,environment>::InitializeSearch(environment *_env, const state& from, const state& to, std::vector<state> &thePath)
 {
 	bestSolution = DBL_MAX;
-	//fMin = DBL_MAX;
 	if (theHeuristic == 0)
 		theHeuristic = _env;
 	thePath.resize(0);

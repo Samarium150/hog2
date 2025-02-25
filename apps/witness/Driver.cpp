@@ -1237,6 +1237,13 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 		InstallFrameHandler(MyFrameHandler, windowID, 0);
 		SetNumPorts(windowID, 1);
 
+		w.SetStart(0, 0);
+		w.SetGoal(3, 5);
+//		w.AddCannotCrossConstraint(true, 0, 0);
+		w.AddSeparationConstraint(3, 3, Colors::blue);
+		w.AddSeparationConstraint(0, 3, Colors::blue);
+		w.AddSeparationConstraint(1, 3, Colors::black);
+		w.AddStarConstraint(3, 1, Colors::black);
 //		w.AddTriangleConstraint(0, 0, 3);
 //		w.AddGoal(1, -1);
 //		w.AddGoal(-1, 1);
@@ -1246,15 +1253,15 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 //		w.AddTriangleConstraint(0, 1, 2);
 //		w.AddTriangleConstraint(1, 0, 1);
 //		ExamineMustCross(numRequiredPieces);
-		w.AddStarConstraint(0, 0, Colors::pink);
+//		w.AddStarConstraint(0, 0, Colors::pink);
 //		w.AddSeparationConstraint(0, 0, Colors::green);
 //		w.AddSeparationConstraint(0, 4, Colors::white);
 //		w.AddSeparationConstraint(4, 0, Colors::white);
-		w.AddSeparationConstraint(2, 2, Colors::pink);
+//		w.AddSeparationConstraint(2, 2, Colors::pink);
 //		w.AddSeparationConstraint(4, 4, Colors::black);
-		w.AddSeparationConstraint(2, 0, Colors::black);
+//		w.AddSeparationConstraint(2, 0, Colors::black);
 //		w.AddSeparationConstraint(2, 4, Colors::black);
-		w.AddSeparationConstraint(0, 2, Colors::orange);
+//		w.AddSeparationConstraint(0, 2, Colors::orange);
 //		w.AddSeparationConstraint(4, 2, Colors::orange);
 
 //		std::string s = "{\"dim\":\"3x3\",\"cc\":{\"0;0;#000000\",\"0;0;#000000\",\"0;0;#000000\",\"4;3;#385CDE\",\"3;10;#DCA700\",\"0;0;#000000\",\"0;0;#000000\",\"0;0;#000000\",\"0;0;#000000\"},\"mc\":\"0000000000000000000000000000000000000000\"}\"";

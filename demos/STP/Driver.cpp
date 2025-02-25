@@ -22,10 +22,10 @@
 #include "SVGUtil.h"
 
 IDAStar<MNPuzzleState<4, 4>, slideDir> ida;
-Heuristic<MNPuzzleState<4, 4>> h;
+Heuristic<MNPuzzleState<4, 4>> searchHeuristic;
 bool recording = false;
 bool running = false;
-float rate = 1.0/8.0;
+float rate = 1.0f/6.0f;
 float tween = 1;
 int numActions = 0;
 bool foundOptimal = true;
@@ -38,7 +38,6 @@ MNPuzzleState<4, 4> goal;
 std::vector<slideDir> acts;
 std::vector<MNPuzzleState<4, 4>> path;
 
-
 std::vector<int> p1 = {0, 1, 2, 3};//, 4, 5, 6, 7};
 std::vector<int> p2 = {0, 4, 5, 6, 7};
 std::vector<int> p3 = {0, 8, 9, 10, 11};
@@ -48,6 +47,10 @@ PermutationPDB<MNPuzzleState<4, 4>, slideDir, MNPuzzle<4, 4>> *pdb1 = 0;
 PermutationPDB<MNPuzzleState<4, 4>, slideDir, MNPuzzle<4, 4>> *pdb2 = 0;
 PermutationPDB<MNPuzzleState<4, 4>, slideDir, MNPuzzle<4, 4>> *pdb3 = 0;
 PermutationPDB<MNPuzzleState<4, 4>, slideDir, MNPuzzle<4, 4>> *pdb4 = 0;
+
+#ifndef __EMSCRIPTEN__
+void MakeAnimation();
+#endif
 
 int main(int argc, char* argv[])
 {
@@ -103,20 +106,20 @@ void BuildPDBs()
 		built = true;
 	}
 	
-	h.lookups.resize(0);
-	h.lookups.push_back({kMaxNode, 1, 5});
-	h.lookups.push_back({kLeafNode, 0, 0});
-	h.lookups.push_back({kLeafNode, 1, 1});
-	h.lookups.push_back({kLeafNode, 2, 2});
-	h.lookups.push_back({kLeafNode, 3, 3});
-	h.lookups.push_back({kLeafNode, 4, 4});
+	searchHeuristic.lookups.resize(0);
+	searchHeuristic.lookups.push_back({kMaxNode, 1, 5});
+	searchHeuristic.lookups.push_back({kLeafNode, 0, 0});
+	searchHeuristic.lookups.push_back({kLeafNode, 1, 1});
+	searchHeuristic.lookups.push_back({kLeafNode, 2, 2});
+	searchHeuristic.lookups.push_back({kLeafNode, 3, 3});
+	searchHeuristic.lookups.push_back({kLeafNode, 4, 4});
 
-	h.heuristics.resize(0);
-	h.heuristics.push_back(&mnp);
-	h.heuristics.push_back(pdb1);
-	h.heuristics.push_back(pdb2);
-	h.heuristics.push_back(pdb3);
-	h.heuristics.push_back(pdb4);
+	searchHeuristic.heuristics.resize(0);
+	searchHeuristic.heuristics.push_back(&mnp);
+	searchHeuristic.heuristics.push_back(pdb1);
+	searchHeuristic.heuristics.push_back(pdb2);
+	searchHeuristic.heuristics.push_back(pdb3);
+	searchHeuristic.heuristics.push_back(pdb4);
 	t.EndTimer();
 	if (built)
 		srandom(t.GetElapsedTime()*1000);
@@ -145,11 +148,15 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 {
 	Graphics::Display &display = getCurrentContext()->display;
 	display.FillRect({-1, -1, 1, 1}, Colors::white);
-	
+	const auto smooth = [](float a, float b, float mix)
+	{ float tmp1 = mix*mix*mix; float tmp2 = (1-mix)*(1-mix)*(1-mix);
+		mix = (1-mix)*tmp1+mix*(1-tmp2); return (1-mix)*a+mix*b;
+	};
+
 	if (!foundOptimal && tween >= 1+rate)
 	{
 		//BuildPDBs();
-		ida.SetHeuristic(&h);
+		ida.SetHeuristic(&searchHeuristic);
 		WeightedHeuristic<MNPuzzleState<4, 4>> w(&mnp, 2.0);
 		ida.SetHeuristic(&w);
 		ida.GetPath(&mnp, start, goal, acts);
@@ -165,7 +172,8 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 		mnp.Draw(display, curr);
 	}
 	else {
-		mnp.Draw(display, curr, last, tween);
+		mnp.Draw(display, curr, last, smooth(0, 1, tween));
+//		mnp.Draw(display, curr, last, tween);
 	}
 
 	if (tween <= 1+rate)
@@ -260,3 +268,59 @@ bool MyClickHandler(unsigned long , int windowX, int windowY, point3d loc, tButt
 	return false;
 }
 
+#ifndef __EMSCRIPTEN__
+
+#include "STPInstances.h"
+#include "ParallelIDAStar.h"
+void MakeAnimation()
+{
+	const auto smooth = [](float a, float b, float mix)
+	{ float tmp1 = mix*mix*mix; float tmp2 = (1-mix)*(1-mix)*(1-mix);
+		mix = (1-mix)*tmp1+mix*(1-tmp2); return (1-mix)*a+mix*b;
+	};
+
+	//MNPuzzle<4, 4> mnp;
+	//MNPuzzleState<4, 4> start, goal;
+	goal.Reset();
+	start = STP::GetKorfInstance(88);
+	ParallelIDAStar<MNPuzzle<4, 4>, MNPuzzleState<4, 4>, slideDir> pida;
+	std::vector<slideDir> p;
+	pida.GetPath(&mnp, start, goal, p);
+	path.resize(0);
+	path.push_back(start);
+	for (auto a : p)
+	{
+		mnp.ApplyAction(start, a);
+		path.push_back(start);
+	}
+	Graphics::Display d;
+	d.ReinitViewports({-1, -1, 1, 1}, kScaleToSquare);
+	int count = 0;
+	for (int x = 0; x < path.size()-1; x++)
+	{
+		d.StartFrame();
+		mnp.Draw(d, path[x]);
+		d.EndFrame();
+		std::string tmp = "/Users/nathanst/Pictures/SVG/STP"+std::to_string(count)+".svg";
+		count++;
+		MakeSVG(d, tmp.c_str(), 500, 500);
+
+		for (float f = 0; f <= 1; f += 1.0f/30.0f)
+		{
+			d.StartFrame();
+			mnp.Draw(d, path[x], path[x+1], smooth(0, 1, 1-f));
+			d.EndFrame();
+			tmp = "/Users/nathanst/Pictures/SVG/STP"+std::to_string(count)+".svg";
+			count++;
+			MakeSVG(d, tmp.c_str(), 500, 500);
+		}
+	}
+	d.StartFrame();
+	mnp.Draw(d, path.back());
+	d.EndFrame();
+	std::string tmp = "/Users/nathanst/Pictures/SVG/STP"+std::to_string(count)+".svg";
+	count++;
+	MakeSVG(d, tmp.c_str(), 500, 500);
+}
+
+#endif

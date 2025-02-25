@@ -184,11 +184,37 @@
 			CGContextStrokePath(context);
 			break;
 		}
+		case Graphics::Display::kFillRoundedRectangle:
+		{
+			Graphics::Display::rrInfo &o = d.rr;
+			CGPathRef ref = CGPathCreateWithRoundedRect([self makeRect:o.r.r viewport:port],
+														[self hogWidthToScreen:o.r.rad viewport:port],
+														[self hogWidthToScreen:o.r.rad viewport:port],
+														NULL);
+			CGContextSetRGBFillColor(context, o.c.r, o.c.g, o.c.b, 1.0);
+			CGContextSetLineWidth(context, [self hogWidthToScreen:o.width viewport:port]);
+			CGContextAddPath(context, ref);
+			CGContextFillPath(context);
+			break;
+		}
+		case Graphics::Display::kFrameRoundedRectangle:
+		{
+			Graphics::Display::rrInfo &o = d.rr;
+			CGPathRef ref = CGPathCreateWithRoundedRect([self makeRect:o.r.r viewport:port],
+														[self hogWidthToScreen:o.r.rad viewport:port],
+														[self hogWidthToScreen:o.r.rad viewport:port],
+														NULL);
+			CGContextSetRGBStrokeColor(context, o.c.r, o.c.g, o.c.b, 1.0);
+			CGContextSetLineWidth(context, [self hogWidthToScreen:o.width viewport:port]);
+			CGContextAddPath(context, ref);
+			CGContextStrokePath(context);
+			break;
+		}
 		case Graphics::Display::kFillRectangle:
 		{
 			Graphics::Display::drawInfo &o = d.shape;
 			CGContextSetRGBFillColor(context, o.c.r, o.c.g, o.c.b, 1.0);
-			CGContextSetLineWidth(context, o.width);
+			CGContextSetLineWidth(context, [self hogWidthToScreen:o.width viewport:port]);
 			Graphics::rect &tmp = o.r;
 			CGContextFillRect(context, [self makeRect:tmp viewport:port]);
 			break;
@@ -230,6 +256,9 @@
 		{
 			Graphics::Display::triangleInfo &o = d.triangle;
 			CGContextSetRGBStrokeColor(context, o.c.r, o.c.g, o.c.b, 1.0);
+			CGContextSetLineWidth(context, [self hogWidthToScreen:o.width viewport:port]);
+			CGContextSetLineCap(context, kCGLineCapRound);
+			CGContextSetLineJoin(context, kCGLineJoinRound);
 			CGContextMoveToPoint(context,
 								 [self hogToScreenX:o.p1.x viewport:port],
 								 [self hogToScreenY:o.p1.y viewport:port]);
@@ -239,6 +268,9 @@
 			CGContextAddLineToPoint(context,
 									[self hogToScreenX:o.p3.x viewport:port],
 									[self hogToScreenY:o.p3.y viewport:port]);
+			CGContextAddLineToPoint(context,
+									[self hogToScreenX:o.p1.x viewport:port],
+									[self hogToScreenY:o.p1.y viewport:port]);
 			CGContextStrokePath(context);
 		}
 			break;

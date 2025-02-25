@@ -24,6 +24,7 @@
 #include "GridHeuristics.h"
 #include "MNPuzzle.h"
 #include "STPInstances.h"
+#include "FileUtil.h"
 
 int stepsPerFrame = 1;
 float bound = 2;
@@ -63,6 +64,7 @@ xyLoc xyLocRandomState;
 MNPuzzleState<4, 4> mnpRandomState;
 GridEmbedding *dh;
 GridEmbedding *ge;
+void SaveSVG(Graphics::Display &d, int port = -1);
 
 bool useLookUpTable = false;
 
@@ -360,7 +362,6 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
         }
 
         searchRunning = true;
-
     }
 }
 
@@ -2450,3 +2451,15 @@ float ChooseWeightForTargetPriority(point3d loc, float priority, float minWeight
 */
  }
 
+void SaveSVG(Graphics::Display &d, int port)
+{
+	const std::string baseFileName = "/Users/nathanst/Pictures/hog2/DSDWA_";
+	static int count = 0;
+	std::string fname;
+	do {
+		fname = baseFileName+std::to_string(count)+".svg";
+		count++;
+	} while (FileExists(fname.c_str()));
+	printf("Save to '%s'\n", fname.c_str());
+	MakeSVG(d, fname.c_str(), 1024, 1024, port);
+}
