@@ -26,7 +26,7 @@ void EMSCRIPTEN_KEEPALIVE SetCanvasSize(int x, int y)
 {
 	canvasWidth = x;
 	canvasHeight = y;
-	
+
 	pRecContext pContextInfo = getCurrentContext();
 	pContextInfo->display.windowHeight = canvasHeight;
 	pContextInfo->display.windowWidth = canvasWidth;
@@ -35,7 +35,6 @@ void EMSCRIPTEN_KEEPALIVE SetCanvasSize(int x, int y)
 	canvasYOffset = (canvasHeight>canvasWidth)?(canvasHeight-canvasWidth):0;
 	canvasXOffset /= 2;
 	canvasYOffset /= 2;
-	pContextInfo->display.ForceBackgroundRedraw();
 }
 
 void EMSCRIPTEN_KEEPALIVE MouseEvent(int x, int y, bool up, bool down, bool drag)

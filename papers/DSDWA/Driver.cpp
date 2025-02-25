@@ -18,7 +18,6 @@
 #include "DSDWAStar.h"
 #include "MapGenerators.h"
 #include "GridHeuristics.h"
-#include "FileUtil.h"
 
 int stepsPerFrame = 1;
 float bound = 2;
@@ -33,7 +32,6 @@ bool searchRunning = false;
 MapEnvironment *me = 0;
 xyLoc start, goal;
 GridEmbedding *ge;
-void SaveSVG(Graphics::Display &d, int port = -1);
 
 int main(int argc, char* argv[])
 {
@@ -49,7 +47,6 @@ int main(int argc, char* argv[])
 void InstallHandlers()
 {
 	InstallKeyboardHandler(MyDisplayHandler, "Reset lines", "Reset incremenetal lines", kAnyModifier, 'r');
-	InstallKeyboardHandler(MyDisplayHandler, "Save", "Save SVG", kAnyModifier, 's');
 	InstallKeyboardHandler(MyDisplayHandler, "Show plane", "Show gradient of plane heights", kAnyModifier, 'p');
 	InstallKeyboardHandler(MyDisplayHandler, "Faster", "Speed up search animation", kAnyModifier, ']');
 	InstallKeyboardHandler(MyDisplayHandler, "Slower", "Slow down search animation", kAnyModifier, '[');
@@ -79,9 +76,9 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 		AddViewport(windowID, {0, -1, 1, 1}, kScaleToSquare);
 		Map *m = new Map(200, 200);
 		srandom(20221228);
-		BuildRandomRoomMap(m, 30);
-		//MakeRandomMap(m, 10);
-		//MakeMaze(m, 10);
+		//BuildRandomRoomMap(m, 30);
+		//MakeRandomMap(m, 30);
+		MakeMaze(m, 10);
 		// default 8-connected with ROOT_TWO edge costs
 		me = new MapEnvironment(m);
 		dsd.policy = kWA;
@@ -93,7 +90,7 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 		for (int x = 0; x < numDimensions; x++)
 			ge->AddDimension(kDifferential, kFurthest);
 
-//		dsd.SetHeuristic(ge);
+		dsd.SetHeuristic(ge);
 		dsd.SetWeight(bound);
 		dsd.InitializeSearch(me, start, goal, solution);
 		searchRunning = true;
@@ -269,14 +266,6 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 {
 	switch (key)
 	{
-		case 's':
-		{
-			Graphics::Display &d = getCurrentContext()->display;
-			SaveSVG(d, 0);
-			SaveSVG(d, 1);
-			SaveSVG(d);
-		}
-			break;
 		case 'r': data.resize(0); break;
 		case 'p': showPlane = !showPlane; break;
 		case '[': stepsPerFrame = stepsPerFrame/2; break;
@@ -512,15 +501,3 @@ float ChooseWeightForTargetPriority(point3d loc, float priority, float minWeight
 */
  }
 
-void SaveSVG(Graphics::Display &d, int port)
-{
-	const std::string baseFileName = "/Users/nathanst/Pictures/hog2/DSDWA_";
-	static int count = 0;
-	std::string fname;
-	do {
-		fname = baseFileName+std::to_string(count)+".svg";
-		count++;
-	} while (FileExists(fname.c_str()));
-	printf("Save to '%s'\n", fname.c_str());
-	MakeSVG(d, fname.c_str(), 1024, 1024, port);
-}

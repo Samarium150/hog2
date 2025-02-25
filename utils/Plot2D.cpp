@@ -285,67 +285,7 @@ void Plot2D::AddPoint(const Point &p)
 			break;
 		}
 	}
-}
-
-void Plot2D::IncludeInX(double x)
-{
-	if (x > xMax)
-		xMax = x;
-	if (x < xMin)
-		xMin = x;
 	
-	xMax = std::max(xMax, yMax);
-	yMax = xMax;
-	xMin = std::min(xMin, yMin);
-	yMin = xMin;
-	
-	dLeft = xMin;
-	dRight = xMax;
-	dTop = yMax;
-	dBottom = yMin;
-	
-	int val = 1;
-	while (true)
-	{
-		val *= 2;
-		if (val > xMax)
-		{
-			dRight = val;
-			dTop = val;
-			break;
-		}
-	}
-}
-
-void Plot2D::IncludeInY(double y)
-{
-	if (y > yMax)
-		yMax = y;
-	if (y < yMin)
-		yMin = y;
-	
-	xMax = std::max(xMax, yMax);
-	yMax = xMax;
-	xMin = std::min(xMin, yMin);
-	yMin = xMin;
-	
-	dLeft = xMin;
-	dRight = xMax;
-	dTop = yMax;
-	dBottom = yMin;
-	
-	int val = 1;
-	while (true)
-	{
-		val *= 2;
-		if (val > xMax)
-		{
-			dRight = val;
-			dTop = val;
-			break;
-		}
-	}
-
 }
 
 

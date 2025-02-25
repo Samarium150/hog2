@@ -57,7 +57,7 @@ public:
 	}
 };
 
-GraphDistHeuristic searchHeuristic;
+GraphDistHeuristic h;
 
 int main(int argc, char* argv[])
 {
@@ -395,7 +395,7 @@ void BuildGMX()
 	std::vector<graphState> path;
 
 	TemplateAStar<graphState, graphMove, GraphEnvironment> astar;
-	astar.SetHeuristic(&searchHeuristic);
+	astar.SetHeuristic(&h);
 	astar.GetPath(ge, from, to, path);
 	optimalCost = ge->GetPathLength(path);
 

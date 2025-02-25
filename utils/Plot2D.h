@@ -73,8 +73,6 @@ namespace Plotting {
 		void Clear();
 		void AddLine(Line *);
 		void AddPoint(const Point &p);
-		void IncludeInX(double x);
-		void IncludeInY(double y);
 		void SetXAxisLabel(const char *);
 		void SetYAxisLabel(const char *);
 		//		void SetCurrMouse(double, double, Rect &winRect);

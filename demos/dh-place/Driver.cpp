@@ -79,7 +79,7 @@ public:
 	std::vector<dh> values;
 };
 
-DifferentialHeuristic searchHeuristic;
+DifferentialHeuristic h;
 
 int main(int argc, char* argv[])
 {
@@ -130,8 +130,8 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 		mo = new MapOverlay(map);
 		
 		me = new MapEnvironment(map);
-		searchHeuristic.e = me;
-		astar.SetHeuristic(&searchHeuristic);
+		h.e = me;
+		astar.SetHeuristic(&h);
 		submitTextToBuffer("Click anywhere in the map to place a differential heuristic");
 	}
 }
@@ -152,10 +152,10 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 		mapChange = false;
 	}
 
-	for (int x = 0; x < searchHeuristic.values.size(); x++)
+	for (int x = 0; x < h.values.size(); x++)
 	{
 		me->SetColor(1.0, 0, 1.0);
-		me->Draw(display, searchHeuristic.values[x].startLoc);
+		me->Draw(display, h.values[x].startLoc);
 	}
 	
 	if (m == kIdentifyLowHeuristic || m == kIdentifyHighHeuristic)
@@ -295,14 +295,14 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 		}
 			break;
 		case '|':
-			searchHeuristic.Clear();
+			h.Clear();
 			break;
 		case 'a':
 			submitTextToBuffer("Click anywhere in the map to place a differential heuristic");
 			m = kAddDH;
 			break;
 		case 'm':
-			if (searchHeuristic.values.size() == 0)
+			if (h.values.size() == 0)
 			{
 				submitTextToBuffer("Error: Must place DH first");
 				break;
@@ -327,7 +327,7 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 		}
 			break;
 		case 'h':
-			if (searchHeuristic.values.size() == 0)
+			if (h.values.size() == 0)
 			{
 				submitTextToBuffer("Error: Must place DH first");
 				break;
@@ -337,7 +337,7 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 			FindSamplePoints();
 			break;
 		case 'l':
-			if (searchHeuristic.values.size() == 0)
+			if (h.values.size() == 0)
 			{
 				submitTextToBuffer("Error: Must place DH first");
 				break;
@@ -367,7 +367,7 @@ void ShowDiff()
 		else {
 			int hash = me->GetStateHash(v);
 			//printf("(%d, %d): %f\n", v.x, v.y, cost);
-			mo->SetOverlayValue(v.x, v.y, cost-searchHeuristic.HCost(start, v));
+			mo->SetOverlayValue(v.x, v.y, cost-h.HCost(start, v));
 			//printf("Read value: %f\n", mo->GetOverlayValue(v.x, v.y));
 		}
 	}
@@ -400,7 +400,7 @@ void AddDH(xyLoc where)
 		}
 	}
 	mo->SetColorMap(10);
-	searchHeuristic.values.push_back(newDH);
+	h.values.push_back(newDH);
 }
 
 void DHMouseHandler(tMouseEventType mType, point3d loc)
@@ -414,7 +414,7 @@ void DHMouseHandler(tMouseEventType mType, point3d loc)
 	{
 		case kMouseDown:
 		{
-			searchHeuristic.Clear();
+			h.Clear();
 			xyLoc tmp = {static_cast<uint16_t>(x), static_cast<uint16_t>(y)};
 			AddDH(tmp);
 			mapChange = true;
@@ -439,18 +439,18 @@ void DHGoodBadHandler(tMouseEventType mType, point3d loc)
 			{
 				double besth = 10000;
 				for (auto p : points)
-					if (searchHeuristic.HCost(p, tmp) < besth)
+					if (h.HCost(p, tmp) < besth)
 					{
-						besth = searchHeuristic.HCost(p, tmp);
+						besth = h.HCost(p, tmp);
 						firstCompare = p;
 					}
 			}
 			else {
 				double besth = 10000;
 				for (auto p : points)
-					if (searchHeuristic.HCost(p, tmp) < besth)
+					if (h.HCost(p, tmp) < besth)
 					{
-						besth = searchHeuristic.HCost(p, tmp);
+						besth = h.HCost(p, tmp);
 						secondCompare = p;
 					}
 				EvaluateCompare();
@@ -480,7 +480,7 @@ void GetPathHandler(tMouseEventType mType, point3d loc)
 		{
 			goal = tmp;
 			astar.InitializeSearch(me, start, goal, path);
-			astar.SetHeuristic(&searchHeuristic);
+			astar.SetHeuristic(&h);
 			running = true;
 		}
 	}
@@ -501,7 +501,7 @@ void GetMeasureHandler(tMouseEventType mType, point3d loc)
 		case kMouseUp: goal = tmp; break;
 	}
 	std::stringstream ss;
-	ss << "H-cost from " << start << " to " << goal << " is " << searchHeuristic.DHCost(start, goal);
+	ss << "H-cost from " << start << " to " << goal << " is " << h.DHCost(start, goal);
 	submitTextToBuffer(ss.str().c_str());
 }
 
@@ -520,7 +520,7 @@ bool MyClickHandler(unsigned long , int windowX, int windowY, point3d loc, tButt
 
 void FindSamplePoints()
 {
-	if (searchHeuristic.values.size() == 0)
+	if (h.values.size() == 0)
 	{
 		return;
 	}
@@ -542,11 +542,11 @@ void FindSamplePoints()
 			bool tooClose = false;
 			for (int t = 0; t < points.size(); t++)
 			{
-				if (searchHeuristic.HCost(points[t], next) < 20)
+				if (h.HCost(points[t], next) < 20)
 					tooClose = true;
 			}
 			// Not too close to pivot either
-			if (searchHeuristic.HCost(searchHeuristic.values[0].startLoc, next) < 20)
+			if (h.HCost(h.values[0].startLoc, next) < 20)
 				tooClose = true;
 			
 			if (!tooClose)
@@ -559,15 +559,15 @@ void FindSamplePoints()
 
 void EvaluateCompare()
 {
-	double dh = searchHeuristic.DHCost(firstCompare, secondCompare);
+	double dh = h.DHCost(firstCompare, secondCompare);
 	double mindh = 10000;
 	double maxdh = 0;
 	for (int x = 0; x < points.size(); x++)
 	{
 		for (int y = x+1; y < points.size(); y++)
 		{
-			mindh = std::min(mindh, searchHeuristic.DHCost(points[x], points[y]));
-			maxdh = std::max(maxdh, searchHeuristic.DHCost(points[x], points[y]));
+			mindh = std::min(mindh, h.DHCost(points[x], points[y]));
+			maxdh = std::max(maxdh, h.DHCost(points[x], points[y]));
 		}
 	}
 	if (m == kIdentifyLowHeuristic)

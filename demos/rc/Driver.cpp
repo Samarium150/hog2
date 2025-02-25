@@ -239,47 +239,60 @@ void RunNewPDBTest()
 //	exit(0);
 	
 	RCPDB pdb0(&rc,
-			   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-			   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 12 edges in place ignoring rotations
+			   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+			   {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+//			   {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+//			   {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+//			   {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+//			   {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
 			   {0, 0, 0, 0, 0, 0, 0, 0},
 			   {0, 0, 0, 0, 0, 0, 0, 0}
 			   );
 	RCPDB pdb1(&rc,
 			   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-			   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-			   {0, 0, 0, 0, 0, 0, 0, 0},
-			   {1, 1, 1, 1, 1, 1, 1, 1} // 8 edges in place + 12-edge rotations
-			   );
-//	RCPDB pdb2(&rc,
+			   {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
+//			   {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+//			   {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
 //			   {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
 //			   {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
-//			   {0, 0, 0, 0, 0, 0, 0, 0},
-//			   {0, 0, 0, 0, 0, 0, 0, 0});
+			   {0, 0, 0, 0, 0, 0, 0, 0},
+			   {0, 0, 0, 0, 0, 0, 0, 0}
+			   );
+	RCPDB pdb2(&rc,
+//			   {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+//			   {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+			   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+			   {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},
+//			   {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+//			   {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+			   {0, 0, 0, 0, 0, 0, 0, 0},
+			   {0, 0, 0, 0, 0, 0, 0, 0}
+			   );
 	RCPDB pdb3(&rc,
-			   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // all rotations correct
+			   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 			   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			   {1, 1, 1, 1, 1, 1, 1, 1},
 			   {0, 0, 0, 0, 0, 0, 0, 0}
 			   );
 	RCPDB pdb4(&rc,
-			   {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-			   {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			   {1, 1, 1, 1, 1, 1, 1, 1},
 			   {1, 1, 1, 1, 1, 1, 1, 1}
 			   );
 	Heuristic<RCState> h;
-	h.lookups.push_back({kMaxNode, 1, 4});
+	h.lookups.push_back({kMaxNode, 1, 5});
 	h.lookups.push_back({kLeafNode, 0, 0});
 	h.lookups.push_back({kLeafNode, 1, 1});
 	h.lookups.push_back({kLeafNode, 2, 2});
 	h.lookups.push_back({kLeafNode, 3, 3});
-//	h.lookups.push_back({kLeafNode, 4, 4});
+	h.lookups.push_back({kLeafNode, 4, 4});
 
-	h.heuristics.push_back(&pdb4);
-	h.heuristics.push_back(&pdb3);
-//	h.heuristics.push_back(&pdb2);
-	h.heuristics.push_back(&pdb1);
 	h.heuristics.push_back(&pdb0);
+	h.heuristics.push_back(&pdb1);
+	h.heuristics.push_back(&pdb2);
+	h.heuristics.push_back(&pdb3);
+	h.heuristics.push_back(&pdb4);
 
 //					  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 //					  {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
@@ -292,14 +305,12 @@ void RunNewPDBTest()
 //					  {0, 0, 0, 0, 0, 0, 0, 0},
 //					  {0, 0, 0, 0, 0, 0, 0, 0}
 //					  );
-
-	
+	printf("Verifying hashes:\n");
 	for (auto &j : h.heuristics)
 	{
-//		RCState tmp;
+		RCState tmp;
 		RCPDB *i = (RCPDB*)j;
 		std::cout << "PDB Size " << i->GetPDBSize() << "\n";
-		//	printf("Verifying hashes:\n");
 		for (uint64_t x = 0; x < i->GetPDBSize(); x++)
 		{
 			i->GetStateFromPDBHash(x, goal);

@@ -56,7 +56,7 @@ public:
 	}
 };
 
-GraphDistHeuristic searchHeuristic;
+GraphDistHeuristic h;
 
 int main(int argc, char* argv[])
 {
@@ -122,7 +122,7 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 		ge->SetDrawNodeLabels(true);
 		ge->SetIntegerEdgeCosts(false);
 		astar.SetWeight(1.0);
-		astar.SetHeuristic(&searchHeuristic);
+		astar.SetHeuristic(&h);
 		te.AddLine("A* algorithm sample code");
 		te.AddLine("Current mode: add nodes (click to add node)");
 		te.AddLine("Press [ or ] to change modes. '?' for help.");
@@ -480,7 +480,7 @@ void ShowSearchInfo()
 				astar.GetClosedListGCost(x, gcost);
 				s += MyToString(gcost);
 				s += ", h: ";
-				s += MyToString(searchHeuristic.HCost(x, astar.goal));
+				s += MyToString(h.HCost(x, astar.goal));
 				s += ")";
 			}
 			break;
@@ -490,14 +490,14 @@ void ShowSearchInfo()
 				astar.GetOpenListGCost(x, gcost);
 				s += MyToString(gcost);
 				s += ", h: ";
-				s += MyToString(searchHeuristic.HCost(x, astar.goal));
+				s += MyToString(h.HCost(x, astar.goal));
 				s += ")";
 			}
 				break;
 
 			case kNotFound:
 				s += ": Ungenerated (h: ";
-				s += MyToString(searchHeuristic.HCost(x, astar.goal));
+				s += MyToString(h.HCost(x, astar.goal));
 				s += ")";
 				break;
 		}

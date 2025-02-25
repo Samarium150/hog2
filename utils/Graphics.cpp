@@ -71,16 +71,9 @@ void Display::EndBackground()
 	drawingBackground = false;
 }
 
-void Display::ForceBackgroundRedraw()
-{
-	// We don't necessarily know where we are in the cycle when this is called,
-	// so force re-draw on the next cycle
-	backgroundFrame = foregroundFrame+1;
-}
-
 bool Display::BackgroundNeedsRedraw() const
 {
-	return backgroundFrame >= foregroundFrame;
+	return backgroundFrame == foregroundFrame;
 }
 
 void Display::SetNumViewports(uint8_t v)

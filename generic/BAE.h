@@ -330,7 +330,7 @@ void BAE<state, action, environment, priorityQueue>::Expand(priorityQueue &curre
         double edgeCost = env->GCost(parentData.data, succ);
 
         // ignore states with greater cost than best solution
-        if (fgreatereq(parentData.g + edgeCost+heuristic->HCost(succ, target), currentCost))
+        if (fgreatereq(parentData.g + edgeCost, currentCost))
             continue;
 
         switch (loc) {

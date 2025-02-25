@@ -46,11 +46,11 @@ double proveBound = 1.5, exploreBound = 3.0;
 MapEnvironment *me = 0;
 TemplateAStar<xyLoc, tDirection, MapEnvironment> astar;
 OptimisticSearch<xyLoc, tDirection, MapEnvironment> optimistic;
-AStarEpsilon<xyLoc, tDirection, MapEnvironment> astar_e(1.5);
+//AStarEpsilon<xyLoc, tDirection, MapEnvironment> astar_e(1.5);
 DynamicPotentialSearch<xyLoc, tDirection, MapEnvironment> dps;
 ImprovedOptimisticSearch<xyLoc, tDirection, MapEnvironment> ios;
 //Focal<xyLoc, tDirection, MapEnvironment> astar_e(1.5);
-//FocalAdd<xyLoc, tDirection, MapEnvironment> astar_e(0);
+FocalAdd<xyLoc, tDirection, MapEnvironment> astar_e(0);
 
 std::vector<xyLoc> path;
 void GetMap(Map *m);
@@ -91,11 +91,8 @@ void TestTreap()
 	exit(0);
 }
 
-//void STPTEST();
-
 int main(int argc, char* argv[])
 {
-//	STPTEST();
 //	TestTreap();
 	InstallHandlers();
 	RunHOGGUI(argc, argv, 1200, 1200);
@@ -387,107 +384,83 @@ void GetPlotPoints()
 		}
 		
 		
-	}
-	else if (running && m == kFindPathAStar_e)
+	}	else if (running && m == kFindPathAStar_e)
 	{
 		plot.Clear();
 		plot.SetAxis(0, 0, solutionCost, solutionCost);
 
-		for (int x = 0; x < astar_e.GetNumItems(); x++)
+		for (int x = 0; x < astar_e.GetNumOpenItems(); x++)
 		{
-			if (astar_e.IsOpen(x))
-			{
-				Plotting::Point p = {me->HCost(astar_e.GetItem(x), goal), astar_e.GetItemGCost(x), pointSize, Colors::blue};
-				plot.AddPoint(p);
-			}
+			const auto &item = astar_e.GetOpenItem(x);
+			Plotting::Point p = {me->HCost(item.s, goal), item.g, pointSize, Colors::blue};
+			plot.AddPoint(p);
 		}
-		for (int x = 0; x < astar_e.GetNumItems(); x++)
+		for (int x = 0; x < astar_e.GetNumFocalItems(); x++)
 		{
-			float g = astar_e.GetItemGCost(x);
-			float h = astar_e.GetItemHCost(x);
-			if (astar_e.IsOpen(x))
-			{
-				if (astar_e.IsFocal(x))
-				{
-					Plotting::Point p = {h, g, pointSize, Colors::green};
-					plot.AddPoint(p);
-				}
-				else {
-					Plotting::Point p = {h, g, pointSize, Colors::blue};
-					plot.AddPoint(p);
-				}
-			}
-			else { // closed
-				Plotting::Point p = {h, g, pointSize, Colors::gray};
-				plot.AddPoint(p);
-			}
-//			const auto &item = astar_e.GetOpenItem(x);
-//			Plotting::Point p = {me->HCost(item.s, goal), item.g, pointSize, Colors::blue};
-//			plot.AddPoint(p);
+			const auto &item = astar_e.GetFocalItem(x);
+			Plotting::Point p = {me->HCost(item.s, goal), item.g, pointSize, Colors::green};
+			plot.AddPoint(p);
 		}
-//		for (int x = 0; x < astar_e.GetNumFocalItems(); x++)
-//		{
-//			const auto &item = astar_e.GetFocalItem(x);
-//			Plotting::Point p = {me->HCost(item.s, goal), item.g, pointSize, Colors::green};
-//			plot.AddPoint(p);
-//		}
 		plot.NormalizeAxes();
 
 		double target;
 		//		astar.DoSingleSearchStep(path);
-		if (astar_e.GetNumItems() > 0)
+		if (astar_e.GetNumOpenItems() > 0)
 		{
 			double w = astar_e.GetOptimalityBound();
-			//double g, h;
-			double minFOnOpen = astar_e.GetMinF();
-			target = w*minFOnOpen;
+			double g, h;
+			const auto &s = astar_e.CheckNextOpenNode();
+			astar_e.GetOpenListGCost(s, g);
+			h = me->HCost(s, goal);
+			target = w*(g+h);
 
-//			plot.AddPoint({h, g, 3.0/5.0, Colors::purple});
+			plot.AddPoint({h, g, 3.0/5.0, Colors::purple});
 
+			
 			static Plotting::Line upperBound("");
 			static Plotting::Line lowerBound("");
 			static Plotting::Line projectedLowerBound("");
 			upperBound.Clear();
 			upperBound.SetWidth(1);
 			upperBound.SetColor(Colors::darkgreen);
-			upperBound.AddPoint(0, target);
-			upperBound.AddPoint(plot.GetMaxX(), target-plot.GetMaxX());
+			upperBound.AddPoint(0, w*(g+h));
+			upperBound.AddPoint(plot.GetMaxX(), w*(g+h));
 //			printf("Min optimal f: %1.2f, upper bound %1.2f\n", g+h, w*(g+h));
 			
 			lowerBound.Clear();
 			lowerBound.SetWidth(1);
 			lowerBound.SetColor(Colors::darkgreen);
-			lowerBound.AddPoint(0, minFOnOpen);
-			lowerBound.AddPoint(plot.GetMaxX(), minFOnOpen);
+			lowerBound.AddPoint(0, g+h);
+			lowerBound.AddPoint(plot.GetMaxX(), g+h);
 
 			projectedLowerBound.Clear();
 			projectedLowerBound.SetWidth(1);
 			projectedLowerBound.SetColor(Colors::darkgreen);
-			projectedLowerBound.AddPoint(0, w*minFOnOpen);
-			projectedLowerBound.AddPoint(minFOnOpen, 0);
+			projectedLowerBound.AddPoint(h, g);
+			projectedLowerBound.AddPoint(0, g+h);
 
 
-			plot.AddLine(&upperBound);
 			plot.AddLine(&lowerBound);
+			plot.AddLine(&upperBound);
 			plot.AddLine(&projectedLowerBound);
 		}
-//		
-//		if (astar_e.GetNumFocalItems() > 0)
-//		{
-//			const auto &s = astar_e.CheckNextFocalNode();
-//			double g, h;
-//			astar_e.GetFocalListGCost(s, g);
-//			h = me->HCost(s, goal);
-//
-//			static Plotting::Line projectedUpperBound("");
-//			projectedUpperBound.Clear();
-//			projectedUpperBound.SetWidth(1);
-//			projectedUpperBound.SetColor(Colors::darkgreen);
-//			projectedUpperBound.AddPoint(h, g);
-//			projectedUpperBound.AddPoint(0, g+h);
-//
-//			plot.AddLine(&projectedUpperBound);
-//		}
+		
+		if (astar_e.GetNumFocalItems() > 0)
+		{
+			const auto &s = astar_e.CheckNextFocalNode();
+			double g, h;
+			astar_e.GetFocalListGCost(s, g);
+			h = me->HCost(s, goal);
+
+			static Plotting::Line projectedUpperBound("");
+			projectedUpperBound.Clear();
+			projectedUpperBound.SetWidth(1);
+			projectedUpperBound.SetColor(Colors::darkgreen);
+			projectedUpperBound.AddPoint(h, g);
+			projectedUpperBound.AddPoint(0, g+h);
+
+			plot.AddLine(&projectedUpperBound);
+		}
 	}
 	else if (running && m == kFindPathDPS)
 	{
@@ -627,15 +600,8 @@ void GetPlotPoints()
 			Plotting::Point p = {me->HCost(item.data, goal), item.g, pointSize, Colors::green};
 			plot.AddPoint(p);
 		}
-		for (int x = 0; x < astar.GetNumItems(); x++)
-		{
-			const auto &item = astar.GetItem(x);
-			Plotting::Point p = {me->HCost(item.data, goal), item.g, pointSize, (item.where==kOpenList)?Colors::green:Colors::gray};
-			plot.AddPoint(p);
-		}
 	}
-	plot.IncludeInX(100);
-	plot.IncludeInY(100);
+
 	plot.NormalizeAxes();
 }
 
@@ -666,7 +632,7 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 		{
 			me->SetColor(Colors::green);
 			me->Draw(display, start);
-			me->SetColor(Colors::blue);
+			me->SetColor(Colors::red);
 			me->DrawLine(display, start, goal, 10);
 		}
 		
@@ -678,10 +644,10 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 			
 			if (path.size() != 0)
 			{
-				me->SetColor(Colors::blue);
+				me->SetColor(Colors::green);
 				for (int x = 1; x < path.size(); x++)
 				{
-					me->DrawLine(display, path[x-1], path[x], 10);
+					me->DrawLine(display, path[x-1], path[x], 5);
 				}
 			}
 		}
@@ -691,10 +657,10 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 			
 			if (path.size() != 0)
 			{
-				me->SetColor(Colors::blue);
+				me->SetColor(Colors::green);
 				for (int x = 1; x < path.size(); x++)
 				{
-					me->DrawLine(display, path[x-1], path[x], 10);
+					me->DrawLine(display, path[x-1], path[x], 5);
 				}
 			}
 		}
@@ -704,10 +670,10 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 			
 			if (path.size() != 0)
 			{
-				me->SetColor(Colors::blue);
+				me->SetColor(Colors::green);
 				for (int x = 1; x < path.size(); x++)
 				{
-					me->DrawLine(display, path[x-1], path[x], 10);
+					me->DrawLine(display, path[x-1], path[x], 5);
 				}
 			}
 		}
@@ -717,10 +683,10 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 			
 			if (path.size() != 0)
 			{
-				me->SetColor(Colors::blue);
+				me->SetColor(Colors::green);
 				for (int x = 1; x < path.size(); x++)
 				{
-					me->DrawLine(display, path[x-1], path[x], 10);
+					me->DrawLine(display, path[x-1], path[x], 5);
 				}
 			}
 		}
@@ -730,10 +696,10 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 			
 			if (path.size() != 0)
 			{
-				me->SetColor(Colors::blue);
+				me->SetColor(Colors::green);
 				for (int x = 1; x < path.size(); x++)
 				{
-					me->DrawLine(display, path[x-1], path[x], 10);
+					me->DrawLine(display, path[x-1], path[x], 5);
 				}
 			}
 		}
@@ -824,15 +790,15 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 
 bool MyClickHandler(unsigned long , int windowX, int windowY, point3d loc, tButtonType button, tMouseEventType mType)
 {
-//	if (mType == kMouseDown)
-//	{
-//		switch (button)
-//		{
-//			case kRightButton: printf("Right button\n"); break;
-//			case kLeftButton: printf("Left button\n"); break;
-//			case kMiddleButton: printf("Middle button\n"); break;
-//		}
-//	}
+	if (mType == kMouseDown)
+	{
+		switch (button)
+		{
+			case kRightButton: printf("Right button\n"); break;
+			case kLeftButton: printf("Left button\n"); break;
+			case kMiddleButton: printf("Middle button\n"); break;
+		}
+	}
 	if (button != kLeftButton)
 		return false;
 	switch (mType)
@@ -847,14 +813,14 @@ bool MyClickHandler(unsigned long , int windowX, int windowY, point3d loc, tButt
 				start.x = x;
 				start.y = y;
 				goal = start;
-//				printf("Hit (%d, %d)\n", x, y);
+				printf("Hit (%d, %d)\n", x, y);
 				running = false;
 			}
 			return true;
 		}
 		case kMouseDrag:
 		{
-			if (start.x == 0xFFFF || running)
+			if (start.x == 0xFFFF)
 				break;
 			int x, y;
 			me->GetMap()->GetPointFromCoordinate(loc, x, y);
@@ -867,7 +833,7 @@ bool MyClickHandler(unsigned long , int windowX, int windowY, point3d loc, tButt
 		}
 		case kMouseUp:
 		{
-			if (start.x == 0xFFFF || running)
+			if (start.x == 0xFFFF)
 				break;
 			int x, y;
 			me->GetMap()->GetPointFromCoordinate(loc, x, y);
@@ -875,7 +841,7 @@ bool MyClickHandler(unsigned long , int windowX, int windowY, point3d loc, tButt
 			{
 				goal.x = x;
 				goal.y = y;
-//				printf("UnHit (%d, %d)\n", x, y);
+				printf("UnHit (%d, %d)\n", x, y);
 			}
 
 			StartSearch();
@@ -1228,25 +1194,3 @@ void GetMap(Map *map)
 //	GetMap1(map);
 	GetMap2(map);
 }
-
-//#include "STPInstances.h"
-//
-//void STPTEST()
-//{
-////	return;
-//	MNPuzzle<4, 4> p;
-//	MNPuzzleState<4, 4> s, g;
-//	std::vector<MNPuzzleState<4, 4>> thePath;
-//	DynamicPotentialSearch<MNPuzzleState<4,4>, slideDir, MNPuzzle<4, 4>> dps;
-//	for (int x = 0; x < 100; x++)
-//	{
-//		s = STP::GetKorfInstance(x);
-//		Timer t;
-//		dps.SetOptimalityBound(1.75);
-//		t.StartTimer();
-//		dps.GetPath(&p, s, g, thePath);
-//		t.EndTimer();
-//		printf("[%d] Found path length %d in %1.2fs\n", x, thePath.size(), t.GetElapsedTime());
-//	}
-//	exit(0);
-//}

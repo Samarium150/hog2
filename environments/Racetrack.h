@@ -39,8 +39,6 @@ bool operator!=(const RacetrackState &l1, const RacetrackState &l2);
 std::ostream &operator<<(std::ostream &out, const RacetrackMove &m);
 bool operator==(const RacetrackMove &m1, const RacetrackMove &m2); // comparing 
 
-
-
 //Different types of domain
 const tTerrain kStartTerrain = kSwamp; 
 const tTerrain kEndTerrain = kGrass;
@@ -71,22 +69,14 @@ public:
 	/** Heuristic value between node and the stored goal. Asserts that the
 	 goal is stored **/
 	double HCost(const RacetrackState &node) const;
-
-	// estimated distance ignoring costs. For this domain, no difference
-	double DCost(const RacetrackState &node1, const RacetrackState &node2) const { return HCost(node1, node2); }
-	double DCost(const RacetrackState &node) const { return HCost(node); }
-
 	
 	double GCost(const RacetrackState &node1, const RacetrackState &node2) const { return 1; };
 	double GCost(const RacetrackState &node, const RacetrackMove &act) const { return 1; };
 	bool GoalTest(const RacetrackState &node, const RacetrackState &goal) const; // Goal reached?
+	// 
 	uint64_t GetStateHash(const RacetrackState &node) const; // turn into a number
 	uint64_t GetActionHash(RacetrackMove act) const;
-	//
-	static uint64_t Hash(const RacetrackState &node)
-	{ 	return ((static_cast<uint64_t>(node.xLoc)<<32) | (static_cast<uint64_t>(node.yLoc)<<16) | (static_cast<uint64_t>(node.xVelocity+maxVelocity)<<8) | (static_cast<uint64_t>(node.yVelocity+maxVelocity)));
-	}
-
+	
 	// Deprecated
 	void OpenGLDraw() const {};
 	void OpenGLDraw(const RacetrackState&) const {};
@@ -107,13 +97,5 @@ private:
 	void GetCarCoordinates(const RacetrackState &s, Graphics::point &center, Graphics::point &p1, Graphics::point &p2, Graphics::point &p3) const;
 };
 
-template<>
-struct std::hash<RacetrackState>
-{
-	std::size_t operator()(const RacetrackState& s) const noexcept
-	{
-		return Racetrack::Hash(s);
-	}
-};
 
 #endif /* TOH_hpp */

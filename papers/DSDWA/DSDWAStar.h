@@ -576,18 +576,13 @@ bool DSDWAStar<state,action,environment,openList>::DoSingleSearchStep(std::vecto
 		{
 			if (policy == kGreedy)
 			{
-//				SetNextPriority(maxSlopeH, maxSlopeG, openClosedList.Lookup(openClosedList.Peek()).f);
-				float minWeight, maxWeight;
-				GetNextWeightRange(minWeight, maxWeight, maxSlopeG/maxSlopeH);
-				float angle = atan2f(maxSlopeG,maxSlopeH)/PID180;
-				assert(angle>=0 && angle<=90);
-				SetNextWeight(maxSlopeH, maxSlopeG, minWeight+(maxWeight-minWeight)*(angle/90)); // const Graphics::point &loc
+				SetNextPriority(maxSlopeH, maxSlopeG, openClosedList.Lookup(openClosedList.Peek()).f);
 			}
 			else if (policy == kHalfEdgeDrop) {
-				SetNextPriority(maxSlopeH, maxSlopeG, openClosedList.Lookup(openClosedList.Peek()).f-edgeCosts[which]*(weight-1)/(4.0*weight));
+				SetNextPriority(maxSlopeH, maxSlopeG, openClosedList.Lookup(openClosedList.Peek()).f-edgeCosts[which]*(1-weight)/2.0);
 			}
 			else if (policy == kFullEdgeDrop) {
-				SetNextPriority(maxSlopeH, maxSlopeG, openClosedList.Lookup(openClosedList.Peek()).f-edgeCosts[which]*(weight-1)/weight);
+				SetNextPriority(maxSlopeH, maxSlopeG, openClosedList.Lookup(openClosedList.Peek()).f-edgeCosts[which]*(1-weight));
 			}
 			else if (policy == kPathSuboptDouble)
 			{

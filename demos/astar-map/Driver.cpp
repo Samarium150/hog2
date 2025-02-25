@@ -31,41 +31,22 @@ bool runningSearch1 = false;
 int px1 = 0, py1 = 0, px2 = 0, py2 = 0;
 int gStepsPerFrame = 1;
 double searchWeight = 0;
-bool reexpand = false;
+bool recording = false;
 void LoadMap(Map *m, int which);
 void StartSearch();
 
 TemplateAStar<xyLoc, tDirection, MapEnvironment> a1;
 MapEnvironment *me = 0;
 Map *m;
-Heuristic<xyLoc> *searchHeuristic = 0;
+Heuristic<xyLoc> *h = 0;
 EuclideanDistance euclid;
 std::vector<xyLoc> path;
 GridEmbedding *dh;
-void SetupGUI(int windowID);
-std::vector<int> buttons;
-typedef enum : int {
-	kDikstraButton = 0,
-	kAStarButton = 1,
-	kWAStar2Button = 2,
-	kWAStar10Button = 3,
-	kOctileHeuristic = 4,
-	kEuclideanHeuristic = 5,
-	kDifferentialHeuristic = 6,
-	kBaldursGate = 7,
-	kDragonAge = 8,
-	kS1 = 9,
-	kS10 = 10,
-	kS100 = 11,
-	kS1000 = 12,
-	kNoReOpen = 13,
-	kReOpen = 14,
-} buttonID;
 
 int main(int argc, char* argv[])
 {
 	InstallHandlers();
-	RunHOGGUI(argc, argv, 1500, 1000);
+	RunHOGGUI(argc, argv, 1000, 1000);
 	return 0;
 }
 
@@ -76,8 +57,7 @@ int main(int argc, char* argv[])
 void InstallHandlers()
 {
 //	InstallKeyboardHandler(MyDisplayHandler, "Cycle Abs. Display", "Cycle which group abstraction is drawn", kAnyModifier, '\t');
-	InstallKeyboardHandler(MyDisplayHandler, "Reopen On", "Turn on re-openings.", kNoModifier, 'r');
-	InstallKeyboardHandler(MyDisplayHandler, "Reopen Off", "Turn off re-openiengs.", kNoModifier, 't');
+	InstallKeyboardHandler(MyDisplayHandler, "Record", "Record the screen.", kNoModifier, 'r');
 	InstallKeyboardHandler(MyDisplayHandler, "Pause Simulation", "Pause simulation execution.", kNoModifier, 'p');
 	InstallKeyboardHandler(MyDisplayHandler, "Change weight", "Change the search weight", kNoModifier, 'w');
 	InstallKeyboardHandler(MyDisplayHandler, "Dijkstra", "Use Dijkstra", kNoModifier, '0');
@@ -87,10 +67,6 @@ void InstallHandlers()
 	InstallKeyboardHandler(MyDisplayHandler, "WA*(100)", "A* with weight of 100", kNoModifier, '4');
 	InstallKeyboardHandler(MyDisplayHandler, "Faster", "Increase simulation speed", kAnyModifier, ']');
 	InstallKeyboardHandler(MyDisplayHandler, "Slower", "Decrease simulation speed", kAnyModifier, '[');
-	InstallKeyboardHandler(MyDisplayHandler, "1/frame", "Expand 1/frame", kAnyModifier, '6');
-	InstallKeyboardHandler(MyDisplayHandler, "10/frame", "Expand 10/frame", kAnyModifier, '7');
-	InstallKeyboardHandler(MyDisplayHandler, "100/frame", "Expand 100/frame", kAnyModifier, '8');
-	InstallKeyboardHandler(MyDisplayHandler, "1000/frame", "Expand 1000/frame", kAnyModifier, '9');
 
 	InstallKeyboardHandler(MyDisplayHandler, "BG Map", "Load BG Map", kAnyModifier, 'b');
 	InstallKeyboardHandler(MyDisplayHandler, "DAO Map", "Load BG Map", kAnyModifier, 'd');
@@ -116,24 +92,20 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 	}
 	else if (eType == kWindowCreated)
 	{
-		// at 1500x1000 => [X:-750->+250 U 250->750] [Y:-500 -> 500]
 		printf("Window %ld created\n", windowID);
 		InstallFrameHandler(MyFrameHandler, windowID, 0);
-		// 2x2 square
-		ReinitViewports(windowID, {-1, -1, 0.333f, 1}, kScaleToSquare);
-		// 1x2 square
-		AddViewport(windowID, {0.333f, -1, 1.0, 1}, kScaleToSquare);
-		// Needs to be called before load map, which resets some buttons
-		SetupGUI(windowID);
-		setTextBufferVisibility(false);
+		ReinitViewports(windowID, {-1, -1, 1, 1}, kScaleToSquare);
+		
 		m = new Map(1, 1);
 		LoadMap(m, 0);
 	}
 	
 }
 bool updateBackground = true;
-void DrawSim(Graphics::Display &display)
+void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 {
+	Graphics::Display &display = getCurrentContext()->display;
+
 	if (updateBackground == true)
 	{
 		display.StartBackground();
@@ -142,6 +114,12 @@ void DrawSim(Graphics::Display &display)
 		updateBackground = false;
 	}
 
+	if (mouseTracking)
+	{
+		me->SetColor(Colors::red);
+		me->DrawLine(display,xyLoc(px1, py1), xyLoc(px2, py2));
+	}
+	
 	if (runningSearch1)
 	{
 		for (int x = 0; x < gStepsPerFrame; x++)
@@ -159,125 +137,16 @@ void DrawSim(Graphics::Display &display)
 	}
 	a1.Draw(display);
 
-	if (mouseTracking)
-	{
-		me->SetColor(Colors::blue);
-		me->DrawLine(display,xyLoc(px1, py1), xyLoc(px2, py2), 10);
-	}
-	
-
 	if (path.size() != 0)
 	{
-		me->SetColor(Colors::blue);
+		me->SetColor(0, 1, 0);
 		for (int x = 1; x < path.size(); x++)
 		{
-			me->DrawLine(display, path[x-1], path[x], 10);
+			me->DrawLine(display, path[x-1], path[x], 3);
 		}
 
 	}
 }
-
-void SetupGUI(int windowID)
-{
-	setTextBufferVisibility(false);
-	// 4 algorithms
-	Graphics::roundedRect algButton({-1+0.1f, -1.65f, -1+0.1f+0.4f, -1.55f}, 0.01f);
-	Graphics::rect offsetRect(0.467f, 0, 0.467f, 0);
-	int b;
-	b = CreateButton(windowID, 1, algButton, "Dijkstra", '0', 0.01f, Colors::black, Colors::black,
-					 Colors::yellow, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-	algButton.r += offsetRect;
-	b = CreateButton(windowID, 1, algButton, "A*", '1', 0.01f, Colors::black, Colors::black,
-					 Colors::white, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-	algButton.r += offsetRect;
-	b = CreateButton(windowID, 1, algButton, "WA*(2)", '2', 0.01f, Colors::black, Colors::black,
-					 Colors::white, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-	algButton.r += offsetRect;
-	b = CreateButton(windowID, 1, algButton, "WA*(10)", '3', 0.01f, Colors::black, Colors::black,
-					 Colors::white, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-
-	
-	Graphics::roundedRect heuristicButton({-1+0.1f, -1.30f, -1+0.1f+0.5f, -1.2f}, 0.01f);
-	offsetRect = Graphics::rect(0.65f, 0, 0.65f, 0);
-	b = CreateButton(windowID, 1, heuristicButton, "Octile", 'o', 0.01f, Colors::black, Colors::black,
-					 Colors::yellow, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-	heuristicButton.r += offsetRect;
-	b = CreateButton(windowID, 1, heuristicButton, "Euclidean", 'e', 0.01f, Colors::black, Colors::black,
-					 Colors::white, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-	heuristicButton.r += offsetRect;
-	b = CreateButton(windowID, 1, heuristicButton, "Differential", 'h', 0.01f, Colors::black, Colors::black,
-					 Colors::white, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-
-	Graphics::roundedRect mapButton({-1+0.1f, -0.95f, 0-0.1f, -0.85f}, 0.01f);
-	offsetRect = Graphics::rect(1.0f, 0, 1.0f, 0);
-	b = CreateButton(windowID, 1, mapButton, "Baldurs Gate", 'b', 0.01f, Colors::black, Colors::black,
-					 Colors::yellow, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-	mapButton.r += offsetRect;
-	b = CreateButton(windowID, 1, mapButton, "Dragon Age: Origins", 'd', 0.01f, Colors::black, Colors::black,
-					 Colors::white, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-
-	Graphics::roundedRect speedButton({-1+0.1f, -0.6f, -1+0.1f+0.4f, -.5f}, 0.01f);
-	offsetRect = Graphics::rect(0.467f, 0, 0.467f, 0);
-	b = CreateButton(windowID, 1, speedButton, "1", '6', 0.01f, Colors::black, Colors::black,
-					 Colors::yellow, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-	speedButton.r += offsetRect;
-	b = CreateButton(windowID, 1, speedButton, "10", '7', 0.01f, Colors::black, Colors::black,
-					 Colors::white, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-	speedButton.r += offsetRect;
-	b = CreateButton(windowID, 1, speedButton, "100", '8', 0.01f, Colors::black, Colors::black,
-					 Colors::white, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-	speedButton.r += offsetRect;
-	b = CreateButton(windowID, 1, speedButton, "1000", '9', 0.01f, Colors::black, Colors::black,
-					 Colors::white, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-
-	Graphics::roundedRect reopeningsButton({-1+0.1f, -0.25f, 0-0.1f, -0.15f}, 0.01f);
-	offsetRect = Graphics::rect(1.0f, 0, 1.0f, 0);
-	b = CreateButton(windowID, 1, reopeningsButton, "Off", 't', 0.01f, Colors::black, Colors::black,
-					 Colors::yellow, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-	reopeningsButton.r += offsetRect;
-	b = CreateButton(windowID, 1, reopeningsButton, "On", 'r', 0.01f, Colors::black, Colors::black,
-					 Colors::white, Colors::lightblue, Colors::lightbluegray);
-	buttons.push_back(b);
-
-}
-
-void DrawGUI(Graphics::Display &display)
-{
-	const float e = 0.03f;
-//	display.FillRect({-1, -1, 1, 1}, Colors::darkgray);
-	display.FillRect({-1, -2, 1, 2}, Colors::darkgray);
-	display.FillRect({-1+e, -2+e, 1-e, 2-e}, Colors::lightgray);
-	display.DrawText("Algorithm: ", {-1+0.1f, -1.8f}, Colors::black, 0.1f, Graphics::textAlignLeft, Graphics::textBaselineTop);
-	display.DrawText("Heuristic: ", {-1+0.1f, -1.45f}, Colors::black, 0.1f, Graphics::textAlignLeft, Graphics::textBaselineTop);
-	display.DrawText("Map: ", {-1+0.1f, -1.10f}, Colors::black, 0.1f, Graphics::textAlignLeft, Graphics::textBaselineTop);
-	display.DrawText("Expansions/frame: ", {-1+0.1f, -0.75f}, Colors::black, 0.1f, Graphics::textAlignLeft, Graphics::textBaselineTop);
-	display.DrawText("Node re-openings: ", {-1+0.1f, -0.4f}, Colors::black, 0.1f, Graphics::textAlignLeft, Graphics::textBaselineTop);
-}
-
-void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
-{
-	Graphics::Display &display = getCurrentContext()->display;
-
-	if (viewport == 0)
-		DrawSim(display);
-	else
-		DrawGUI(display);
-}
-
 
 
 
@@ -287,103 +156,41 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 	switch (key)
 	{
 		case 'r':
-			reexpand = true;
-			a1.SetReopenNodes(true);
-//			if (a1.GetReopenNodes())
-//				submitTextToBuffer("Reopenings enabled");
-//			else
-//				submitTextToBuffer("Reopenings disabled");
-			SetButtonFillColor(buttons[kNoReOpen], Colors::white);
-			SetButtonFillColor(buttons[kReOpen], Colors::yellow);
-			if (runningSearch1 || path.size() > 0)
-				StartSearch();
-			break;
-		case 't': // turn off
-			reexpand = false;
-			a1.SetReopenNodes(false);
-			SetButtonFillColor(buttons[kNoReOpen], Colors::yellow);
-			SetButtonFillColor(buttons[kReOpen], Colors::white);
-
-//			if (a1.GetReopenNodes())
-//				submitTextToBuffer("Reopenings enabled");
-//			else
-//				submitTextToBuffer("Reopenings disabled");
-			if (runningSearch1 || path.size() > 0)
-				StartSearch();
+			a1.SetReopenNodes(!a1.GetReopenNodes());
+			if (a1.GetReopenNodes())
+				submitTextToBuffer("Reopenings enabled");
+			else
+				submitTextToBuffer("Reopenings disabled");
 			break;
 		case '0':
 			searchWeight = 0;
 			submitTextToBuffer("Algorithm: Dijkstra");
 			if (runningSearch1 || path.size() > 0)
 				StartSearch();
-			SetButtonFillColor(buttons[kDikstraButton], Colors::yellow);
-			SetButtonFillColor(buttons[kAStarButton], Colors::white);
-			SetButtonFillColor(buttons[kWAStar2Button], Colors::white);
-			SetButtonFillColor(buttons[kWAStar10Button], Colors::white);
 			break;
 		case '1':
 			searchWeight = 1;
 			submitTextToBuffer("Algorithm: A*");
 			if (runningSearch1 || path.size() > 0)
 				StartSearch();
-			SetButtonFillColor(buttons[kDikstraButton], Colors::white);
-			SetButtonFillColor(buttons[kAStarButton], Colors::yellow);
-			SetButtonFillColor(buttons[kWAStar2Button], Colors::white);
-			SetButtonFillColor(buttons[kWAStar10Button], Colors::white);
 			break;
 		case '2':
 			searchWeight = 2;
 			submitTextToBuffer("Algorithm: WA*(2)");
 			if (runningSearch1 || path.size() > 0)
 				StartSearch();
-			SetButtonFillColor(buttons[kDikstraButton], Colors::white);
-			SetButtonFillColor(buttons[kAStarButton], Colors::white);
-			SetButtonFillColor(buttons[kWAStar2Button], Colors::yellow);
-			SetButtonFillColor(buttons[kWAStar10Button], Colors::white);
 			break;
 		case '3':
 			searchWeight = 10;
 			submitTextToBuffer("Algorithm: WA*(10)");
 			if (runningSearch1 || path.size() > 0)
 				StartSearch();
-			SetButtonFillColor(buttons[kDikstraButton], Colors::white);
-			SetButtonFillColor(buttons[kAStarButton], Colors::white);
-			SetButtonFillColor(buttons[kWAStar2Button], Colors::white);
-			SetButtonFillColor(buttons[kWAStar10Button], Colors::yellow);
 			break;
 		case '4':
 			searchWeight = 100;
 			submitTextToBuffer("Algorithm: WA*(100)");
 			if (runningSearch1 || path.size() > 0)
 				StartSearch();
-			break;
-		case '6':
-			gStepsPerFrame = 1;
-			SetButtonFillColor(buttons[kS1], Colors::yellow);
-			SetButtonFillColor(buttons[kS10], Colors::white);
-			SetButtonFillColor(buttons[kS100], Colors::white);
-			SetButtonFillColor(buttons[kS1000], Colors::white);
-			break;
-		case '7':
-			gStepsPerFrame = 10;
-			SetButtonFillColor(buttons[kS1], Colors::white);
-			SetButtonFillColor(buttons[kS10], Colors::yellow);
-			SetButtonFillColor(buttons[kS100], Colors::white);
-			SetButtonFillColor(buttons[kS1000], Colors::white);
-			break;
-		case '8':
-			gStepsPerFrame = 100;
-			SetButtonFillColor(buttons[kS1], Colors::white);
-			SetButtonFillColor(buttons[kS10], Colors::white);
-			SetButtonFillColor(buttons[kS100], Colors::yellow);
-			SetButtonFillColor(buttons[kS1000], Colors::white);
-			break;
-		case '9':
-			gStepsPerFrame = 1000;
-			SetButtonFillColor(buttons[kS1], Colors::white);
-			SetButtonFillColor(buttons[kS10], Colors::white);
-			SetButtonFillColor(buttons[kS100], Colors::white);
-			SetButtonFillColor(buttons[kS1000], Colors::yellow);
 			break;
 		case 'w':
 			if (searchWeight == 0)
@@ -414,45 +221,32 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 		case 'b':
 		{
 			LoadMap(m, 0);
-			SetButtonFillColor(buttons[kDragonAge], Colors::white);
-			SetButtonFillColor(buttons[kBaldursGate], Colors::yellow);
 		}
 			break;
 		case 'd':
 		{
 			LoadMap(m, 1);
-			SetButtonFillColor(buttons[kDragonAge], Colors::yellow);
-			SetButtonFillColor(buttons[kBaldursGate], Colors::white);
 		}
 			break;
 		case 'e':
 		{
-			searchHeuristic = &euclid;
+			h = &euclid;
 			if (runningSearch1 || path.size() > 0)
 				StartSearch();
-			SetButtonFillColor(buttons[kEuclideanHeuristic], Colors::yellow);
-			SetButtonFillColor(buttons[kOctileHeuristic], Colors::white);
-			SetButtonFillColor(buttons[kDifferentialHeuristic], Colors::white);
 		}
 			break;
 		case 'o':
 		{
-			searchHeuristic = me; // octile
+			h = me; // octile
 			if (runningSearch1 || path.size() > 0)
 				StartSearch();
-			SetButtonFillColor(buttons[kEuclideanHeuristic], Colors::white);
-			SetButtonFillColor(buttons[kOctileHeuristic], Colors::yellow);
-			SetButtonFillColor(buttons[kDifferentialHeuristic], Colors::white);
 		}
 			break;
 		case 'h':
 		{
-			searchHeuristic = dh; // octile
+			h = dh; // octile
 			if (runningSearch1 || path.size() > 0)
 				StartSearch();
-			SetButtonFillColor(buttons[kEuclideanHeuristic], Colors::white);
-			SetButtonFillColor(buttons[kOctileHeuristic], Colors::white);
-			SetButtonFillColor(buttons[kDifferentialHeuristic], Colors::yellow);
 		}
 			break;
 		default:
@@ -469,18 +263,16 @@ void StartSearch()
 	g1.x = px2; g1.y = py2;
 	
 	a1.SetWeight(searchWeight);
-	a1.SetReopenNodes(reexpand);
+	a1.SetReopenNodes(false);
 	me->SetEightConnected();
-	a1.SetHeuristic(searchHeuristic);
+	a1.SetHeuristic(h);
 	a1.InitializeSearch(me, s1, g1, path);
 	mouseTracking = false;
 	runningSearch1 = true;
 }
 
-bool MyClickHandler(unsigned long windowID, int viewport, int, int, point3d loc, tButtonType button, tMouseEventType mType)
+bool MyClickHandler(unsigned long windowID, int, int, point3d loc, tButtonType button, tMouseEventType mType)
 {
-	if (viewport == 1)
-		return false;
 	if (button == kLeftButton)
 	{
 		switch (mType)
@@ -589,11 +381,8 @@ void LoadMap(Map *m, int which)
 		me = new MapEnvironment(m);
 		me->SetDiagonalCost(1.5);
 	}
-	searchHeuristic = me;
-	SetButtonFillColor(buttons[kEuclideanHeuristic], Colors::white);
-	SetButtonFillColor(buttons[kOctileHeuristic], Colors::yellow);
-	SetButtonFillColor(buttons[kDifferentialHeuristic], Colors::white);
-
+	h = me;
+	
 	delete dh;
 	dh = new GridEmbedding(me, 10, kLINF);
 	for (int x = 0; x < 10; x++)

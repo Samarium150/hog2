@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -63,6 +63,7 @@
 		C444370422DCF04100744AF2 /* RubiksCube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444361E22DCF04000744AF2 /* RubiksCube.cpp */; };
 		C444370522DCF04100744AF2 /* MountainCar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362022DCF04000744AF2 /* MountainCar.cpp */; };
 		C444370622DCF04100744AF2 /* BurnedPancakePuzzle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362122DCF04000744AF2 /* BurnedPancakePuzzle.cpp */; };
+		C444370722DCF04100744AF2 /* TOH.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362622DCF04000744AF2 /* TOH.cpp */; };
 		C444370822DCF04100744AF2 /* DynamicWeightedGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362922DCF04000744AF2 /* DynamicWeightedGrid.cpp */; };
 		C444370922DCF04100744AF2 /* MotionCaptureMovement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362A22DCF04000744AF2 /* MotionCaptureMovement.cpp */; };
 		C444370A22DCF04100744AF2 /* NQueens.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362B22DCF04000744AF2 /* NQueens.cpp */; };
@@ -184,6 +185,7 @@
 		C44437A822DDA22300744AF2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C444335022DCEBF000744AF2 /* main.m */; };
 		C44437A922DDA22300744AF2 /* NQueens.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362B22DCF04000744AF2 /* NQueens.cpp */; };
 		C44437AA22DDA22300744AF2 /* BoundingBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C44435D722DCF04000744AF2 /* BoundingBox.cpp */; };
+		C44437AB22DDA22300744AF2 /* TOH.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362622DCF04000744AF2 /* TOH.cpp */; };
 		C44437AC22DDA22300744AF2 /* Graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444367B22DCF04100744AF2 /* Graphics.cpp */; };
 		C44437AD22DDA22300744AF2 /* Fling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444361222DCF04000744AF2 /* Fling.cpp */; };
 		C44437AE22DDA22300744AF2 /* OpenClosedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C44435E822DCF04000744AF2 /* OpenClosedList.cpp */; };
@@ -293,6 +295,7 @@
 		C47C0EE522DE4D610088605D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C444335022DCEBF000744AF2 /* main.m */; };
 		C47C0EE622DE4D610088605D /* NQueens.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362B22DCF04000744AF2 /* NQueens.cpp */; };
 		C47C0EE722DE4D610088605D /* BoundingBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C44435D722DCF04000744AF2 /* BoundingBox.cpp */; };
+		C47C0EE822DE4D610088605D /* TOH.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362622DCF04000744AF2 /* TOH.cpp */; };
 		C47C0EE922DE4D610088605D /* Graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444367B22DCF04100744AF2 /* Graphics.cpp */; };
 		C47C0EEA22DE4D610088605D /* Fling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444361222DCF04000744AF2 /* Fling.cpp */; };
 		C47C0EEB22DE4D610088605D /* OpenClosedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C44435E822DCF04000744AF2 /* OpenClosedList.cpp */; };
@@ -401,6 +404,7 @@
 		C48FE725234FA9E9008864D2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C444335022DCEBF000744AF2 /* main.m */; };
 		C48FE726234FA9E9008864D2 /* NQueens.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362B22DCF04000744AF2 /* NQueens.cpp */; };
 		C48FE727234FA9E9008864D2 /* BoundingBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C44435D722DCF04000744AF2 /* BoundingBox.cpp */; };
+		C48FE728234FA9E9008864D2 /* TOH.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444362622DCF04000744AF2 /* TOH.cpp */; };
 		C48FE729234FA9E9008864D2 /* Graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444367B22DCF04100744AF2 /* Graphics.cpp */; };
 		C48FE72A234FA9E9008864D2 /* Fling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C444361222DCF04000744AF2 /* Fling.cpp */; };
 		C48FE72B234FA9E9008864D2 /* OpenClosedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C44435E822DCF04000744AF2 /* OpenClosedList.cpp */; };
@@ -610,6 +614,7 @@
 		C444362322DCF04000744AF2 /* CanonicalGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanonicalGrid.h; sourceTree = "<group>"; };
 		C444362422DCF04000744AF2 /* Witness.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Witness.h; sourceTree = "<group>"; };
 		C444362522DCF04000744AF2 /* RubiksCubeEdges.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RubiksCubeEdges.h; sourceTree = "<group>"; };
+		C444362622DCF04000744AF2 /* TOH.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TOH.cpp; sourceTree = "<group>"; };
 		C444362722DCF04000744AF2 /* Map2DConstrainedEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map2DConstrainedEnvironment.h; sourceTree = "<group>"; };
 		C444362822DCF04000744AF2 /* SequenceAlignment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SequenceAlignment.h; sourceTree = "<group>"; };
 		C444362922DCF04000744AF2 /* DynamicWeightedGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicWeightedGrid.cpp; sourceTree = "<group>"; };
@@ -782,14 +787,6 @@
 		C48FE76D234FAB22008864D2 /* Driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Driver.h; sourceTree = "<group>"; };
 		C48FE76E234FAB22008864D2 /* Driver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Driver.cpp; sourceTree = "<group>"; };
 		C48FE774234FABD8008864D2 /* BDIndexOpenClosed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BDIndexOpenClosed.h; sourceTree = "<group>"; };
-		C4AE39492CC2C86800B8907C /* Treap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Treap.h; sourceTree = "<group>"; };
-		C4AE394A2CC2C87E00B8907C /* UnsortedAStarOpenClosed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnsortedAStarOpenClosed.h; sourceTree = "<group>"; };
-		C4AE394B2CC2C87E00B8907C /* FocalOpenClosed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FocalOpenClosed.h; sourceTree = "<group>"; };
-		C4AE394C2CC2C87E00B8907C /* PriorityQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PriorityQueue.h; sourceTree = "<group>"; };
-		C4AE394D2CC2C8CE00B8907C /* Focal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Focal.h; sourceTree = "<group>"; };
-		C4AE394E2CC2C8CE00B8907C /* BAE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BAE.h; sourceTree = "<group>"; };
-		C4AE394F2CC2C8CE00B8907C /* FastMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FastMap.h; sourceTree = "<group>"; };
-		C4AE39502CC2C94500B8907C /* FocalAdd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FocalAdd.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -924,10 +921,6 @@
 		C444359C22DCF03F00744AF2 /* generic */ = {
 			isa = PBXGroup;
 			children = (
-				C4AE39502CC2C94500B8907C /* FocalAdd.h */,
-				C4AE394E2CC2C8CE00B8907C /* BAE.h */,
-				C4AE394F2CC2C8CE00B8907C /* FastMap.h */,
-				C4AE394D2CC2C8CE00B8907C /* Focal.h */,
 				C444359D22DCF03F00744AF2 /* RandomUnit.h */,
 				C444359E22DCF03F00744AF2 /* EBSearch.h */,
 				C444359F22DCF03F00744AF2 /* VisualizableGenericSearchAlgorithm.h */,
@@ -1010,9 +1003,6 @@
 		C44435DC22DCF04000744AF2 /* algorithms */ = {
 			isa = PBXGroup;
 			children = (
-				C4AE394B2CC2C87E00B8907C /* FocalOpenClosed.h */,
-				C4AE394C2CC2C87E00B8907C /* PriorityQueue.h */,
-				C4AE394A2CC2C87E00B8907C /* UnsortedAStarOpenClosed.h */,
 				C48FE774234FABD8008864D2 /* BDIndexOpenClosed.h */,
 				C44435DD22DCF04000744AF2 /* AStarOpenClosed.h */,
 				C44435DE22DCF04000744AF2 /* BDOpenClosed.h */,
@@ -1032,7 +1022,6 @@
 				C44435EC22DCF04000744AF2 /* AStarOpenClosed.cpp */,
 				C44435ED22DCF04000744AF2 /* OldSearchEnvironment.cpp */,
 				C44435EE22DCF04000744AF2 /* GenericAStar.h */,
-				C4AE39492CC2C86800B8907C /* Treap.h */,
 			);
 			path = algorithms;
 			sourceTree = "<group>";
@@ -1107,6 +1096,7 @@
 				C444363A22DCF04000744AF2 /* SFBDPancakePuzzle.h */,
 				C44435F922DCF04000744AF2 /* SteeringEnvironment.cpp */,
 				C444361922DCF04000744AF2 /* SteeringEnvironment.h */,
+				C444362622DCF04000744AF2 /* TOH.cpp */,
 				C444362222DCF04000744AF2 /* TOH.h */,
 				C444363B22DCF04000744AF2 /* TopSpin.cpp */,
 				C44435FE22DCF04000744AF2 /* TopSpin.h */,
@@ -1170,78 +1160,78 @@
 		C444365A22DCF04100744AF2 /* utils */ = {
 			isa = PBXGroup;
 			children = (
-				C444366922DCF04100744AF2 /* BitMap.cpp */,
-				C444369822DCF04100744AF2 /* BitMap.h */,
+				904FA97129E7044F00AB1339 /* Permutations.h */,
+				C444365B22DCF04100744AF2 /* StatUtil.h */,
+				C444365C22DCF04100744AF2 /* MapOverlay.h */,
+				C444365D22DCF04100744AF2 /* Perceptron.h */,
+				C444365E22DCF04100744AF2 /* Perceptron.cpp */,
+				C444365F22DCF04100744AF2 /* StatCollection.cpp */,
+				C444366022DCF04100744AF2 /* SwapEndian.h */,
 				C444366122DCF04100744AF2 /* BitVector.cpp */,
+				C444366222DCF04100744AF2 /* FourBitArray.cpp */,
+				C444366322DCF04100744AF2 /* MR1Permutation.cpp */,
+				C444366422DCF04100744AF2 /* DiskBitFile.h */,
 				C444366522DCF04100744AF2 /* BitVector.h */,
+				C444366622DCF04100744AF2 /* ScenarioLoader.cpp */,
+				C444366722DCF04100744AF2 /* GLUtil.h */,
+				C444366822DCF04100744AF2 /* Map.h */,
+				C444366922DCF04100744AF2 /* BitMap.cpp */,
+				C444366A22DCF04100744AF2 /* SVGUtil.h */,
+				C444366B22DCF04100744AF2 /* MapGenerators.h */,
+				C444366C22DCF04100744AF2 /* ScenarioLoader.h */,
+				C444366D22DCF04100744AF2 /* StringUtils.h */,
+				C444366E22DCF04100744AF2 /* MR1Permutation.h */,
+				C444366F22DCF04100744AF2 /* StatUtil.cpp */,
+				C444367022DCF04100744AF2 /* Timer.cpp */,
+				C444367122DCF04100744AF2 /* LogisticRegression.h */,
+				C444367222DCF04100744AF2 /* ScreenTransition.h */,
+				C444367322DCF04100744AF2 /* DiskBitFile.cpp */,
 				C444367422DCF04100744AF2 /* Bloom.cpp */,
+				C444367522DCF04100744AF2 /* StringUtils.cpp */,
+				C444367622DCF04100744AF2 /* NBitArray.h */,
+				C444367722DCF04100744AF2 /* MapGenerators.cpp */,
+				C444367822DCF04100744AF2 /* Colors.h */,
+				C444367922DCF04100744AF2 /* Plot2D.h */,
+				C444367A22DCF04100744AF2 /* FourBitArray.h */,
+				C444367B22DCF04100744AF2 /* Graphics.cpp */,
+				C444367C22DCF04100744AF2 /* Timer.h */,
+				C444367D22DCF04100744AF2 /* EnvUtil.cpp */,
+				C444367E22DCF04100744AF2 /* TextOverlay.h */,
+				C444367F22DCF04100744AF2 /* ScreenTransition.cpp */,
+				C444368022DCF04100744AF2 /* Map.cpp */,
+				C444368122DCF04100744AF2 /* LinearRegression.cpp */,
+				C444368222DCF04100744AF2 /* NN.h */,
+				C444368322DCF04100744AF2 /* SwapEndian.cpp */,
+				C444368422DCF04100744AF2 /* Plot2D.cpp */,
 				C444368522DCF04100744AF2 /* Bloom.h */,
+				C444368622DCF04100744AF2 /* RangeCompression.cpp */,
+				C444368722DCF04100744AF2 /* NBitArray.cpp */,
+				C444368822DCF04100744AF2 /* EnvUtil.h */,
+				C444368922DCF04100744AF2 /* FunctionApproximator.h */,
+				C444368A22DCF04100744AF2 /* RangeCompression.h */,
 				C444368B22DCF04100744AF2 /* BloomFilter.h */,
 				C444368C22DCF04100744AF2 /* Colors.cpp */,
-				C444367822DCF04100744AF2 /* Colors.h */,
 				C444368D22DCF04100744AF2 /* Combinations.h */,
-				C444367322DCF04100744AF2 /* DiskBitFile.cpp */,
-				C444366422DCF04100744AF2 /* DiskBitFile.h */,
-				C444367D22DCF04100744AF2 /* EnvUtil.cpp */,
-				C444368822DCF04100744AF2 /* EnvUtil.h */,
-				C444369D22DCF04100744AF2 /* FixedSizeSet.h */,
-				C444366222DCF04100744AF2 /* FourBitArray.cpp */,
-				C444367A22DCF04100744AF2 /* FourBitArray.h */,
+				C444368E22DCF04100744AF2 /* LinearRegression.h */,
+				C444368F22DCF04100744AF2 /* StatCollection.h */,
+				C444369022DCF04100744AF2 /* GLUtil.cpp */,
+				C444369122DCF04100744AF2 /* MMapUtil.cpp */,
+				C444369222DCF04100744AF2 /* MapOverlay.cpp */,
+				C444369322DCF04100744AF2 /* FunctionApproximator.cpp */,
+				C444369422DCF04100744AF2 /* Graphics.h */,
 				C444369522DCF04100744AF2 /* FPUtil.cpp */,
 				C444369622DCF04100744AF2 /* FPUtil.h */,
-				C444369322DCF04100744AF2 /* FunctionApproximator.cpp */,
-				C444368922DCF04100744AF2 /* FunctionApproximator.h */,
-				C444369022DCF04100744AF2 /* GLUtil.cpp */,
-				C444366722DCF04100744AF2 /* GLUtil.h */,
-				C444367B22DCF04100744AF2 /* Graphics.cpp */,
-				C444369422DCF04100744AF2 /* Graphics.h */,
-				C444368122DCF04100744AF2 /* LinearRegression.cpp */,
-				C444368E22DCF04100744AF2 /* LinearRegression.h */,
-				C444369E22DCF04100744AF2 /* LogisticRegression.cpp */,
-				C444367122DCF04100744AF2 /* LogisticRegression.h */,
-				C444368022DCF04100744AF2 /* Map.cpp */,
-				C444366822DCF04100744AF2 /* Map.h */,
-				C444367722DCF04100744AF2 /* MapGenerators.cpp */,
-				C444366B22DCF04100744AF2 /* MapGenerators.h */,
-				C444369222DCF04100744AF2 /* MapOverlay.cpp */,
-				C444365C22DCF04100744AF2 /* MapOverlay.h */,
-				C44436A122DCF04100744AF2 /* MinBloom.cpp */,
-				C444369C22DCF04100744AF2 /* MinBloom.h */,
-				C444369122DCF04100744AF2 /* MMapUtil.cpp */,
-				C444369A22DCF04100744AF2 /* MMapUtil.h */,
-				C444366322DCF04100744AF2 /* MR1Permutation.cpp */,
-				C444366E22DCF04100744AF2 /* MR1Permutation.h */,
-				C444368722DCF04100744AF2 /* NBitArray.cpp */,
-				C444367622DCF04100744AF2 /* NBitArray.h */,
-				C444369B22DCF04100744AF2 /* NN.cpp */,
-				C444368222DCF04100744AF2 /* NN.h */,
-				C444365E22DCF04100744AF2 /* Perceptron.cpp */,
-				C444365D22DCF04100744AF2 /* Perceptron.h */,
-				904FA97129E7044F00AB1339 /* Permutations.h */,
-				C444368422DCF04100744AF2 /* Plot2D.cpp */,
-				C444367922DCF04100744AF2 /* Plot2D.h */,
-				C444368622DCF04100744AF2 /* RangeCompression.cpp */,
-				C444368A22DCF04100744AF2 /* RangeCompression.h */,
-				C444366622DCF04100744AF2 /* ScenarioLoader.cpp */,
-				C444366C22DCF04100744AF2 /* ScenarioLoader.h */,
-				C444367F22DCF04100744AF2 /* ScreenTransition.cpp */,
-				C444367222DCF04100744AF2 /* ScreenTransition.h */,
-				C444369922DCF04100744AF2 /* SharedQueue.h */,
-				C444365F22DCF04100744AF2 /* StatCollection.cpp */,
-				C444368F22DCF04100744AF2 /* StatCollection.h */,
-				C444366F22DCF04100744AF2 /* StatUtil.cpp */,
-				C444365B22DCF04100744AF2 /* StatUtil.h */,
-				C444367522DCF04100744AF2 /* StringUtils.cpp */,
-				C444366D22DCF04100744AF2 /* StringUtils.h */,
 				C444369722DCF04100744AF2 /* SVGUtil.cpp */,
-				C444366A22DCF04100744AF2 /* SVGUtil.h */,
-				C444368322DCF04100744AF2 /* SwapEndian.cpp */,
-				C444366022DCF04100744AF2 /* SwapEndian.h */,
+				C444369822DCF04100744AF2 /* BitMap.h */,
+				C444369922DCF04100744AF2 /* SharedQueue.h */,
+				C444369A22DCF04100744AF2 /* MMapUtil.h */,
+				C444369B22DCF04100744AF2 /* NN.cpp */,
+				C444369C22DCF04100744AF2 /* MinBloom.h */,
+				C444369D22DCF04100744AF2 /* FixedSizeSet.h */,
+				C444369E22DCF04100744AF2 /* LogisticRegression.cpp */,
 				C444369F22DCF04100744AF2 /* TextOverlay.cpp */,
-				C444367E22DCF04100744AF2 /* TextOverlay.h */,
-				C444367022DCF04100744AF2 /* Timer.cpp */,
-				C444367C22DCF04100744AF2 /* Timer.h */,
 				C44436A022DCF04100744AF2 /* vectorCache.h */,
+				C44436A122DCF04100744AF2 /* MinBloom.cpp */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -1316,8 +1306,7 @@
 				C44437E922DDA2A000744AF2 /* idastar */,
 				C444375722DCF06900744AF2 /* suboptimal-map */,
 			);
-			name = "hog2 demos";
-			path = ../../../demos;
+			path = "hog2 demos";
 			sourceTree = "<group>";
 		};
 		C444375722DCF06900744AF2 /* suboptimal-map */ = {
@@ -1355,9 +1344,8 @@
 			children = (
 				C48FE76C234FAB22008864D2 /* DWA */,
 			);
-			name = papers;
-			path = ../../../papers;
-			sourceTree = "<group>";
+			path = papers;
+			sourceTree = SOURCE_ROOT;
 		};
 		C48FE76C234FAB22008864D2 /* DWA */ = {
 			isa = PBXGroup;
@@ -1445,8 +1433,7 @@
 		C444333622DCEBEE00744AF2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = MovingAI;
 				TargetAttributes = {
 					C444333D22DCEBEE00744AF2 = {
@@ -1580,6 +1567,7 @@
 				C444335122DCEBF000744AF2 /* main.m in Sources */,
 				C444370A22DCF04100744AF2 /* NQueens.cpp in Sources */,
 				C44436E522DCF04100744AF2 /* BoundingBox.cpp in Sources */,
+				C444370722DCF04100744AF2 /* TOH.cpp in Sources */,
 				C444372A22DCF04100744AF2 /* Graphics.cpp in Sources */,
 				C44436FE22DCF04100744AF2 /* Fling.cpp in Sources */,
 				C44436EB22DCF04100744AF2 /* OpenClosedList.cpp in Sources */,
@@ -1697,6 +1685,7 @@
 				C44437A822DDA22300744AF2 /* main.m in Sources */,
 				C44437A922DDA22300744AF2 /* NQueens.cpp in Sources */,
 				C44437AA22DDA22300744AF2 /* BoundingBox.cpp in Sources */,
+				C44437AB22DDA22300744AF2 /* TOH.cpp in Sources */,
 				C44437AC22DDA22300744AF2 /* Graphics.cpp in Sources */,
 				C44437AD22DDA22300744AF2 /* Fling.cpp in Sources */,
 				C44437AE22DDA22300744AF2 /* OpenClosedList.cpp in Sources */,
@@ -1812,6 +1801,7 @@
 				C47C0EE522DE4D610088605D /* main.m in Sources */,
 				C47C0EE622DE4D610088605D /* NQueens.cpp in Sources */,
 				C47C0EE722DE4D610088605D /* BoundingBox.cpp in Sources */,
+				C47C0EE822DE4D610088605D /* TOH.cpp in Sources */,
 				C47C0EE922DE4D610088605D /* Graphics.cpp in Sources */,
 				C47C0EEA22DE4D610088605D /* Fling.cpp in Sources */,
 				C47C0EEB22DE4D610088605D /* OpenClosedList.cpp in Sources */,
@@ -1929,6 +1919,7 @@
 				C48FE725234FA9E9008864D2 /* main.m in Sources */,
 				C48FE726234FA9E9008864D2 /* NQueens.cpp in Sources */,
 				C48FE727234FA9E9008864D2 /* BoundingBox.cpp in Sources */,
+				C48FE728234FA9E9008864D2 /* TOH.cpp in Sources */,
 				C48FE729234FA9E9008864D2 /* Graphics.cpp in Sources */,
 				C48FE72A234FA9E9008864D2 /* Fling.cpp in Sources */,
 				C48FE72B234FA9E9008864D2 /* OpenClosedList.cpp in Sources */,
@@ -2031,7 +2022,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -2043,7 +2033,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -2092,7 +2081,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -2104,7 +2092,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -2126,7 +2113,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = HK86U5EPZM;
+				DEVELOPMENT_TEAM = Y3J7CN53G8;
 				INFOPLIST_FILE = "hog2 iPad/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2145,7 +2132,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = HK86U5EPZM;
+				DEVELOPMENT_TEAM = Y3J7CN53G8;
 				INFOPLIST_FILE = "hog2 iPad/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2248,7 +2235,7 @@
 					"@executable_path/Frameworks",
 				);
 				OTHER_CFLAGS = "-DNO_OPENGL";
-				PRODUCT_BUNDLE_IDENTIFIER = com.movingai.dwa;
+				PRODUCT_BUNDLE_IDENTIFIER = com.movingai.worst;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 2;
 			};
@@ -2267,7 +2254,7 @@
 					"@executable_path/Frameworks",
 				);
 				OTHER_CFLAGS = "-DNO_OPENGL";
-				PRODUCT_BUNDLE_IDENTIFIER = com.movingai.dwa;
+				PRODUCT_BUNDLE_IDENTIFIER = com.movingai.worst;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 2;
 			};
