@@ -14,6 +14,8 @@
 #include "GLUtil.h" // TODO: needs to be renamed, if data structures are to be more widely re-used
 #include "FPUtil.h"
 #include <cstdint>
+#include <functional>
+#include <algorithm>
 
 // TODO: move back into namespace - but lots of code has to be updated; task for later
 enum viewportType {
@@ -142,12 +144,14 @@ struct rect {
 		bottom = std::max(bottom, val.bottom);
 		return *this;
 	}
-	void lerp(const rect &val, float percentage)
+	bool operator==(const rect &val) const
 	{
-		left = left*(1-percentage)+val.left*percentage;
-		right = right*(1-percentage)+val.right*percentage;
-		top = top*(1-percentage)+val.top*percentage;
-		bottom = bottom*(1-percentage)+val.bottom*percentage;
+		return fequal(left, val.left) && fequal(right, val.right) &&
+			fequal(top, val.top) && fequal(bottom, val.bottom);
+	}
+	bool operator!=(const rect &val) const
+	{
+		return !(val==*this);
 	}
 };
 
@@ -175,11 +179,32 @@ bool PointInRect(const point &p, const rect &r);
 bool PointInRect(const point &p, const roundedRect &r);
 point BezierHelper(const point &from1, const point &to1, const point &from2, const point &to2, float mix);
 
+using TimingFunc = std::function<float(float)>;
+
+namespace TimingFunction {
+
+float Linear(float t);
+
+float EaseInSine(float t);
+
+float EaseOutSine(float t);
+
+float EaseInOutSine(float t);
+}
+
+float LinearInterpolate(float start, float end, float percent);
+
+void InterpolateRect(rect &current, const rect &from, const rect &to, float percent);
+
 struct viewport {
 	Graphics::rect bounds;
 	Graphics::rect finalBound;
 	viewportType type;
 	bool active; // Is this viewport valid
+	Graphics::rect startBound;
+	float animationDuration;
+	TimingFunc timingFunc;
+	unsigned frameCount;
 };
 
 /*
@@ -350,7 +375,7 @@ public:
 	 */
 	int AddViewport(const Graphics::rect &r, viewportType v);
 	int AddViewport(const Graphics::rect &initial, const Graphics::rect &fin, viewportType v);
-	void MoveViewport(int viewport, const Graphics::rect &newLocation);
+	void MoveViewport(int viewport, const rect &newLocation, float duration = 1.5, TimingFunc func = TimingFunction::Linear);
 
 	Graphics::point ViewportToGlobalHOG(Graphics::point where, int viewport) const;
 	Graphics::point ViewportToGlobalHOG(Graphics::point where, int viewport, int wWidth, int wHeight) const;
