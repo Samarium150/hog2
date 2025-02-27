@@ -153,6 +153,13 @@ struct rect {
 	{
 		return !(val==*this);
 	}
+	void lerp(const rect &val, float percentage)
+	{
+		left = left*(1-percentage)+val.left*percentage;
+		right = right*(1-percentage)+val.right*percentage;
+		top = top*(1-percentage)+val.top*percentage;
+		bottom = bottom*(1-percentage)+val.bottom*percentage;
+	}
 };
 
 struct roundedRect {
