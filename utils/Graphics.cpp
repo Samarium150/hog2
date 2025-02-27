@@ -54,7 +54,7 @@ float EaseInOutSine(const float t)
 }
 
 float LinearInterpolate(const float start, const float end, const float percent) {
-	return start + (end - start) * std::clamp(percent, 0.0f, 1.0f);
+	return start + (end - start) * Clamp(percent, 0.0f, 1.0f);
 }
 
 void InterpolateRect(rect &current, const rect &from, const rect &to, float percent) {

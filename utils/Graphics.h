@@ -179,6 +179,11 @@ bool PointInRect(const point &p, const rect &r);
 bool PointInRect(const point &p, const roundedRect &r);
 point BezierHelper(const point &from1, const point &to1, const point &from2, const point &to2, float mix);
 
+template <typename T>
+T Clamp(const T& n, const T& lower, const T& upper) {
+	return std::max(lower, std::min(n, upper));
+}
+
 using TimingFunc = std::function<float(float)>;
 
 namespace TimingFunction {
