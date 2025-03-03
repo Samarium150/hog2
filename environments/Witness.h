@@ -2705,124 +2705,134 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
             rgs.insert(rgs.end(), region->cbegin(), region->cend());
     });
     GetLeftRightRegions(node);
-    auto latest = node.lhs[node.lhs.size() - 1];
-    auto [lx, ly] = GetRegionXYFromIndex(latest);
-    auto latest_constraint = regionConstraints[lx][ly];
-    if (std::find(rgs.cbegin(), rgs.cend(), latest) != rgs.cend())
+    if (!node.lhs.empty())
     {
-        switch (latest_constraint.type)
+        auto latest = node.lhs[node.lhs.size() - 1];
+        auto [lx, ly] = GetRegionXYFromIndex(latest);
+        auto latest_constraint = regionConstraints[lx][ly];
+        if (std::find(rgs.cbegin(), rgs.cend(), latest) != rgs.cend())
         {
-            case kSeparation:
+            switch (latest_constraint.type)
             {
-                for (auto i = 0; i < node.lhs.size() - 1; ++i)
+                case kSeparation:
                 {
-                    auto r = node.lhs[i];
-                    if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
-                        continue;
-                    auto [x, y] = GetRegionXYFromIndex(r);
-                    const auto &[type, _, color] = regionConstraints[x][y];
-                    if (type == kSeparation && latest_constraint.color != color)
+                    for (auto i = 0; i < node.lhs.size() - 1; ++i)
                     {
-                        regionCache.returnItem(&rgs);
-                        return false;
-                    }
-                }
-            }
-            case kStar:
-            {
-                unsigned count = 0;
-                for (auto i = 0; i < node.lhs.size() - 1; ++i)
-                {
-                    auto r = node.lhs[i];
-                    if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
-                        continue;
-                    auto [x, y] = GetRegionXYFromIndex(r);
-                    const auto &[type, _, color] = regionConstraints[x][y];
-                    if (type != kNoRegionConstraint && latest_constraint.color == color)
-                    {
-                        if (++count > 2)
+                        auto r = node.lhs[i];
+                        if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
+                            continue;
+                        auto [x, y] = GetRegionXYFromIndex(r);
+                        const auto &[type, _, color] = regionConstraints[x][y];
+                        if (type == kSeparation && latest_constraint.color != color)
                         {
                             regionCache.returnItem(&rgs);
                             return false;
                         }
                     }
+                    break;
                 }
-            }
-            case kTriangle:
-            {
-                auto e = static_cast<unsigned>(node.OccupiedEdge(lx, ly, lx, ly + 1)) +
-                        static_cast<unsigned>(node.OccupiedEdge(lx, ly + 1, lx + 1, ly + 1)) +
-                        static_cast<unsigned>(node.OccupiedEdge(lx + 1, ly + 1, lx + 1, ly)) +
-                        static_cast<unsigned>(node.OccupiedEdge(lx + 1, ly, lx, ly));
-                if (e > latest_constraint.parameter)
+                case kStar:
                 {
-                    regionCache.returnItem(&rgs);
-                    return false;
+                    unsigned count = 0;
+                    for (auto i = 0; i < node.lhs.size() - 1; ++i)
+                    {
+                        auto r = node.lhs[i];
+                        if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
+                            continue;
+                        auto [x, y] = GetRegionXYFromIndex(r);
+                        const auto &[type, _, color] = regionConstraints[x][y];
+                        if (type != kNoRegionConstraint && latest_constraint.color == color)
+                        {
+                            if (++count > 2)
+                            {
+                                regionCache.returnItem(&rgs);
+                                return false;
+                            }
+                        }
+                    }
+                    break;
                 }
-                break;
+                case kTriangle:
+                {
+                    auto e = static_cast<unsigned>(node.OccupiedEdge(lx, ly, lx, ly + 1)) +
+                            static_cast<unsigned>(node.OccupiedEdge(lx, ly + 1, lx + 1, ly + 1)) +
+                            static_cast<unsigned>(node.OccupiedEdge(lx + 1, ly + 1, lx + 1, ly)) +
+                            static_cast<unsigned>(node.OccupiedEdge(lx + 1, ly, lx, ly));
+                    if (e > latest_constraint.parameter)
+                    {
+                        regionCache.returnItem(&rgs);
+                        return false;
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
-            default:
-                break;
         }
     }
-    latest = node.rhs[node.rhs.size() - 1];
-    auto [rx, ry] = GetRegionXYFromIndex(latest);
-    latest_constraint = regionConstraints[rx][ry];
-    if (std::find(rgs.cbegin(), rgs.cend(), latest) != rgs.cend())
+    if (!node.rhs.empty())
     {
-        switch (latest_constraint.type)
+        auto latest = node.rhs[node.rhs.size() - 1];
+        auto [rx, ry] = GetRegionXYFromIndex(latest);
+        auto latest_constraint = regionConstraints[rx][ry];
+        if (std::find(rgs.cbegin(), rgs.cend(), latest) != rgs.cend())
         {
-            case kSeparation:
+            switch (latest_constraint.type)
             {
-                for (auto i = 0; i < node.lhs.size() - 1; ++i)
+                case kSeparation:
                 {
-                    auto r = node.lhs[i];
-                    if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
-                        continue;
-                    auto [x, y] = GetRegionXYFromIndex(r);
-                    const auto &[type, _, color] = regionConstraints[x][y];
-                    if (type == kSeparation && latest_constraint.color != color)
+                    for (auto i = 0; i < node.rhs.size() - 1; ++i)
                     {
-                        regionCache.returnItem(&rgs);
-                        return false;
-                    }
-                }
-            }
-            case kStar:
-            {
-                unsigned count = 0;
-                for (auto i = 0; i < node.lhs.size() - 1; ++i)
-                {
-                    auto r = node.lhs[i];
-                    if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
-                        continue;
-                    auto [x, y] = GetRegionXYFromIndex(r);
-                    const auto &[type, _, color] = regionConstraints[x][y];
-                    if (type != kNoRegionConstraint && latest_constraint.color == color)
-                    {
-                        if (++count > 2)
+                        auto r = node.rhs[i];
+                        if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
+                            continue;
+                        auto [x, y] = GetRegionXYFromIndex(r);
+                        const auto &[type, _, color] = regionConstraints[x][y];
+                        if (type == kSeparation && latest_constraint.color != color)
                         {
                             regionCache.returnItem(&rgs);
                             return false;
                         }
                     }
+                    break;
                 }
-            }
-            case kTriangle:
-            {
-                auto e = static_cast<unsigned>(node.OccupiedEdge(rx, ry, rx, ry + 1)) +
-                        static_cast<unsigned>(node.OccupiedEdge(rx, ry + 1, rx + 1, ry + 1)) +
-                        static_cast<unsigned>(node.OccupiedEdge(rx + 1, ry + 1, rx + 1, ry)) +
-                        static_cast<unsigned>(node.OccupiedEdge(rx + 1, ry, rx, ry));
-                if (e > latest_constraint.parameter)
+                case kStar:
                 {
-                    regionCache.returnItem(&rgs);
-                    return false;
+                    unsigned count = 0;
+                    for (auto i = 0; i < node.rhs.size() - 1; ++i)
+                    {
+                        auto r = node.rhs[i];
+                        if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
+                            continue;
+                        auto [x, y] = GetRegionXYFromIndex(r);
+                        const auto &[type, _, color] = regionConstraints[x][y];
+                        if (type != kNoRegionConstraint && latest_constraint.color == color)
+                        {
+                            if (++count > 2)
+                            {
+                                regionCache.returnItem(&rgs);
+                                return false;
+                            }
+                        }
+                    }
+                    break;
                 }
-                break;
+                case kTriangle:
+                {
+                    auto e = static_cast<unsigned>(node.OccupiedEdge(rx, ry, rx, ry + 1)) +
+                            static_cast<unsigned>(node.OccupiedEdge(rx, ry + 1, rx + 1, ry + 1)) +
+                            static_cast<unsigned>(node.OccupiedEdge(rx + 1, ry + 1, rx + 1, ry)) +
+                            static_cast<unsigned>(node.OccupiedEdge(rx + 1, ry, rx, ry));
+                    if (e > latest_constraint.parameter)
+                    {
+                        regionCache.returnItem(&rgs);
+                        return false;
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
-            default:
-                break;
         }
     }
     regionCache.returnItem(&rgs);
