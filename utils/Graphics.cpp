@@ -30,7 +30,7 @@ point BezierHelper(const point &from1, const point &to1, const point &from2, con
 	return (from1*(1-mix)+to1*mix)*(1-mix) + (from2*(1-mix)+to2*mix)*mix;
 }
 
-namespace TimingFunction {
+namespace Tween {
 
 float Linear(const float t)
 {
@@ -391,12 +391,12 @@ int Graphics::Display::AddViewport(const Graphics::rect &initial, const Graphics
 	return numViewports-1;
 }
 
-void Graphics::Display::MoveViewport(int viewport, const rect &newLocation, float duration, TimingFunc func)
+void Graphics::Display::MoveViewport(int viewport, const rect &newLocation, float duration, TweenFunc func)
 {
 	viewports[viewport].startBound = viewports[viewport].bounds;
 	viewports[viewport].finalBound = newLocation;
 	viewports[viewport].animationDuration = duration;
-	viewports[viewport].timingFunc = std::move(func);
+    viewports[viewport].tweenFunc = std::move(func);
 	viewports[viewport].frameCount = 0;
 }
 

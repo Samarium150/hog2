@@ -61,7 +61,7 @@ void ReinitViewports(unsigned long windowID, const Graphics::rect &r, viewportTy
  */
 int AddViewport(unsigned long windowID, const Graphics::rect &r, viewportType v);
 int AddViewport(unsigned long windowID, const Graphics::rect &initial, const Graphics::rect &fin, viewportType v);
-void MoveViewport(unsigned long windowID, int viewport, const Graphics::rect &newLocation, float duration = 1.5, Graphics::TimingFunc func = Graphics::TimingFunction::Linear);
+void MoveViewport(unsigned long windowID, int viewport, const Graphics::rect &newLocation, float duration = 1.5, Graphics::TweenFunc func = Graphics::Tween::Linear);
 
 /* Helper functions for converting coordinates between viewport and global hog coordinates */
 Graphics::point ViewportToGlobalHOG(pRecContext pContextInfo, Graphics::point where, int viewport);

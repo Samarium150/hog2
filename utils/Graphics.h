@@ -191,9 +191,9 @@ T Clamp(const T& n, const T& lower, const T& upper) {
 	return std::max(lower, std::min(n, upper));
 }
 
-using TimingFunc = std::function<float(float)>;
+using TweenFunc = std::function<float(float)>;
 
-namespace TimingFunction {
+namespace Tween {
 
 float Linear(float t);
 
@@ -215,7 +215,7 @@ struct viewport {
 	bool active; // Is this viewport valid
 	Graphics::rect startBound;
 	float animationDuration;
-	TimingFunc timingFunc;
+	TweenFunc tweenFunc;
 	unsigned frameCount;
 };
 
@@ -387,7 +387,7 @@ public:
 	 */
 	int AddViewport(const Graphics::rect &r, viewportType v);
 	int AddViewport(const Graphics::rect &initial, const Graphics::rect &fin, viewportType v);
-	void MoveViewport(int viewport, const rect &newLocation, float duration = 1.5, TimingFunc func = TimingFunction::Linear);
+	void MoveViewport(int viewport, const rect &newLocation, float duration = 1.5, TweenFunc func = Tween::Linear);
 
 	Graphics::point ViewportToGlobalHOG(Graphics::point where, int viewport) const;
 	Graphics::point ViewportToGlobalHOG(Graphics::point where, int viewport, int wWidth, int wHeight) const;

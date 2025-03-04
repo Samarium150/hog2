@@ -289,7 +289,7 @@ void HandleFrame(pRecContext pContextInfo, int viewport)
 			continue;
 		}
 		const auto percent = static_cast<float>(vp.frameCount++) / (vp.animationDuration * 30.0f);
-		InterpolateRect(vp.bounds, vp.startBound, vp.finalBound, vp.timingFunc(percent));
+        InterpolateRect(vp.bounds, vp.startBound, vp.finalBound, vp.tweenFunc(percent));
 	}
 }
 
@@ -607,7 +607,7 @@ int AddViewport(unsigned long windowID, const Graphics::rect &initial, const Gra
 	return pContextInfo->display.AddViewport(initial, fin, v);
 }
 
-void MoveViewport(unsigned long windowID, int viewport, const Graphics::rect &newLocation, float duration, Graphics::TimingFunc func)
+void MoveViewport(unsigned long windowID, int viewport, const Graphics::rect &newLocation, float duration, Graphics::TweenFunc func)
 {
 	pRecContext pContextInfo = GetContext(windowID);
 	pContextInfo->display.MoveViewport(viewport, newLocation, duration, std::move(func));
