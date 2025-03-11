@@ -14,6 +14,8 @@
 #include "GLUtil.h" // TODO: needs to be renamed, if data structures are to be more widely re-used
 #include "FPUtil.h"
 #include <cstdint>
+#include <functional>
+#include <algorithm>
 
 // TODO: move back into namespace - but lots of code has to be updated; task for later
 enum viewportType {
@@ -142,6 +144,15 @@ struct rect {
 		bottom = std::max(bottom, val.bottom);
 		return *this;
 	}
+	bool operator==(const rect &val) const
+	{
+		return fequal(left, val.left) && fequal(right, val.right) &&
+			fequal(top, val.top) && fequal(bottom, val.bottom);
+	}
+	bool operator!=(const rect &val) const
+	{
+		return !(val==*this);
+	}
 	void lerp(const rect &val, float percentage)
 	{
 		left = left*(1-percentage)+val.left*percentage;
@@ -175,11 +186,37 @@ bool PointInRect(const point &p, const rect &r);
 bool PointInRect(const point &p, const roundedRect &r);
 point BezierHelper(const point &from1, const point &to1, const point &from2, const point &to2, float mix);
 
+template <typename T>
+T Clamp(const T& n, const T& lower, const T& upper) {
+	return std::max(lower, std::min(n, upper));
+}
+
+using TweenFunc = std::function<float(float)>;
+
+namespace Tween {
+
+float Linear(float t);
+
+float EaseInSine(float t);
+
+float EaseOutSine(float t);
+
+float EaseInOutSine(float t);
+}
+
+float LinearInterpolate(float start, float end, float percent);
+
+void InterpolateRect(rect &current, const rect &from, const rect &to, float percent);
+
 struct viewport {
 	Graphics::rect bounds;
 	Graphics::rect finalBound;
 	viewportType type;
 	bool active; // Is this viewport valid
+	Graphics::rect startBound;
+	float animationDuration;
+	TweenFunc tweenFunc;
+	unsigned frameCount;
 };
 
 /*
@@ -350,7 +387,7 @@ public:
 	 */
 	int AddViewport(const Graphics::rect &r, viewportType v);
 	int AddViewport(const Graphics::rect &initial, const Graphics::rect &fin, viewportType v);
-	void MoveViewport(int viewport, const Graphics::rect &newLocation);
+	void MoveViewport(int viewport, const rect &newLocation, float duration = 1.5, TweenFunc func = Tween::Linear);
 
 	Graphics::point ViewportToGlobalHOG(Graphics::point where, int viewport) const;
 	Graphics::point ViewportToGlobalHOG(Graphics::point where, int viewport, int wWidth, int wHeight) const;

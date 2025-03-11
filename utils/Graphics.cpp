@@ -30,6 +30,39 @@ point BezierHelper(const point &from1, const point &to1, const point &from2, con
 	return (from1*(1-mix)+to1*mix)*(1-mix) + (from2*(1-mix)+to2*mix)*mix;
 }
 
+namespace Tween {
+
+float Linear(const float t)
+{
+	return t;
+}
+
+float EaseInSine(const float t)
+{
+	return 1.0f - static_cast<float>(std::cos(t * M_PI_2));
+}
+
+float EaseOutSine(const float t)
+{
+	return static_cast<float>(std::sin(t * M_PI_2));
+}
+
+float EaseInOutSine(const float t)
+{
+	return -static_cast<float>((std::cos(M_PI * t) - 1.0f) / 2.0f);
+}
+}
+
+float LinearInterpolate(const float start, const float end, const float percent) {
+	return start + (end - start) * Clamp(percent, 0.0f, 1.0f);
+}
+
+void InterpolateRect(rect &current, const rect &from, const rect &to, float percent) {
+	current.left = LinearInterpolate(from.left, to.left, percent);
+	current.top = LinearInterpolate(from.top, to.top, percent);
+	current.right = LinearInterpolate(from.right, to.right, percent);
+	current.bottom = LinearInterpolate(from.bottom, to.bottom, percent);
+}
 
 Display::Display()
 {
@@ -358,9 +391,13 @@ int Graphics::Display::AddViewport(const Graphics::rect &initial, const Graphics
 	return numViewports-1;
 }
 
-void Graphics::Display::MoveViewport(int port, const Graphics::rect &newLocation)
+void Graphics::Display::MoveViewport(int viewport, const rect &newLocation, float duration, TweenFunc func)
 {
-	viewports[port].finalBound = newLocation;
+	viewports[viewport].startBound = viewports[viewport].bounds;
+	viewports[viewport].finalBound = newLocation;
+	viewports[viewport].animationDuration = duration;
+    viewports[viewport].tweenFunc = std::move(func);
+	viewports[viewport].frameCount = 0;
 }
 
 float Graphics::Display::GlobalHOGToViewportX(float x, int v) const

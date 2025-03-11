@@ -278,7 +278,18 @@ void HandleFrame(pRecContext pContextInfo, int viewport)
 	pContextInfo->display.EndFrame(); // end last frame
 	for (int x = 0; x < pContextInfo->display.numViewports; x++)
 	{
-		pContextInfo->display.viewports[x].bounds.lerp(pContextInfo->display.viewports[x].finalBound, 0.1);
+		auto &vp = pContextInfo->display.viewports[x];
+		if (fequal(vp.animationDuration, 0.0f))
+		{
+			vp.bounds = vp.finalBound;
+			continue;
+		}
+		if (vp.bounds == vp.finalBound)
+		{
+			continue;
+		}
+		const auto percent = static_cast<float>(vp.frameCount++) / (vp.animationDuration * 30.0f);
+        InterpolateRect(vp.bounds, vp.startBound, vp.finalBound, vp.tweenFunc(percent));
 	}
 }
 
@@ -596,10 +607,10 @@ int AddViewport(unsigned long windowID, const Graphics::rect &initial, const Gra
 	return pContextInfo->display.AddViewport(initial, fin, v);
 }
 
-void MoveViewport(unsigned long windowID, int viewport, const Graphics::rect &newLocation)
+void MoveViewport(unsigned long windowID, int viewport, const Graphics::rect &newLocation, float duration, Graphics::TweenFunc func)
 {
 	pRecContext pContextInfo = GetContext(windowID);
-	pContextInfo->display.MoveViewport(viewport, newLocation);
+	pContextInfo->display.MoveViewport(viewport, newLocation, duration, std::move(func));
 }
 
 Graphics::point ViewportToGlobalHOG(pRecContext pContextInfo, const Graphics::viewport &v, Graphics::point where)
