@@ -258,35 +258,9 @@ public:
 
     void IncrementTime()
     {
-        switch (currState)
-    	{
-            case kWaitingStart:
-                trackFrac = false;
-            	frac += 0.04;
-            	if (frac > 3)
-                    frac = 0;
-            	break;
-
-        	case kWaitingRestart:
-                if (!trackFrac)
-                {
-                    frac = 0;
-                    trackFrac = true;
-                }
-                frac += 0.04;
-                if (frac > 3)
-                {
-                    frac = 0;
-                    Reset();
-                }
-                break;
-
-            case kInPoint:
-                frac += 0.04;
-            	if (frac > 3)
-                    frac = 0;
-            	break;
-    	}
+        if (currState != kWaitingStart) return;
+        frac += 0.04;
+        if (frac > 3) frac = 0;
     }
 
     WitnessState<width, height> ws;
@@ -777,6 +751,8 @@ public:
     bool GoalTest(const WitnessState<width, height> &node, const WitnessState<width, height> &goal) const;
 
     bool GoalTest(const WitnessState<width, height> &node) const;
+    
+    bool GoalTestWithTracking(const WitnessState<width, height> &node) const;
 
     bool RegionTest(const WitnessState<width, height> &node) const;
 
@@ -2832,18 +2808,229 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
 template<int width, int height>
 bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) const
 {
+
+    for (int x = 0; x < width + 1; ++x)
+    {
+        for (int y = 0; y < height + 1; ++y)
+        {
+            if (GetMustCrossConstraint(x, y) && (!node.Occupied(x, y))) return false;
+            if (GetCannotCrossConstraint(x, y) && (node.Occupied(x, y))) return false;
+        }
+    }
+    for (int x = 0; x < width; ++x)
+    {
+        for (int y = 0; y <= height; ++y)
+        {
+            if (GetMustCrossConstraint(true, x, y) && !node.OccupiedEdge(x, y, x + 1, y)) return false;
+            if (GetCannotCrossConstraint(true, x, y) && node.OccupiedEdge(x, y, x + 1, y)) return false;
+        }
+    }
+    for (int x = 0; x <= width; ++x)
+    {
+        for (int y = 0; y < height; ++y)
+        {
+            if (GetMustCrossConstraint(false, x, y) && !node.OccupiedEdge(x, y, x, y + 1)) return false;
+            if (GetCannotCrossConstraint(false, x, y) && node.OccupiedEdge(x, y, x, y + 1)) return false;
+        }
+    }
+
+    // Didn't hit end of puzzle
+    if (node.path.empty()) return false;
+
+    if (node.path.back().second <= height && node.path.back().first <= width && node.path.back().second >= 0 &&
+        node.path.back().first >= 0)
+        return false;
+
+    if (constraintCount[kTriangle] > 0)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            for (int y = 0; y < height; ++y)
+            {
+                if (regionConstraints[x][y].type == kTriangle)
+                {
+                    int count = node.OccupiedEdge(x, y, x, y + 1);
+                    count += node.OccupiedEdge(x, y, x + 1, y);
+                    count += node.OccupiedEdge(x + 1, y, x + 1, y + 1);
+                    count += node.OccupiedEdge(x, y + 1, x + 1, y + 1);
+                    if (count != regionConstraints[x][y].parameter) return false;
+                }
+            }
+        }
+    }
+
+    if (constraintCount[kSeparation] == 0 && constraintCount[kTetris] == 0 && constraintCount[kStar] == 0 &&
+        constraintCount[kEraser] == 0)
+        return true;
+
+    LabelRegions(node);
+
+    // TODO: Verify matched constraints by region.
+    // TODO: Count the total number of unmatched constraints for checking eraser constraints and for displaying failed
+    // constraints
+    if (constraintCount[kSeparation] > 0)
+    {
+        for (auto &v: regionList) // vector of locations
+        {
+            bool found = false;
+            rgbColor c;
+            for (auto &i: *v)
+            {
+                int x = GetRegionFromX(i);
+                int y = GetRegionFromY(i);
+
+                if (regionConstraints[x][y].type == kSeparation)
+                {
+                    if (!found)
+                    {
+                        c = regionConstraints[x][y].color;
+                        found = true;
+                    }
+                    else if (c != regionConstraints[x][y].color)
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO: After this is working, see if we can merge the tetris constraints into the separation code
+    if (constraintCount[kTetris] == 0 && constraintCount[kNegativeTetris] > 0) return false;
+
+    if (constraintCount[kStar] > 0)
+    {
+        for (auto &v: regionList) // vector of locations
+        {
+            for (auto &i: *v)
+            {
+                int x = GetRegionFromX(i);
+                int y = GetRegionFromY(i);
+                rgbColor finishedColor(1.0 / 512.0, 1.0 / 512.0, 1.0 / 512.0);
+                if (regionConstraints[x][y].type == kStar)
+                {
+                    if (regionConstraints[x][y].color == finishedColor) continue;
+
+                    finishedColor = regionConstraints[x][y].color;
+                    int count = 0;
+                    for (auto &r: *v)
+                    {
+                        int xx = GetRegionFromX(r);
+                        int yy = GetRegionFromY(r);
+
+                        if (regionConstraints[xx][yy].type != kNoRegionConstraint &&
+                            regionConstraints[x][y].color == regionConstraints[xx][yy].color)
+                        {
+                            count++;
+                            if (count > 2) return false;
+                        }
+                    }
+                    if (count != 2) return false;
+                }
+            }
+        }
+    }
+
+    if (constraintCount[kTetris] > 0)
+    {
+        tetrisBlockCount.resize(regionList.size());
+
+        // 1. Collect the tetris constraints for each region
+        for (int x = 0; x < regionList.size(); ++x)
+        {
+            tetrisBlockCount[x] = 0;
+            for (auto &l: *regionList[x])
+            {
+                if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kTetris)
+                {
+                    int whichConstraint = regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].parameter;
+                    int numPieces = tetrisSize[whichConstraint];
+                    tetrisBlockCount[x] += numPieces;
+                }
+                else if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kNegativeTetris)
+                {
+                    int whichConstraint = regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].parameter;
+                    int numPieces = tetrisSize[whichConstraint];
+                    tetrisBlockCount[x] -= numPieces;
+                }
+            }
+            // 2. Make sure the counts of tetris blocks matches the region size
+            if (tetrisBlockCount[x] > 0 && tetrisBlockCount[x] != regionList[x]->size())
+            {
+                // printf("Region %d has %d tetris blocks and size %lu\n", x, tetrisBlockCount[x],
+                // regionList[x].size());
+                return false;
+            }
+        }
+
+        // 3. Do the full layout
+        for (auto &v: regionList)
+        {
+            if (v->empty()) continue;
+
+            bool hasNegations = false;
+            tetrisBlocksInRegion.resize(0);
+
+            // Get bit map of board
+            uint64_t board = 0;
+
+            for (auto &l: *v) // individual location
+            {
+                uint64_t xx = GetRegionFromX(l);
+                uint64_t yy = GetRegionFromY(l);
+                // x and y are offset from bottom left (screen space)
+                // need to convert to 8x8 bitmaps space
+                board |= ((1ull << (7 - xx)) << ((7 - yy) * 8));
+
+                if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kTetris)
+                {
+                    int whichConstraint = regionConstraints[xx][yy].parameter;
+                    tetrisBlocksInRegion.push_back(whichConstraint);
+                }
+                if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kNegativeTetris)
+                {
+                    int whichConstraint = regionConstraints[xx][yy].parameter;
+                    tetrisBlocksInRegion.push_back(-whichConstraint);
+                    hasNegations = true;
+                }
+            }
+
+            if (tetrisBlocksInRegion.empty()) continue;
+
+            // Get out of bounds map -- places pieces can't go
+            uint64_t oob = ~board;
+            if (hasNegations) oob = 0;
+
+            // 4. Now we have all pieces, recursively try to place them
+            if (!RecursivelyPlacePieces(0, board, oob, 0, 0))
+                return false; // No way to place them
+        }
+        return true; // didn't find a way to place them
+    }
+    return true;
+}
+
+template<int width, int height>
+bool Witness<width, height>::GoalTestWithTracking(const WitnessState<width, height> &node) const
+{
+    // Didn't hit end of puzzle
+    if (node.path.empty()) return false;
+    else if (node.path.back().second <= height && node.path.back().first <= width && node.path.back().second >= 0 &&
+        node.path.back().first >= 0)
+        return false;
+
     // verdict is being used instead of the return statements to make sure all constraints are checked
     bool verdict = true;
 
     // TODO: make this more efficient
-    for (int x = 0; x < width + 1; x++)
+    for (int x = 0; x < width + 1; ++x)
     {
-        for (int y = 0; y < height + 1; y++)
+        for (int y = 0; y < height + 1; ++y)
         {
             if (GetMustCrossConstraint(x, y) && (!node.Occupied(x, y)))
             {
                 int xx = (width * (height + 1) + (width + 1) * height + (width + 1) * y + x);
-                TrackInvalidConstraints(kRegionConstraintCount + kMustCross, xx, y); //y is useless here, xx stores the index
+                TrackInvalidConstraints(kRegionConstraintCount + kMustCross, xx, y); // y is useless here, xx stores the index
                 verdict = false;
             }
             else if (GetMustCrossConstraint(x, y) && (node.Occupied(x, y)))
@@ -2854,9 +3041,9 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
             if (GetCannotCrossConstraint(x, y) && (node.Occupied(x, y))) verdict = false;
         }
     }
-    for (int x = 0; x < width; x++)
+    for (int x = 0; x < width; ++x)
     {
-        for (int y = 0; y <= height; y++)
+        for (int y = 0; y <= height; ++y)
         {
             if (GetMustCrossConstraint(true, x, y) && !node.OccupiedEdge(x, y, x + 1, y))
             {
@@ -2872,9 +3059,9 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
             if (GetCannotCrossConstraint(true, x, y) && node.OccupiedEdge(x, y, x + 1, y)) verdict = false;
         }
     }
-    for (int x = 0; x <= width; x++)
+    for (int x = 0; x <= width; ++x)
     {
-        for (int y = 0; y < height; y++)
+        for (int y = 0; y < height; ++y)
         {
             if (GetMustCrossConstraint(false, x, y) && !node.OccupiedEdge(x, y, x, y + 1))
             {
@@ -2890,60 +3077,12 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
             if (GetCannotCrossConstraint(false, x, y) && node.OccupiedEdge(x, y, x, y + 1)) verdict = false;
         }
     }
-    //	for (auto &c : mustCrossConstraints)
-    //	{
-    //		if (!node.Occupied(c.first, c.second))
-    //			return false;
-    //	}
-    //	// First pass - mustCross
-    //	for (auto &c : mustCrossEdgeConstraints)
-    //	{
-    ////		printf("Checking (%d, %d) to (%d, %d) - ", c.location.first, c.location.second,
-    /// c.location.first+(c.horiz?1:0), c.location.second+(c.horiz?0:1));
-    //		if (!node.OccupiedEdge(c.location.first, c.location.second, c.location.first+(c.horiz?1:0),
-    // c.location.second+(c.horiz?0:1)))
-    //		{
-    ////			printf("Failure\n");
-    //			return false;
-    //		}
-    ////		printf("Success\n");
-    //	}
-    //
-    //	for (auto &c : cannotCrossConstraints)
-    //	{
-    //		if (node.Occupied(c.first, c.second))
-    //			return false;
-    //	}
-    //	// First pass - mustCross
-    //	for (auto &c : cannotCrossEdgeConstraints)
-    //	{
-    //		//		printf("Checking (%d, %d) to (%d, %d) - ", c.location.first, c.location.second,
-    // c.location.first+(c.horiz?1:0), c.location.second+(c.horiz?0:1)); 		if (node.OccupiedEdge(c.location.first,
-    // c.location.second, c.location.first+(c.horiz?1:0), c.location.second+(c.horiz?0:1)))
-    //		{
-    //			//			printf("Failure\n");
-    //			return false;
-    //		}
-    //		//		printf("Success\n");
-    //	}
-
-    // Didn't hit end of puzzle
-    if (node.path.size() == 0) verdict = false; //return false;
-    // have to be off
-    //	if (!
-    //		(node.path.back().second > height || node.path.back().first > width ||
-    //		node.path.back().second < 0 || node.path.back().first < 0))
-    //		return false;
-    if (node.path.back().second <= height && node.path.back().first <= width && node.path.back().second >= 0 &&
-        node.path.back().first >= 0)
-        verdict = false; //return false;
 
     if (constraintCount[kTriangle] > 0)
-        // if (triangleCount > 0)
     {
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < width; ++x)
         {
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < height; ++y)
             {
                 if (regionConstraints[x][y].type == kTriangle) // if (triangleConstraints[y*width+x] > 0)
                 {
@@ -2964,7 +3103,6 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
 
     if (constraintCount[kSeparation] == 0 && constraintCount[kTetris] == 0 && constraintCount[kStar] == 0 &&
         constraintCount[kEraser] == 0)
-        //	if (separationCount == 0 && tetrisCount == 0)
         return true;
 
     LabelRegions(node);
@@ -2972,31 +3110,28 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
     // TODO: Verify matched constraints by region.
     // TODO: Count the total number of unmatched constraints for checking eraser constraints and for displaying failed
     // constraints
-
     if (constraintCount[kSeparation] > 0)
     {
         for (auto &v: regionList) // vector of locations
         {
             bool found = false;
             rgbColor c;
+            int x_c = 0;
+            int y_c = 0;
             for (auto &i: *v)
             {
                 int x = GetRegionFromX(i); // l%width;
                 int y = GetRegionFromY(i); // l/width;
-                int x_c;
-                int y_c;
-
-                // if (separationConstraints[i].valid)
                 if (regionConstraints[x][y].type == kSeparation)
                 {
                     if (!found)
                     {
-                        c = regionConstraints[x][y].color; // separationConstraints[i].color;
+                        c = regionConstraints[x][y].color;
                         x_c = x;
                         y_c = y;
                         found = true;
                     }
-                    else if (c != regionConstraints[x][y].color) // separationConstraints[i].color)
+                    else if (c != regionConstraints[x][y].color)
                     {
                         TrackInvalidConstraints(kSeparation, x, y);
                         TrackInvalidConstraints(kSeparation, x_c, y_c);
@@ -3010,14 +3145,13 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
     // TODO: After this is working, see if we can merge the tetris constraints into the separation code
     if (constraintCount[kTetris] == 0 && constraintCount[kNegativeTetris] > 0)
     {
-        for (int x = 0; x < regionList.size(); x++)
+        for (auto &v: regionList)
         {
-            const auto &v = *regionList[x];
-            for (auto l: v)
-                {
-                    if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kNegativeTetris)
+            for (auto &l: *v)
+            {
+                if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kNegativeTetris)
                     TrackInvalidConstraints(kNegativeTetris, GetRegionFromX(l), GetRegionFromY(l));
-                }
+            }
         }
         verdict = false;
     }
@@ -3031,7 +3165,6 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
                 int x = GetRegionFromX(i); // l%width;
                 int y = GetRegionFromY(i); // l/width;
                 rgbColor finishedColor(1.0 / 512.0, 1.0 / 512.0, 1.0 / 512.0);
-                // if (separationConstraints[i].valid)
                 if (regionConstraints[x][y].type == kStar)
                 {
                     if (regionConstraints[x][y].color == finishedColor) continue;
@@ -3046,7 +3179,7 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
                         if (regionConstraints[xx][yy].type != kNoRegionConstraint &&
                             regionConstraints[x][y].color == regionConstraints[xx][yy].color)
                         {
-                            count++;
+                            ++count;
                             if (count > 2)
                             {
                                 TrackInvalidConstraints(kStar, x, y);
@@ -3065,16 +3198,14 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
     }
 
     if (constraintCount[kTetris] > 0)
-        //	if (tetrisCount > 0)
     {
         tetrisBlockCount.resize(regionList.size());
 
         // 1. Collect the tetris constraints for each region
-        for (int x = 0; x < regionList.size(); x++)
+        for (int x = 0; x < regionList.size(); ++x)
         {
-            const auto &v = *regionList[x]; // v is vector of locations in this region
             tetrisBlockCount[x] = 0;
-            for (auto l: v) // individual location
+            for (auto &l: *regionList[x]) // individual location
             {
                 if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kTetris)
                 {
@@ -3094,7 +3225,7 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
             {
                 // printf("Region %d has %d tetris blocks and size %lu\n", x, tetrisBlockCount[x],
                 // regionList[x].size());
-                for (auto l: v)
+                for (auto &l: *regionList[x])
                 {
                     if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kTetris)
                         TrackInvalidConstraints(kTetris, GetRegionFromX(l), GetRegionFromY(l));
@@ -3106,17 +3237,17 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
         }
 
         // 3. Do the full layout
-        for (int x = 0; x < regionList.size(); x++)
+        for (int x = 0; x < regionList.size(); ++x)
         {
             bool hasNegations = false;
             const auto &v = *regionList[x]; // v is vector of locations in this region
-            if (v.size() == 0) continue;
+            if (v.empty()) continue;
 
             tetrisBlocksInRegion.resize(0);
             // Get bit map of board
             uint64_t board = 0;
 
-            for (auto l: v) // individual location
+            for (auto &l: v) // individual location
             {
                 uint64_t xx = GetRegionFromX(l); // l%width;
                 uint64_t yy = GetRegionFromY(l); // l/width;
@@ -3135,27 +3266,13 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
                     tetrisBlocksInRegion.push_back(-whichConstraint);
                     hasNegations = true;
                 }
-
-                //				int whichConstraint = constraints[xx][yy].parameter;//tetrisConstraints[l];
-                //				if (whichConstraint > 0)
-                //				{
-                //					tetrisBlocksInRegion.push_back(whichConstraint);
-                //				}
-                //				else if (whichConstraint < 0)
-                //				{ // negative constraints are just another xor
-                //					tetrisBlocksInRegion.push_back(whichConstraint);
-                //					hasNegations = true;
-                //				}
             }
 
-            if (tetrisBlocksInRegion.size() == 0) continue;
+            if (tetrisBlocksInRegion.empty()) continue;
 
             // Get out of bounds map -- places pieces can't go
             uint64_t oob = ~board;
             if (hasNegations) oob = 0;
-            //			printf("Region %d\n", x);
-            //			DebugPrint(board);
-            //			DebugPrint(oob);
 
             // 4. Now we have all pieces, recursively try to place them
             if (!RecursivelyPlacePieces(0, board, oob, 0, 0))
@@ -3169,16 +3286,13 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
                     else if (regionConstraints[GetRegionFromX(l)][GetRegionFromY(l)].type == kNegativeTetris)
                         TrackInvalidConstraints(kNegativeTetris, GetRegionFromX(l), GetRegionFromY(l));
                 }
-                verdict = false;
-
-                //return false; // No way to place them
-            //			printf("-%d-\n", 0);
-            //			DebugPrint(board, 0);
-            //			printf("Region %d successful\n", x);
+                verdict = false; // No way to place them
+            //            printf("-%d-\n", 0);
+            //            DebugPrint(board, 0);
+            //            printf("Region %d successful\n", x);
             }
         }
-        return verdict;
-        //return true; // didn't find a way to place them
+        return verdict; // didn't find a way to place them
     }
 
     return verdict;
