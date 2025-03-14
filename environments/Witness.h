@@ -2807,7 +2807,7 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
         regionCache.returnItem(&rgs);
         return false;
     }
-    added = std::vector{node.rShouldCheck.first, node.rShouldCheck.second};
+    added = std::vector<int>{node.rShouldCheck.first, node.rShouldCheck.second};
     ret = checkNewlyAdded(added, node.rhs);
     if (!ret)
     {
