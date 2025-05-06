@@ -30,6 +30,7 @@ int stepsPerFrame = 1;
 float bound = 2;
 int problemNumber = 0;
 float testScale = 1.0;
+bool tracking = false;
 void GetNextWeightRange(float &minWeight, float &maxWeight, point3d currPoint, float nextSlope);
 float GetPriority(float h, float g);
 float ChooseWeightForTargetPriority(point3d point, float priority, float minWeight, float maxWeight, point3d last, float &K);
@@ -55,6 +56,7 @@ float terrain_size=30, terrain_width, terrain_height;
 double Tcosts[4], rdm, hardness[4];
 bool showPlane = false;
 bool searchRunning = false;
+bool recording = false;
 bool saveSVG = false;
 bool useDH = false;
 bool limitScenarios = false;
@@ -65,15 +67,15 @@ MNPuzzleState<4, 4> mnpRandomState;
 GridEmbedding *dh;
 GridEmbedding *ge;
 void SaveSVG(Graphics::Display &d, int port = -1);
-
 bool useLookUpTable = false;
 
 // NOTE: LOADING MAPS REQUIRES ABSOLUTE PATH, THE PATHS MUST BE CHANGED TO RUN THE VISUALIZED CODE
 // 1=DSD random room map, 2=DSD random map, 3=DSD random maze, 4=DSD designed map,
 // 5=DSD Load map, 6=DSD Load RaceTrack, 7=DPS Load map, 8=DPS Load RaceTrack
-int mapcmd = 2;
+int mapcmd = 5;
 
- std::string mapload = "dao/ost003d";
+std::string basePath = "";
+std::string mapload = "dao/ost003d";
 // std::string mapload = "dao/orz000d";
 // std::string mapload = "dao/den520d";
 // std::string mapload = "dao/arena";
@@ -100,6 +102,22 @@ struct DSDdata_v2 {
 };
 std::vector<DSDdata_v2> LookUpVector;
 
+template <class state, class action, class environment>
+void DoNStateBFS(environment *e, state s, std::vector<state> &states, int n)
+{
+	TemplateAStar<state, action, environment> search;
+	ZeroHeuristic<state> z;
+	search.SetHeuristic(&z);
+	search.SetStopAfterGoal(false);
+	search.InitializeSearch(e, s, s, states);
+	for (int x = 0; x < n; x++)
+		search.DoSingleSearchStep(states);
+	states.clear();
+	for (int x = 0; x < search.GetNumItems(); x++)
+		if (search.GetItem(x).where == kClosedList)
+			states.push_back(search.GetItem(x).data);
+}
+
 int main(int argc, char* argv[])
 {
 	setvbuf(stdout, NULL, _IONBF, 0);
@@ -113,6 +131,7 @@ int main(int argc, char* argv[])
  */
 void InstallHandlers()
 {
+	InstallKeyboardHandler(MyDisplayHandler, "Record", "Record frames", kAnyModifier, '`');
 	InstallKeyboardHandler(MyDisplayHandler, "Reset lines", "Reset incremenetal lines", kAnyModifier, 'r');
     InstallKeyboardHandler(MyDisplayHandler, "Show plane", "Show gradient of plane heights", kAnyModifier, 'p');
     InstallKeyboardHandler(MyDisplayHandler, "Faster", "Speed up search animation", kAnyModifier, ']');
@@ -124,6 +143,13 @@ void InstallHandlers()
     InstallKeyboardHandler(MyDisplayHandler, "Swamped Problems", "Increment swamped problem", kAnyModifier, 's');
     InstallKeyboardHandler(MyDisplayHandler, "Bound", "Increment bound", kAnyModifier, 'w');
     InstallKeyboardHandler(MyDisplayHandler, "toggle_lookUp_Table", "toggle lookUp Table", kAnyModifier, 't');
+
+	InstallKeyboardHandler(MyDisplayHandler, "WA*", "", kAnyModifier, '1');
+	InstallKeyboardHandler(MyDisplayHandler, "PWXD", "", kAnyModifier, '2');
+	InstallKeyboardHandler(MyDisplayHandler, "PWXU", "", kAnyModifier, '3');
+	InstallKeyboardHandler(MyDisplayHandler, "DWP", "", kAnyModifier, '4');
+
+	InstallCommandLineHandler(MyCLHandler, "-path", "-path <loc>", "Designate base path for loading");
 
     InstallCommandLineHandler(MyCLHandler, "-stpDSD", "-stpDSD <problem> <alg> <weight> <puzzleW>", "Test STP <problem> <algorithm> <weight> <puzzleW>");
     InstallCommandLineHandler(MyCLHandler, "-stpBaseLines", "-stpBaseLines <problem> <alg> <weight> <puzzleW>", "Test STP <problem> <algorithm> <weight> <puzzleW>");
@@ -180,8 +206,8 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
             me = new MapEnvironment(m);
         }
         else if(mapcmd>=5){
-            std::string tmpscenload = "./Users/mohammadrezahami/Documents/University/Project/hog2-PDB-refactor/DynamicPhiFunction/scenarios/"+ mapload + ".map.scen";
-            std::string tmpmapload = "./Users/mohammadrezahami/Documents/University/Project/hog2-PDB-refactor/DynamicPhiFunction/maps/"+ mapload + ".map";
+            std::string tmpscenload = basePath+"/scenarios/"+ mapload + ".map.scen";
+            std::string tmpmapload = basePath+"/maps/"+ mapload + ".map";
             sl = new ScenarioLoader (tmpscenload.c_str());
             m = new Map(tmpmapload.c_str());
             me = new MapEnvironment(m);
@@ -335,7 +361,8 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
                 tas.SetPhi([=](double h,double g){return g;});
                 goal.x = end.xLoc;
                 goal.y = end.yLoc;
-                tas.ExtendGoal(me, goal, theList, numExtendedGoals);
+				DoNStateBFS<xyLoc, tDirection, MapEnvironment>(me, goal, theList, numExtendedGoals);
+				//tas.ExtendGoal(me, goal, theList, numExtendedGoals);
                 for(int tNode=0; tNode<theList.size(); tNode++){
                     m->SetTerrainType(theList[tNode].x, theList[tNode].y, kEndTerrain);
                 }
@@ -360,7 +387,7 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
                 dps_track.InitializeSearch(r, from, end, path);
             }
         }
-
+		MyDisplayHandler(windowID, kNoModifier, 's');
         searchRunning = true;
     }
 }
@@ -408,16 +435,28 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
                     }
                 }
                 if(mapcmd <= 5){
-                    dsd.Draw(display);
+					//dsd.Draw(display);
+					dsd.DrawAlternate(display);
                 }
                 else if(mapcmd == 7){
                     dps.Draw(display);
                 }
-
+				for (int x = 1; x < solution.size(); x++)
+				{
+					me->SetColor(Colors::blue);
+					me->DrawLine(display, solution[x-1], solution[x], 20);
+				}
             }
+			// Draw last so it will be on top
+			if (tracking)
+			{
+				me->SetColor(Colors::red);
+				me->DrawArrow(display, start, goal, 20);
+			}
         }
         if (viewport == 1)
         {
+			display.FillRect({-1, -1, 1, 1}, Colors::black);
             if (searchRunning)
             {
                 // if(mapcmd <= 5){
@@ -548,7 +587,9 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
                 dps_track.Draw(display);
             }
         }
-        if (viewport == 1){
+        if (viewport == 1)
+		{
+			display.FillRect({-1, -1, 1, 1}, Colors::black);
             if (searchRunning)
             {
                 if(mapcmd == 6 && !useLookUpTable){
@@ -635,10 +676,20 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
             display.DrawLine(origin, {-1, -1}, 1./100.0f, Colors::white);
         }
     }
+	if (viewport == GetNumPorts(windowID)-1 && recording) // done with all drawing
+	{
+		SaveSVG(display, 0);
+	}
 }
 
 int MyCLHandler(char *argument[], int maxNumArgs)
 {
+	if (strcmp(argument[0], "-path") == 0)
+	{
+		assert(maxNumArgs >= 2);
+		basePath = argument[1];
+		return 2;
+	}
     if (strcmp(argument[0], "-stpBaseLines") == 0)
     {
         assert(maxNumArgs >= 5);
@@ -1333,7 +1384,8 @@ int MyCLHandler(char *argument[], int maxNumArgs)
                 tas.SetPhi([=](double h,double g){return g;});
                 goal.x = end.xLoc;
                 goal.y = end.yLoc;
-                tas.ExtendGoal(me, goal, theList, numExtendedGoals);
+				DoNStateBFS<xyLoc, tDirection, MapEnvironment>(me, goal, theList, numExtendedGoals);
+				//tas.ExtendGoal(me, goal, theList, numExtendedGoals);
                 for(int tNode=0; tNode<theList.size(); tNode++){
                     m->SetTerrainType(theList[tNode].x, theList[tNode].y, kEndTerrain);
                 }
@@ -1429,7 +1481,8 @@ int MyCLHandler(char *argument[], int maxNumArgs)
                 tas.SetPhi([=](double h,double g){return g;});
                 goal.x = end.xLoc;
                 goal.y = end.yLoc;
-                tas.ExtendGoal(me, goal, theList, numExtendedGoals);
+				//tas.ExtendGoal(me, goal, theList, numExtendedGoals);
+				DoNStateBFS<xyLoc, tDirection, MapEnvironment>(me, goal, theList, numExtendedGoals);
                 for(int tNode=0; tNode<theList.size(); tNode++){
                     m->SetTerrainType(theList[tNode].x, theList[tNode].y, kEndTerrain);
                 }
@@ -1509,7 +1562,8 @@ int MyCLHandler(char *argument[], int maxNumArgs)
                 tas.SetPhi([=](double h,double g){return g;});
                 goal.x = end.xLoc;
                 goal.y = end.yLoc;
-                tas.ExtendGoal(me, goal, theList, numExtendedGoals);
+				//tas.ExtendGoal(me, goal, theList, numExtendedGoals);
+				DoNStateBFS<xyLoc, tDirection, MapEnvironment>(me, goal, theList, numExtendedGoals);
                 for(int tNode=0; tNode<theList.size(); tNode++){
                     m->SetTerrainType(theList[tNode].x, theList[tNode].y, kEndTerrain);
                 }
@@ -1545,6 +1599,40 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 {
     switch (key)
     {
+//			InstallKeyboardHandler(MyDisplayHandler, "WA*", "", kAnyModifier, '1');
+//			InstallKeyboardHandler(MyDisplayHandler, "PWXD", "", kAnyModifier, '2');
+//			InstallKeyboardHandler(MyDisplayHandler, "PWXU", "", kAnyModifier, '3');
+//			InstallKeyboardHandler(MyDisplayHandler, "DWP", "", kAnyModifier, '4');
+//			kWA=0,
+//			kpwXD=1,
+//			kpwXU=2,
+//			kXDP=3,
+//			kXUP=4,
+//			DWP=5,
+//			MAP=6,
+
+		case '1':
+			dsd.policy = kWA;
+			data.resize(0);
+			dsd.InitializeSearch(me, start, goal, solution);
+			break;
+		case '2':
+			dsd.policy = kpwXD;
+			data.resize(0);
+			dsd.InitializeSearch(me, start, goal, solution);
+			break;
+		case '3':
+			dsd.policy = kpwXU;
+			data.resize(0);
+			dsd.InitializeSearch(me, start, goal, solution);
+			break;
+		case '4':
+			dsd.policy = DWP;
+			data.resize(0);
+			dsd.InitializeSearch(me, start, goal, solution);
+			break;
+
+		case '`': recording = !recording; break;
         case 's':
             {
                 //Reset the last problem's swamped states.
@@ -1830,14 +1918,14 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
                 break;
             }
         case 'p': showPlane = !showPlane; break;
-        case '[': stepsPerFrame = std::max(stepsPerFrame/2, 1); break;
-        case ']': stepsPerFrame = stepsPerFrame*2; break;
+        case '[': stepsPerFrame = stepsPerFrame/2; break;
+		case ']': stepsPerFrame = stepsPerFrame*2; if (stepsPerFrame==0) stepsPerFrame=1; break;
         case '}':
             {
                 if(mapcmd <= 5){
                     dsd.policy = (tExpansionPriority)((dsd.policy+1)%kDSDPolicyCount);
                     printf("Problem: %d\n", problemNumber);
-                    printf("Policy: %d\n", dsd.policy);
+                    printf("Policy: %d (%s)\n", dsd.policy, policyName[dsd.policy]);
                     printf("Bound: %f\n", bound);
                     if(useLookUpTable){
                         LookUpVector.clear();
@@ -1852,7 +1940,7 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
                     //RaceTrack
                     dsd_track.policy = (tExpansionPriority)((dsd_track.policy+1)%kDSDPolicyCount);
                     printf("Problem: %d\n", problemNumber);
-                    printf("Policy: %d\n", dsd_track.policy);
+					printf("Policy: %d (%s)\n", dsd_track.policy, policyName[dsd.policy]);
                     printf("Bound: %f\n", bound);
                     if(useLookUpTable){
                         LookUpVector.clear();
@@ -1886,9 +1974,9 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
         case '{':
             {
                 if(mapcmd <= 5){
-                    dsd.policy = (tExpansionPriority)((dsd.policy-1)%kDSDPolicyCount);
+                    dsd.policy = (tExpansionPriority)((dsd.policy+kDSDPolicyCount-1)%kDSDPolicyCount);
                     printf("Problem: %d\n", problemNumber);
-                    printf("Policy: %d\n", dsd.policy);
+					printf("Policy: %d (%s)\n", dsd.policy, policyName[dsd.policy]);
                     printf("Bound: %f\n", bound);
                     if(useLookUpTable){
                         LookUpVector.clear();
@@ -1904,7 +1992,7 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
                     //RaceTrack
                     dsd_track.policy = (tExpansionPriority)((dsd_track.policy-1)%kDSDPolicyCount);
                     printf("Problem: %d\n", problemNumber);
-                    printf("Policy: %d\n", dsd_track.policy);
+					printf("Policy: %d (%s)\n", dsd_track.policy, policyName[dsd.policy]);
                     printf("Bound: %f\n", bound);
                     if(useLookUpTable){
                         LookUpVector.clear();
@@ -1938,15 +2026,20 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
         case '+':
         {
             //load the scenario, or initiate it randomly
-            if(mapcmd <= 4){
-                do {
-                    start.x = random()%me->GetMap()->GetMapWidth();
-                    start.y = random()%me->GetMap()->GetMapHeight();
-                } while (me->GetMap()->GetTerrainType(start.x, start.y) != kGround);
-                do {
-                    goal.x = random()%me->GetMap()->GetMapWidth();
-                    goal.y = random()%me->GetMap()->GetMapHeight();
-                } while (me->GetMap()->GetTerrainType(goal.x, goal.y) != kGround);
+            if(mapcmd <= 4)
+			{
+				if (!tracking)
+				{
+					do {
+						start.x = random()%me->GetMap()->GetMapWidth();
+						start.y = random()%me->GetMap()->GetMapHeight();
+					} while (me->GetMap()->GetTerrainType(start.x, start.y) != kGround);
+					do {
+						goal.x = random()%me->GetMap()->GetMapWidth();
+						goal.y = random()%me->GetMap()->GetMapHeight();
+					} while (me->GetMap()->GetTerrainType(goal.x, goal.y) != kGround);
+				}
+				tracking = false;
             }
             else if(mapcmd == 5 || mapcmd == 7){
                 numScenario = (numScenario + sl->GetNumExperiments()/20+1) % sl->GetNumExperiments();
@@ -1996,7 +2089,8 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
                     tas.SetPhi([=](double h,double g){return g;});
                     goal.x = end.xLoc;
                     goal.y = end.yLoc;
-                    tas.ExtendGoal(me, goal, theList, numExtendedGoals);
+					//tas.ExtendGoal(me, goal, theList, numExtendedGoals);
+					DoNStateBFS<xyLoc, tDirection, MapEnvironment>(me, goal, theList, numExtendedGoals);
                     for(int tNode=0; tNode<theList.size(); tNode++){
                         m->SetTerrainType(theList[tNode].x, theList[tNode].y, kEndTerrain);
                     }
@@ -2116,7 +2210,8 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
                     tas.SetPhi([=](double h,double g){return g;});
                     goal.x = end.xLoc;
                     goal.y = end.yLoc;
-                    tas.ExtendGoal(me, goal, theList, numExtendedGoals);
+					//tas.ExtendGoal(me, goal, theList, numExtendedGoals);
+					DoNStateBFS<xyLoc, tDirection, MapEnvironment>(me, goal, theList, numExtendedGoals);
                     for(int tNode=0; tNode<theList.size(); tNode++){
                         m->SetTerrainType(theList[tNode].x, theList[tNode].y, kEndTerrain);
                     }
@@ -2295,17 +2390,38 @@ bool MyClickHandler(unsigned long windowID, int viewport, int, int, point3d loc,
 //	loc.x = (loc.x+1)/2;
 //	loc.y = 1-(loc.y+1)/2;
 //	loc *= 2;
+	int x, y;
+	me->GetMap()->GetPointFromCoordinate(loc, x, y);
 	loc = HOGToLocal(loc);
-	if (mType == kMouseDown)
-	{
 		switch (button)
 		{
 			case kRightButton: //printf("Right button\n"); break;
 			{
-				std::cout << "Priority of " << loc << " is " << GetPriority(loc.x, loc.y) << "\n";
+				std::cout << "Priority of " << loc << " is " << dsd.Phi(loc.x, loc.y) << "\n";
 			}
 				break;
 			case kLeftButton: //printf("Left button\n");
+				if (viewport == 0)
+				{
+					if (mType == kMouseDown)
+					{
+						tracking = true;
+						start.x = x;
+						start.y = y;
+						goal.x = x;
+						goal.y = y;
+					}
+					else {
+						goal.x = x;
+						goal.y = y;
+						if (mType == kMouseUp)
+						{
+							//if (stepsPerFrame == 0)
+								stepsPerFrame = 1;
+							MyDisplayHandler(windowID, kNoModifier, '+');
+						}
+					}
+				}
 				
 				if (viewport == 3) // TODO: add interactive mode back in later
 					SetNextPriority(loc.x, loc.y, testScale); // h and g
@@ -2313,7 +2429,6 @@ bool MyClickHandler(unsigned long windowID, int viewport, int, int, point3d loc,
 			case kMiddleButton: printf("Middle button\n"); break;
 			case kNoButton: break;
 		}
-	}
 	if ((button == kMiddleButton) && (mType == kMouseDown))
 	{}
 	if (button == kRightButton)
@@ -2453,7 +2568,7 @@ float ChooseWeightForTargetPriority(point3d loc, float priority, float minWeight
 
 void SaveSVG(Graphics::Display &d, int port)
 {
-	const std::string baseFileName = "/Users/nathanst/Pictures/hog2/DSDWA_";
+	const std::string baseFileName = "/Users/nathanst/Pictures/SVG/DSWA_";
 	static int count = 0;
 	std::string fname;
 	do {
@@ -2461,5 +2576,7 @@ void SaveSVG(Graphics::Display &d, int port)
 		count++;
 	} while (FileExists(fname.c_str()));
 	printf("Save to '%s'\n", fname.c_str());
-	MakeSVG(d, fname.c_str(), 1024, 1024, port);
+	MakeSVG(d, fname.c_str(), 1200, 600);
+	if (count%2 && stepsPerFrame > 0)
+		stepsPerFrame++;
 }
