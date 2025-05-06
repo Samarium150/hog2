@@ -30,6 +30,7 @@
 #include "BucketOpenClosed.h"
 //#include "SearchEnvironment.h" // for the SearchEnvironment class
 #include "float.h"
+#include <limits>
 
 #include <algorithm> // for vector reverse
 
@@ -82,7 +83,6 @@ public:
 	void Reset();
 	void GetPath(environment *env, const state& from, const state& to, std::vector<state> &thePath);
 	void GetPath(environment *, const state&, const state&, std::vector<action> & );
-	void ExtendGoal(environment *env, const state& theNode, std::vector<state> &theList, int NumGoalStates);
 	
 	openList openClosedList;
 	state goal, start;
@@ -145,6 +145,7 @@ public:
 	void FullBPMX(uint64_t nodeID, int distance);
 	
 	void Draw(Graphics::Display &disp) const;
+	void DrawSuboptimality(Graphics::Display &disp) const;
 	std::string SVGDraw() const;
 	std::string SVGDrawDetailed() const;
 	
@@ -153,7 +154,7 @@ public:
 	{
 		phi = p;
 	}
-	double Phi(double h, double g)
+	double Phi(double h, double g) const
 	{
 		return phi(h, g);
 	}
@@ -255,85 +256,6 @@ void TemplateAStar<state,action,environment,openList>::GetPath(environment *_env
 	{
 		path.push_back(_env->GetAction(thePath[x], thePath[x+1]));
 	}
-}
-
-template <class state, class action, class environment, class openList>
-void TemplateAStar<state,action,environment,openList>::ExtendGoal(environment *_env, const state& theNode, std::vector<state> &theList, int NumGoalStates)
-{
-    if (theHeuristic == 0)
-        theHeuristic = _env;
-    theList.resize(0);
-    env = _env;
-    openClosedList.Reset(env->GetMaxHash());
-    ResetNodeCount();
-    start = theNode;
-    goal = theNode;
-    double h=0;
-    
-    openClosedList.AddOpenNode(start, env->GetStateHash(start), phi(h, 0), 0, h);
-    theList.push_back(start);
-
-    while (nodesExpanded < NumGoalStates)
-    {
-        if (openClosedList.OpenSize() == 0)
-        {
-            return;
-        }
-        uint64_t nodeid = openClosedList.Close();
-
-        //Add the node to theList, so later we can change its type to goal type.
-        theList.push_back(openClosedList.Lookup(nodeid).data);
-
-        nodesExpanded++;
-        
-        neighbors.resize(0);
-        edgeCosts.resize(0);
-        neighborID.resize(0);
-        neighborLoc.resize(0);
-
-        env->GetSuccessors(openClosedList.Lookup(nodeid).data, neighbors);
-        // 1. load all the children
-        for (unsigned int x = 0; x < neighbors.size(); x++)
-        {
-            uint64_t theID;
-            neighborLoc.push_back(openClosedList.Lookup(env->GetStateHash(neighbors[x]), theID));
-            neighborID.push_back(theID);
-            edgeCosts.push_back(env->GCost(openClosedList.Lookup(nodeid).data, neighbors[x]));
-            
-        }
-        
-        // iterate again updating costs and writing out to memory
-        for (size_t x = 0; x < neighbors.size(); x++)
-        {
-            nodesTouched++;
-
-            switch (neighborLoc[x])
-            {
-                case kOpenList:
-                    //edgeCost = env->GCost(openClosedList.Lookup(nodeid).data, neighbors[x]);
-                    if (fless(openClosedList.Lookup(nodeid).g+edgeCosts[x], openClosedList.Lookup(neighborID[x]).g))
-                    {
-                        auto &i = openClosedList.Lookup(neighborID[x]);
-                        i.parentID = nodeid;
-                        i.g = openClosedList.Lookup(nodeid).g+edgeCosts[x];
-                        i.f = phi(i.h, i.g);
-                        i.data = neighbors[x];
-                        openClosedList.KeyChanged(neighborID[x]);
-                    }
-                    break;
-                case kNotFound:
-                    // add node to open list
-                    double h = theHeuristic->HCost(neighbors[x], goal);
-                    openClosedList.AddOpenNode(neighbors[x],
-                                                    env->GetStateHash(neighbors[x]),
-                                                    phi(h, openClosedList.Lookup(nodeid).g+edgeCosts[x]),
-                                                    openClosedList.Lookup(nodeid).g+edgeCosts[x],
-                                                    h,
-                                                    nodeid);
-                    break;
-            }
-        }
-    }
 }
 
 /**
@@ -821,7 +743,7 @@ void TemplateAStar<state, action,environment,openList>::Draw(Graphics::Display &
 		}
 		else if (data.where == kOpenList)
 		{
-			env->SetColor(0.0, 1.0, 0.0, transparency);
+			env->SetColor(Colors::green);
 			env->Draw(disp, data.data);
 		}
 		else if ((data.where == kClosedList) && (data.reopened))
@@ -831,22 +753,68 @@ void TemplateAStar<state, action,environment,openList>::Draw(Graphics::Display &
 		}
 		else if (data.where == kClosedList)
 		{
-			//			if (top != -1)
-			//			{
-			//				env->SetColor((data.g+data.h-minf)/(maxf-minf), 0.0, 0.0, transparency);
-			//			}
-			//			else {
-			if (data.parentID == x)
+			if (data.parentID == x) // Start state
 				env->SetColor(1.0, 0.5, 0.5, transparency);
 			else
-				env->SetColor(1.0, 0.0, 0.0, transparency);
-			//			}
+				env->SetColor(rgbColor(1.0,0.35,0.35)); // for better color-blind
 			env->Draw(disp, data.data);
 		}
 	}
 	env->SetColor(1.0, 0.5, 1.0, 0.5);
 	env->Draw(disp, goal);
 }
+
+/**
+ * Draw the open/closed list according to the estimated suboptimality allowed at that state
+ * @author Nathan Sturtevant
+ * @date 7/12/16
+ *
+ */
+template <class state, class action, class environment, class openList>
+void TemplateAStar<state, action,environment,openList>::DrawSuboptimality(Graphics::Display &disp) const
+{
+	if (openClosedList.size() == 0)
+		return;
+	float delta = 0.001;
+
+	float minw = std::numeric_limits<float>::max(), maxw = 0;
+	for (unsigned int x = 0; x < openClosedList.size(); x++)
+	{
+		const auto &data = openClosedList.Lookat(x);
+		float p0 = Phi(data.h, data.g);
+		float p1 = Phi(data.h-delta, data.g);
+		float p2 = Phi(data.h, data.g+delta);
+		//		p*p1 + (1-p)*p2 = p0;
+		//		p*p1 + - p*p2 = p0-p2;
+		float p = (p0-p2)/(p1-p2);
+		float run = p*(data.h-delta) + (1-p)*data.h - data.h;
+		float rise = p*(data.g) + (1-p)*(data.g-delta) - data.g;
+//		printf("[%f] Predicted weight: %f/%f = %f\n", p, rise, run, rise/run);
+		float w = rise/run;
+		minw = std::min(minw, w);
+		maxw = std::max(maxw, w);
+	}
+	// smooth estimates
+	float avg = (minw+maxw)*0.5f;
+	minw = std::min(minw, avg-0.5f);
+	maxw = std::max(maxw, avg+0.5f);
+	maxw -= minw;
+//	printf("Max: %f, min: %f\n", maxw, minw);
+	for (unsigned int x = 0; x < openClosedList.size(); x++)
+	{
+		const auto &data = openClosedList.Lookat(x);
+		float p0 = Phi(data.h, data.g);
+		float p1 = Phi(data.h-delta, data.g);
+		float p2 = Phi(data.h, data.g+delta);
+		float p = (p0-p2)/(p1-p2);
+		float run = p*(data.h-delta) + (1-p)*data.h - data.h;
+		float rise = p*(data.g) + (1-p)*(data.g-delta) - data.g;
+		float w = rise/run-minw;
+		env->SetColor(w/maxw, 0.0, 1-w/maxw);
+		env->Draw(disp, data.data);
+	}
+}
+
 
 template <class state, class action, class environment, class openList>
 std::string TemplateAStar<state, action,environment,openList>::SVGDraw() const
@@ -867,7 +835,7 @@ std::string TemplateAStar<state, action,environment,openList>::SVGDraw() const
 		
 		if (x == top)
 		{
-			env->SetColor(1.0, 1.0, 0.0, transparency);
+			env->SetColor(Colors::yellow, transparency);
 			s+=env->SVGDraw(data.data);
 		}
 		else if ((data.where == kOpenList) && (data.reopened))
@@ -877,7 +845,7 @@ std::string TemplateAStar<state, action,environment,openList>::SVGDraw() const
 		}
 		else if (data.where == kOpenList)
 		{
-			env->SetColor(0.0, 1.0, 0.0, transparency);
+			env->SetColor(Colors::green, transparency);
 			s+=env->SVGDraw(data.data);
 		}
 		else if ((data.where == kClosedList) && (data.reopened))
@@ -887,7 +855,7 @@ std::string TemplateAStar<state, action,environment,openList>::SVGDraw() const
 		}
 		else if (data.where == kClosedList)
 		{
-			env->SetColor(1.0, 0.0, 0.0, transparency);
+			env->SetColor(Colors::gray, transparency); // swapped from red to gray for better color-blind contrast
 			s+=env->SVGDraw(data.data);
 		}
 	}
