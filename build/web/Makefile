@@ -48,6 +48,7 @@ PROJECTS = \
   demos/multi-target \
   demos/ACA \
   papers/DWA \
+  papers/FMDH \
   papers/TheWitnessEditor
 
 # Include projects with broken compilation

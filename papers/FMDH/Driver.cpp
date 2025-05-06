@@ -145,12 +145,14 @@ void CreateMap(mapType which)
 			case kMazeMap2:
 				MakeMaze(map, 2);
 				break;
-//            case kSimpleMap:
-//                LoadSimpleMap(map);
-//                break;
-//            case kDA2Maps:
-//                LoadMaps(map);
-//                break;
+            case kSimpleMap:
+				MakeMaze(map, 4);
+				//LoadSimpleMap(map);
+                break;
+            case kDA2Maps:
+				MakeMaze(map, 8);
+                //LoadMaps(map);
+                break;
         }
     }
     me = new MapEnvironment(map);
@@ -211,7 +213,7 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
         InstallFrameHandler(MyFrameHandler, windowID, 0);
         ReinitViewports(windowID, {-1.0f, -1.f, 0.f, 1.f}, kScaleToSquare);
         AddViewport(windowID, {0.f, -1.f, 1.f, 1.f}, kScaleToSquare); // kTextView
-
+		setTextBufferVisibility(false);
         CreateMap(kRoomMap8);
     }
 }
@@ -237,33 +239,86 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 			me->SetColor(Colors::red);
 			me->DrawAlternate(display, start);
 			me->DrawAlternate(display, goal);
-			if (heurToShow == kDH)
+			me->SetColor(Colors::yellow);
+			me->DrawLine(display, start, goal, 1);
+//			if (heurToShow == kDH)
+//			{
+//				std::string s = std::to_string(embeddingDH->HCost(start, goal));
+//				display.DrawText(s.c_str(), {-1, -1}, Colors::yellow, 0.05, Graphics::textAlignLeft, Graphics::textBaselineTop);
+//				embeddingDH->DrawPivots(display);
+//				embeddingDH->DrawPivots(display, goal);
+//			}
+
+			if (me->GetMap()->GetTerrainType(goal.x, goal.y) == kGround)
 			{
-				std::string s = std::to_string(embeddingDH->HCost(start, goal));
+				display.FillRect({-1, -1, 1, -0.95}, Colors::darkgray);
+				std::string s = "[Heuristic] Octile:"+to_string_with_precision(me->HCost(start, goal), 2)+
+				" DH: "+to_string_with_precision(embeddingDH->HCost(start, goal), 2)+
+				" FM: "+to_string_with_precision(embeddingFM->HCost(start, goal), 2)+
+				" FMDH: "+to_string_with_precision(embeddingFMDH->HCost(start, goal), 2);
 				display.DrawText(s.c_str(), {-1, -1}, Colors::yellow, 0.05, Graphics::textAlignLeft, Graphics::textBaselineTop);
-				embeddingDH->DrawPivots(display);
-				embeddingDH->DrawPivots(display, goal);
 			}
+
 		}
-		if (viewport == 1)
+		switch (heurToShow)
 		{
-			switch (heurToShow)
-			{
-				case kOH: break;
-				case kDH:
+			case kOH:
+				if (viewport == 0)
+				{
+//					if (me->GetMap()->GetTerrainType(goal.x, goal.y) == kGround)
+//					{
+//						display.FillRect({-1, -1, -0.5, -0.95}, Colors::darkgray);
+//						std::string s = "Octile h-cost: "+to_string_with_precision(me->HCost(start, goal), 2);
+//						display.DrawText(s.c_str(), {-1, -1}, Colors::yellow, 0.05, Graphics::textAlignLeft, Graphics::textBaselineTop);
+//					}
+				}
+				break;
+			case kDH:
+				if (viewport == 1)
+				{
 					embeddingDH->Draw(display, start);
 					embeddingDH->Draw(display, goal);
-					break;
-				case kFMDH:
+				}
+//				else {
+//					display.FillRect({-1, -1, -0.5, -0.95}, Colors::darkgray);
+//					if (me->GetMap()->GetTerrainType(goal.x, goal.y) == kGround)
+//					{
+//						std::string s = "DH h-cost: "+to_string_with_precision(embeddingDH->HCost(start, goal), 2);
+//						display.DrawText(s.c_str(), {-1, -1}, Colors::yellow, 0.05, Graphics::textAlignLeft, Graphics::textBaselineTop);
+//					}
+//				}
+				break;
+			case kFMDH:
+				if (viewport == 1)
+				{
 					embeddingFMDH->Draw(display, start);
 					embeddingFMDH->Draw(display, goal);
-					break;
-				case kFM:
+				}
+//				else {
+//					display.FillRect({-1, -1, -0.5, -0.95}, Colors::darkgray);
+//					if (me->GetMap()->GetTerrainType(goal.x, goal.y) == kGround)
+//					{
+//						std::string s = "FMDH h-cost: "+to_string_with_precision(embeddingFMDH->HCost(start, goal), 2);
+//						display.DrawText(s.c_str(), {-1, -1}, Colors::yellow, 0.05, Graphics::textAlignLeft, Graphics::textBaselineTop);
+//					}
+//				}
+				break;
+			case kFM:
+				if (viewport == 1)
+				{
 					embeddingFM->Draw(display, start);
 					embeddingFM->Draw(display, goal);
-					break;
-				default: break;
-			}
+				}
+//				else {
+//					display.FillRect({-1, -1, -0.5, -0.95}, Colors::darkgray);
+//					if (me->GetMap()->GetTerrainType(goal.x, goal.y) == kGround)
+//					{
+//						std::string s = "FM h-cost: "+to_string_with_precision(embeddingFM->HCost(start, goal), 2);
+//						display.DrawText(s.c_str(), {-1, -1}, Colors::yellow, 0.05, Graphics::textAlignLeft, Graphics::textBaselineTop);
+//					}
+//				}
+				break;
+			default: break;
 		}
 	}
 	if (viewport == 0 && mode == kFindPath && start != goal && !runningSearch)
@@ -760,6 +815,7 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
             break;
         case 'd':
 			mode = kExploreEmbedding;
+			runningSearch = false;
             break;
         case 'p':
 			mode = kFindPath;

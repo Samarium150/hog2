@@ -1916,6 +1916,21 @@
                   endingLineNumber = "430"
                   offsetFromSymbolStart = "36">
                </Location>
+               <Location
+                  uuid = "DD87DEF2-4EF5-4206-966D-CB897258024A - b897e281ce1a1efa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Racetrack::Draw(Graphics::Display&amp;, RacetrackState const&amp;, RacetrackMove&amp;) const"
+                  moduleName = "BOAStar"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/environments/Racetrack.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "430"
+                  endingLineNumber = "430"
+                  offsetFromSymbolStart = "36">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -2058,8 +2073,8 @@
             filePath = "../../../demos/astar-map/Driver.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "470"
-            endingLineNumber = "470"
+            startingLineNumber = "472"
+            endingLineNumber = "472"
             landmarkName = "StartSearch()"
             landmarkType = "9">
          </BreakpointContent>

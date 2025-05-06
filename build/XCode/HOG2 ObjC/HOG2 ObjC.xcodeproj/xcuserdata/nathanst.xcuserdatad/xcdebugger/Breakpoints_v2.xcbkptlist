@@ -14,8 +14,8 @@
             filePath = "../../../papers/DSDWA/Driver.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "211"
-            endingLineNumber = "211"
+            startingLineNumber = "219"
+            endingLineNumber = "219"
             landmarkName = "MyFrameHandler(windowID, viewport)"
             landmarkType = "9">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "../../../papers/DSDWA/Driver.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "138"
-            endingLineNumber = "138"
+            startingLineNumber = "146"
+            endingLineNumber = "146"
             landmarkName = "MyFrameHandler(windowID, viewport)"
             landmarkType = "9">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "../../../papers/DSDWA/DSDWAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "575"
-            endingLineNumber = "575"
+            startingLineNumber = "593"
+            endingLineNumber = "593"
             landmarkName = "DoSingleSearchStep(thePath)"
             landmarkType = "9">
          </BreakpointContent>
@@ -62,8 +62,8 @@
             filePath = "../../../papers/DSDWA/DSDWAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "324"
-            endingLineNumber = "324"
+            startingLineNumber = "342"
+            endingLineNumber = "342"
             landmarkName = "ChooseWeightForTargetPriority(loc, priority, minWeight, maxWeight, last, K)"
             landmarkType = "7">
          </BreakpointContent>
@@ -78,9 +78,9 @@
             filePath = "../../../papers/DSDWA/DSDWAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "332"
-            endingLineNumber = "332"
-            landmarkName = "ChooseWeightForTargetPriority(loc, priority, minWeight, maxWeight, last, K)"
+            startingLineNumber = "350"
+            endingLineNumber = "350"
+            landmarkName = "HOGToLocal(p)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -94,8 +94,8 @@
             filePath = "../../../papers/DSDWA/DSDWAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "113"
-            endingLineNumber = "113"
+            startingLineNumber = "115"
+            endingLineNumber = "115"
             landmarkName = "GetPriority(h, g)"
             landmarkType = "7">
             <Locations>
@@ -174,9 +174,9 @@
             filePath = "../../../generic/TemplateAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "336"
-            endingLineNumber = "336"
-            landmarkName = "DoSingleSearchStep(thePath)"
+            startingLineNumber = "337"
+            endingLineNumber = "337"
+            landmarkName = "ExtendGoal(_env, theNode, theList, NumGoalStates)"
             landmarkType = "9">
             <Locations>
                <Location
@@ -252,10 +252,10 @@
             filePath = "../../../generic/TemplateAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "319"
-            endingLineNumber = "319"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            startingLineNumber = "320"
+            endingLineNumber = "320"
+            landmarkName = "ExtendGoal(_env, theNode, theList, NumGoalStates)"
+            landmarkType = "9">
             <Locations>
                <Location
                   uuid = "074DD4F5-16C0-4C3D-A29E-77CEF058C90B - b058dcd99759ae0c"
@@ -330,8 +330,8 @@
             filePath = "../../../generic/TemplateAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "485"
-            endingLineNumber = "485"
+            startingLineNumber = "486"
+            endingLineNumber = "486"
             landmarkName = "DoSingleSearchStep(thePath)"
             landmarkType = "9">
             <Locations>
@@ -408,8 +408,8 @@
             filePath = "../../../papers/FMDH/Driver.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "167"
-            endingLineNumber = "167"
+            startingLineNumber = "169"
+            endingLineNumber = "169"
             landmarkName = "CreateMap(which)"
             landmarkType = "9">
          </BreakpointContent>
@@ -584,7 +584,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "500"
             endingLineNumber = "500"
-            landmarkName = "Graphics::Display::ViewportToGlobalHOG(v, where, wWidth, wHeight)"
+            landmarkName = "Graphics::Display::ViewportToGlobalHOG(v, where)"
             landmarkType = "7">
             <Locations>
                <Location
@@ -723,8 +723,8 @@
             filePath = "../../../utils/SVGUtil.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "497"
-            endingLineNumber = "497"
+            startingLineNumber = "508"
+            endingLineNumber = "508"
             landmarkName = "HandleCommand(disp, drawCommands, s, width, height, viewport)"
             landmarkType = "9">
             <Locations>
