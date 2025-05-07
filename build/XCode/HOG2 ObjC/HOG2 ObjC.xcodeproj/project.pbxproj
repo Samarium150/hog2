@@ -1894,7 +1894,7 @@
 			isa = PBXGroup;
 			children = (
 				4625C1482A4BD15C004A8BBC /* TheWitnessEditor */,
-				C4674A0929483B5A009BE699 /* DSDWA */,
+				C4674A0929483B5A009BE699 /* DSWA */,
 				C4674979294551D7009BE699 /* FMDH */,
 			);
 			path = papers;
@@ -1909,14 +1909,14 @@
 			path = FMDH;
 			sourceTree = "<group>";
 		};
-		C4674A0929483B5A009BE699 /* DSDWA */ = {
+		C4674A0929483B5A009BE699 /* DSWA */ = {
 			isa = PBXGroup;
 			children = (
 				C4674A0A29483B5A009BE699 /* Driver.h */,
 				C4674A0B29483B5A009BE699 /* Driver.cpp */,
 				C4674A0E29597D5E009BE699 /* DSDWAStar.h */,
 			);
-			path = DSDWA;
+			path = DSWA;
 			sourceTree = "<group>";
 		};
 		C4838D6E2D0A3A0F00836F4A /* TOH */ = {

@@ -69,6 +69,11 @@
 			<key>orderHint</key>
 			<integer>2</integer>
 		</dict>
+		<key>Dynamic Phi.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>30</integer>
+		</dict>
 		<key>FastMap.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -203,6 +208,11 @@
 			<true/>
 		</dict>
 		<key>C4667F7122420DB700E1070F</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>C46EB58A2D7157A200FF6F9D</key>
 		<dict>
 			<key>primary</key>
 			<true/>

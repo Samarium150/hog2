@@ -14,9 +14,9 @@
             filePath = "../../../papers/DSDWA/Driver.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "211"
-            endingLineNumber = "211"
-            landmarkName = "MyFrameHandler(windowID, viewport)"
+            startingLineNumber = "219"
+            endingLineNumber = "219"
+            landmarkName = "MyWindowHandler(windowID, eType)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -30,9 +30,9 @@
             filePath = "../../../papers/DSDWA/Driver.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "138"
-            endingLineNumber = "138"
-            landmarkName = "MyFrameHandler(windowID, viewport)"
+            startingLineNumber = "146"
+            endingLineNumber = "146"
+            landmarkName = "InstallHandlers()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -46,10 +46,10 @@
             filePath = "../../../papers/DSDWA/DSDWAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "575"
-            endingLineNumber = "575"
-            landmarkName = "DoSingleSearchStep(thePath)"
-            landmarkType = "9">
+            startingLineNumber = "593"
+            endingLineNumber = "593"
+            landmarkName = "GetNextWeightRange_v2(minWeight, maxWeight, nextSlope)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -62,9 +62,9 @@
             filePath = "../../../papers/DSDWA/DSDWAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "324"
-            endingLineNumber = "324"
-            landmarkName = "ChooseWeightForTargetPriority(loc, priority, minWeight, maxWeight, last, K)"
+            startingLineNumber = "342"
+            endingLineNumber = "342"
+            landmarkName = "SetNextWeight_v2(h, g, targetWeight)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -78,9 +78,9 @@
             filePath = "../../../papers/DSDWA/DSDWAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "332"
-            endingLineNumber = "332"
-            landmarkName = "ChooseWeightForTargetPriority(loc, priority, minWeight, maxWeight, last, K)"
+            startingLineNumber = "350"
+            endingLineNumber = "350"
+            landmarkName = "SetNextWeight_v2(h, g, targetWeight)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -94,9 +94,9 @@
             filePath = "../../../papers/DSDWA/DSDWAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "113"
-            endingLineNumber = "113"
-            landmarkName = "GetPriority(h, g)"
+            startingLineNumber = "115"
+            endingLineNumber = "115"
+            landmarkName = "Phi(h, g)"
             landmarkType = "7">
             <Locations>
                <Location
@@ -167,162 +167,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "CB7CECB9-CC08-4A05-8EDA-9A154616488A"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../../generic/TemplateAStar.h"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "336"
-            endingLineNumber = "336"
-            landmarkName = "DoSingleSearchStep(thePath)"
-            landmarkType = "9">
-            <Locations>
-               <Location
-                  uuid = "CB7CECB9-CC08-4A05-8EDA-9A154616488A - b058dcd99759ac53"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TemplateAStar&lt;xyLoc, tDirection, MapEnvironment, AStarOpenClosed&lt;xyLoc, AStarCompareWithF&lt;xyLoc&gt;, AStarOpenClosedDataWithF&lt;xyLoc&gt; &gt; &gt;::DoSingleSearchStep(std::__1::vector&lt;xyLoc, std::__1::allocator&lt;xyLoc&gt; &gt;&amp;)"
-                  moduleName = "FM+DH"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/generic/TemplateAStar.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "337"
-                  endingLineNumber = "337"
-                  offsetFromSymbolStart = "316">
-               </Location>
-               <Location
-                  uuid = "CB7CECB9-CC08-4A05-8EDA-9A154616488A - b2e9b98d45d794f1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TemplateAStar&lt;unsigned long, graphMove, GraphEnvironment, AStarOpenClosed&lt;unsigned long, AStarCompareWithF&lt;unsigned long&gt;, AStarOpenClosedDataWithF&lt;unsigned long&gt; &gt; &gt;::DoSingleSearchStep(std::__1::vector&lt;unsigned long, std::__1::allocator&lt;unsigned long&gt; &gt;&amp;)"
-                  moduleName = "FM+DH"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/generic/TemplateAStar.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "337"
-                  endingLineNumber = "337"
-                  offsetFromSymbolStart = "316">
-               </Location>
-               <Location
-                  uuid = "CB7CECB9-CC08-4A05-8EDA-9A154616488A - 20c9e4642caacd37"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TemplateAStar&lt;CanonicalGrid::xyLoc, CanonicalGrid::tDirection, CanonicalGrid::CanonicalGrid, AStarOpenClosed&lt;CanonicalGrid::xyLoc, AStarCompareWithF&lt;CanonicalGrid::xyLoc&gt;, AStarOpenClosedDataWithF&lt;CanonicalGrid::xyLoc&gt; &gt; &gt;::DoSingleSearchStep(std::__1::vector&lt;CanonicalGrid::xyLoc, std::__1::allocator&lt;CanonicalGrid::xyLoc&gt; &gt;&amp;)"
-                  moduleName = "FM+DH"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/generic/TemplateAStar.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "337"
-                  endingLineNumber = "337"
-                  offsetFromSymbolStart = "316">
-               </Location>
-               <Location
-                  uuid = "CB7CECB9-CC08-4A05-8EDA-9A154616488A - 89262dd710ebe9fa"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TemplateAStar&lt;recVec, line2d, ConfigEnvironment, AStarOpenClosed&lt;recVec, AStarCompareWithF&lt;recVec&gt;, AStarOpenClosedDataWithF&lt;recVec&gt; &gt; &gt;::DoSingleSearchStep(std::__1::vector&lt;recVec, std::__1::allocator&lt;recVec&gt; &gt;&amp;)"
-                  moduleName = "FM+DH"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/generic/TemplateAStar.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "337"
-                  endingLineNumber = "337"
-                  offsetFromSymbolStart = "316">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "074DD4F5-16C0-4C3D-A29E-77CEF058C90B"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../../generic/TemplateAStar.h"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "319"
-            endingLineNumber = "319"
-            landmarkName = "unknown"
-            landmarkType = "0">
-            <Locations>
-               <Location
-                  uuid = "074DD4F5-16C0-4C3D-A29E-77CEF058C90B - b058dcd99759ae0c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TemplateAStar&lt;xyLoc, tDirection, MapEnvironment, AStarOpenClosed&lt;xyLoc, AStarCompareWithF&lt;xyLoc&gt;, AStarOpenClosedDataWithF&lt;xyLoc&gt; &gt; &gt;::DoSingleSearchStep(std::__1::vector&lt;xyLoc, std::__1::allocator&lt;xyLoc&gt; &gt;&amp;)"
-                  moduleName = "FM+DH"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/generic/TemplateAStar.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "320"
-                  endingLineNumber = "320"
-                  offsetFromSymbolStart = "64">
-               </Location>
-               <Location
-                  uuid = "074DD4F5-16C0-4C3D-A29E-77CEF058C90B - b2e9b98d45d796ae"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TemplateAStar&lt;unsigned long, graphMove, GraphEnvironment, AStarOpenClosed&lt;unsigned long, AStarCompareWithF&lt;unsigned long&gt;, AStarOpenClosedDataWithF&lt;unsigned long&gt; &gt; &gt;::DoSingleSearchStep(std::__1::vector&lt;unsigned long, std::__1::allocator&lt;unsigned long&gt; &gt;&amp;)"
-                  moduleName = "FM+DH"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/generic/TemplateAStar.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "320"
-                  endingLineNumber = "320"
-                  offsetFromSymbolStart = "64">
-               </Location>
-               <Location
-                  uuid = "074DD4F5-16C0-4C3D-A29E-77CEF058C90B - 20c9e4642caacf68"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TemplateAStar&lt;CanonicalGrid::xyLoc, CanonicalGrid::tDirection, CanonicalGrid::CanonicalGrid, AStarOpenClosed&lt;CanonicalGrid::xyLoc, AStarCompareWithF&lt;CanonicalGrid::xyLoc&gt;, AStarOpenClosedDataWithF&lt;CanonicalGrid::xyLoc&gt; &gt; &gt;::DoSingleSearchStep(std::__1::vector&lt;CanonicalGrid::xyLoc, std::__1::allocator&lt;CanonicalGrid::xyLoc&gt; &gt;&amp;)"
-                  moduleName = "FM+DH"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/generic/TemplateAStar.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "320"
-                  endingLineNumber = "320"
-                  offsetFromSymbolStart = "64">
-               </Location>
-               <Location
-                  uuid = "074DD4F5-16C0-4C3D-A29E-77CEF058C90B - 89262dd710ebeba5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TemplateAStar&lt;recVec, line2d, ConfigEnvironment, AStarOpenClosed&lt;recVec, AStarCompareWithF&lt;recVec&gt;, AStarOpenClosedDataWithF&lt;recVec&gt; &gt; &gt;::DoSingleSearchStep(std::__1::vector&lt;recVec, std::__1::allocator&lt;recVec&gt; &gt;&amp;)"
-                  moduleName = "FM+DH"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathanst/Documents/GitHub/hog2/generic/TemplateAStar.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "320"
-                  endingLineNumber = "320"
-                  offsetFromSymbolStart = "64">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "4E3FAF3B-B9C1-4A8A-B912-E437BFA5A1FE"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -330,8 +174,8 @@
             filePath = "../../../generic/TemplateAStar.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "485"
-            endingLineNumber = "485"
+            startingLineNumber = "406"
+            endingLineNumber = "406"
             landmarkName = "DoSingleSearchStep(thePath)"
             landmarkType = "9">
             <Locations>
@@ -584,7 +428,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "500"
             endingLineNumber = "500"
-            landmarkName = "Graphics::Display::ViewportToGlobalHOG(v, where, wWidth, wHeight)"
+            landmarkName = "Graphics::Display::ViewportToGlobalHOG(v, where)"
             landmarkType = "7">
             <Locations>
                <Location
@@ -723,8 +567,8 @@
             filePath = "../../../utils/SVGUtil.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "497"
-            endingLineNumber = "497"
+            startingLineNumber = "508"
+            endingLineNumber = "508"
             landmarkName = "HandleCommand(disp, drawCommands, s, width, height, viewport)"
             landmarkType = "9">
             <Locations>
@@ -1060,8 +904,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "281"
             endingLineNumber = "281"
-            landmarkName = "GetPDBHash(s)"
-            landmarkType = "7">
+            landmarkName = "GraphPuzzleDistanceHeuristic"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
