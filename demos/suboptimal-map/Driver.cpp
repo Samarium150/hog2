@@ -280,7 +280,7 @@ void GetPlotPoints()
 		for (int x = 0; x < optimistic.GetNumFocalItems(); x++)
 		{
 			const auto &item = optimistic.GetFocalItem(x);
-			Plotting::Point p = {me->HCost(item.data, goal), item.g, pointSize, Colors::green};
+			Plotting::Point p = {me->HCost(item.data, goal), item.g, pointSize, Colors::cb_green};
 			plot.AddPoint(p);
 		}
 		plot.NormalizeAxes();
@@ -409,7 +409,7 @@ void GetPlotPoints()
 			{
 				if (astar_e.IsFocal(x))
 				{
-					Plotting::Point p = {h, g, pointSize, Colors::green};
+					Plotting::Point p = {h, g, pointSize, Colors::cb_green};
 					plot.AddPoint(p);
 				}
 				else {
@@ -418,7 +418,7 @@ void GetPlotPoints()
 				}
 			}
 			else { // closed
-				Plotting::Point p = {h, g, pointSize, Colors::gray};
+				Plotting::Point p = {h, g, pointSize, rgbColor(1.0,0.35,0.35)};
 				plot.AddPoint(p);
 			}
 //			const auto &item = astar_e.GetOpenItem(x);
@@ -428,7 +428,7 @@ void GetPlotPoints()
 //		for (int x = 0; x < astar_e.GetNumFocalItems(); x++)
 //		{
 //			const auto &item = astar_e.GetFocalItem(x);
-//			Plotting::Point p = {me->HCost(item.s, goal), item.g, pointSize, Colors::green};
+//			Plotting::Point p = {me->HCost(item.s, goal), item.g, pointSize, Colors::cb_green};
 //			plot.AddPoint(p);
 //		}
 		plot.NormalizeAxes();
@@ -510,7 +510,7 @@ void GetPlotPoints()
 				continue;
 			pr = std::max(pr, (fmin*w-g)/h);
 			maxh = std::max(h, maxh);
-			Plotting::Point p = {h, g, pointSize, Colors::green};
+			Plotting::Point p = {h, g, pointSize, Colors::cb_green};
 			plot.AddPoint(p);
 		}
 //		std::cout << "--> Best priority: " << pr << "\n";
@@ -630,7 +630,7 @@ void GetPlotPoints()
 		for (int x = 0; x < astar.GetNumItems(); x++)
 		{
 			const auto &item = astar.GetItem(x);
-			Plotting::Point p = {me->HCost(item.data, goal), item.g, pointSize, (item.where==kOpenList)?Colors::green:Colors::gray};
+			Plotting::Point p = {me->HCost(item.data, goal), item.g, pointSize, (item.where==kOpenList)?Colors::green:rgbColor(1.0,0.35,0.35)};
 			plot.AddPoint(p);
 		}
 	}
@@ -726,8 +726,9 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 		}
 		else if (running)
 		{
-			astar.Draw(display);
-			
+			//astar.Draw(display);
+			astar.DrawSuboptimality(display);
+
 			if (path.size() != 0)
 			{
 				me->SetColor(Colors::blue);
@@ -743,14 +744,19 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 	if (recording && viewport == GetNumPorts(windowID)-1)
 	{
 		char fname[255];
-		sprintf(fname, "/Users/nathanst/Movies/tmp/1/sub-%d%d%d%d%d.svg",
+//		sprintf(fname, "/Users/nathanst/Movies/tmp/1/sub-%d%d%d%d%d.svg",
+//				(frameCnt/10000)%10, (frameCnt/1000)%10, (frameCnt/100)%10, (frameCnt/10)%10, frameCnt%10);
+//		MakeSVG(GetContext(windowID)->display, fname, 1200, 1200, 0, "", true); // sharp edges
+//		sprintf(fname, "/Users/nathanst/Movies/tmp/2/sub-%d%d%d%d%d.svg",
+//				(frameCnt/10000)%10, (frameCnt/1000)%10, (frameCnt/100)%10, (frameCnt/10)%10, frameCnt%10);
+//		MakeSVG(GetContext(windowID)->display, fname, 1200, 1200, 1, "", false); // smooth eges
+		sprintf(fname, "/Users/nathanst/Pictures/SVG/sub-%d%d%d%d%d.svg",
 				(frameCnt/10000)%10, (frameCnt/1000)%10, (frameCnt/100)%10, (frameCnt/10)%10, frameCnt%10);
-		MakeSVG(GetContext(windowID)->display, fname, 1200, 1200, 0, "", true); // sharp edges
-		sprintf(fname, "/Users/nathanst/Movies/tmp/2/sub-%d%d%d%d%d.svg",
-				(frameCnt/10000)%10, (frameCnt/1000)%10, (frameCnt/100)%10, (frameCnt/10)%10, frameCnt%10);
-		MakeSVG(GetContext(windowID)->display, fname, 1200, 1200, 1, "", false); // smooth eges
+		MakeSVG(GetContext(windowID)->display, fname, 1200, 600, -1, "", false);
 		printf("Saved %s\n", fname);
 		frameCnt++;
+		if (frameCnt%2)
+			stepsPerFrame++;
 	}
 }
 
