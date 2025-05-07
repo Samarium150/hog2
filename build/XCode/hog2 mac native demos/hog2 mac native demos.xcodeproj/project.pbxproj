@@ -1160,6 +1160,113 @@
 		C4667FD922420DB700E1070F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C4C8354F1F2AF5C7004E78C0 /* Assets.xcassets */; };
 		C4667FDA22420DB700E1070F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4C835511F2AF5C7004E78C0 /* Main.storyboard */; };
 		C4667FE322420DF300E1070F /* Driver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4667FE122420DF300E1070F /* Driver.cpp */; };
+		C46EB58C2D7157A200FF6F9D /* BitVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836491F2AF6B5004E78C0 /* BitVector.cpp */; };
+		C46EB58D2D7157A200FF6F9D /* Colors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C837301F2D5604004E78C0 /* Colors.cpp */; };
+		C46EB58E2D7157A200FF6F9D /* Plot2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836711F2AF6B5004E78C0 /* Plot2D.cpp */; };
+		C46EB58F2D7157A200FF6F9D /* SFBDPancakePuzzle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835A51F2AF6B4004E78C0 /* SFBDPancakePuzzle.cpp */; };
+		C46EB5902D7157A200FF6F9D /* VoxelTriangleExtraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835B81F2AF6B5004E78C0 /* VoxelTriangleExtraction.cpp */; };
+		C46EB5912D7157A200FF6F9D /* MNPuzzle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8358B1F2AF6B4004E78C0 /* MNPuzzle.cpp */; };
+		C46EB5922D7157A200FF6F9D /* RubiksCubeCorners.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8359F1F2AF6B4004E78C0 /* RubiksCubeCorners.cpp */; };
+		C46EB5932D7157A200FF6F9D /* MapGenerators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836611F2AF6B5004E78C0 /* MapGenerators.cpp */; };
+		C46EB5942D7157A200FF6F9D /* TopSpin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835AB1F2AF6B4004E78C0 /* TopSpin.cpp */; };
+		C46EB5952D7157A200FF6F9D /* OpenListB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835681F2AF6B4004E78C0 /* OpenListB.cpp */; };
+		C46EB5962D7157A200FF6F9D /* TextBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836101F2AF6B5004E78C0 /* TextBox.cpp */; };
+		C46EB5972D7157A200FF6F9D /* Airplane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8356B1F2AF6B4004E78C0 /* Airplane.cpp */; };
+		C46EB5982D7157A200FF6F9D /* VoxelGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835AF1F2AF6B4004E78C0 /* VoxelGrid.cpp */; };
+		C46EB5992D7157A200FF6F9D /* Trackball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836121F2AF6B5004E78C0 /* Trackball.cpp */; };
+		C46EB59A2D7157A200FF6F9D /* ScenarioLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836751F2AF6B5004E78C0 /* ScenarioLoader.cpp */; };
+		C46EB59B2D7157A200FF6F9D /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = C4C8354D1F2AF5C7004E78C0 /* ViewController.mm */; };
+		C46EB59C2D7157A200FF6F9D /* FPUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836551F2AF6B5004E78C0 /* FPUtil.cpp */; };
+		C46EB59D2D7157A200FF6F9D /* StatCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836781F2AF6B5004E78C0 /* StatCollection.cpp */; };
+		C46EB59E2D7157A200FF6F9D /* SteeringEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835A71F2AF6B4004E78C0 /* SteeringEnvironment.cpp */; };
+		C46EB59F2D7157A200FF6F9D /* FloydWarshall.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835DF1F2AF6B5004E78C0 /* FloydWarshall.cpp */; };
+		C46EB5A02D7157A200FF6F9D /* Map2DHeading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835831F2AF6B4004E78C0 /* Map2DHeading.cpp */; };
+		C46EB5A12D7157A200FF6F9D /* MNAgentPuzzle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835891F2AF6B4004E78C0 /* MNAgentPuzzle.cpp */; };
+		C46EB5A22D7157A200FF6F9D /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836841F2AF6B5004E78C0 /* Timer.cpp */; };
+		C46EB5A32D7157A200FF6F9D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C4C8354A1F2AF5C7004E78C0 /* main.m */; };
+		C46EB5A42D7157A200FF6F9D /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8365F1F2AF6B5004E78C0 /* Map.cpp */; };
+		C46EB5A52D7157A200FF6F9D /* DrawView.mm in Sources */ = {isa = PBXBuildFile; fileRef = C4C8375B1F2E95E9004E78C0 /* DrawView.mm */; };
+		C46EB5A62D7157A200FF6F9D /* Propagation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835E91F2AF6B5004E78C0 /* Propagation.cpp */; };
+		C46EB5A72D7157A200FF6F9D /* RoboticArm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835991F2AF6B4004E78C0 /* RoboticArm.cpp */; };
+		C46EB5A82D7157A200FF6F9D /* MMapUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836671F2AF6B5004E78C0 /* MMapUtil.cpp */; };
+		C46EB5A92D7157A200FF6F9D /* LogisticRegression.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8365D1F2AF6B5004E78C0 /* LogisticRegression.cpp */; };
+		C46EB5AA2D7157A200FF6F9D /* NQueens.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835931F2AF6B4004E78C0 /* NQueens.cpp */; };
+		C46EB5AB2D7157A200FF6F9D /* GraphAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835E11F2AF6B5004E78C0 /* GraphAlgorithm.cpp */; };
+		C46EB5AC2D7157A200FF6F9D /* Directional2DEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835751F2AF6B4004E78C0 /* Directional2DEnvironment.cpp */; };
+		C46EB5AD2D7157A200FF6F9D /* RubiksCube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8359B1F2AF6B4004E78C0 /* RubiksCube.cpp */; };
+		C46EB5AE2D7157A200FF6F9D /* MinimalSectorAbstraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835871F2AF6B4004E78C0 /* MinimalSectorAbstraction.cpp */; };
+		C46EB5AF2D7157A200FF6F9D /* EnvUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836501F2AF6B5004E78C0 /* EnvUtil.cpp */; };
+		C46EB5B02D7157A200FF6F9D /* Transit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C428CA4420B2821400B27666 /* Transit.cpp */; };
+		C46EB5B12D7157A200FF6F9D /* NN.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8366D1F2AF6B5004E78C0 /* NN.cpp */; };
+		C46EB5B22D7157A200FF6F9D /* RubiksCube7Edges.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8359D1F2AF6B4004E78C0 /* RubiksCube7Edges.cpp */; };
+		C46EB5B32D7157A200FF6F9D /* MR1Permutation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836691F2AF6B5004E78C0 /* MR1Permutation.cpp */; };
+		C46EB5B42D7157A200FF6F9D /* MapUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836201F2AF6B5004E78C0 /* MapUnit.cpp */; };
+		C46EB5B52D7157A200FF6F9D /* SVGUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8367E1F2AF6B5004E78C0 /* SVGUtil.cpp */; };
+		C46EB5B62D7157A200FF6F9D /* RandomUnits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836221F2AF6B5004E78C0 /* RandomUnits.cpp */; };
+		C46EB5B72D7157A200FF6F9D /* StatUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8367A1F2AF6B5004E78C0 /* StatUtil.cpp */; };
+		C46EB5B82D7157A200FF6F9D /* CanonicalGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835711F2AF6B4004E78C0 /* CanonicalGrid.cpp */; };
+		C46EB5B92D7157A200FF6F9D /* AStarDelay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835DD1F2AF6B5004E78C0 /* AStarDelay.cpp */; };
+		C46EB5BA2D7157A200FF6F9D /* Path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835E71F2AF6B5004E78C0 /* Path.cpp */; };
+		C46EB5BB2D7157A200FF6F9D /* GenericIDAStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835611F2AF6B4004E78C0 /* GenericIDAStar.cpp */; };
+		C46EB5BC2D7157A200FF6F9D /* RangeCompression.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836731F2AF6B5004E78C0 /* RangeCompression.cpp */; };
+		C46EB5BD2D7157A200FF6F9D /* Map2DSectorAbstractionEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4DFD0E520B5BB140072F0CB /* Map2DSectorAbstractionEnvironment.cpp */; };
+		C46EB5BE2D7157A200FF6F9D /* TriangulationEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4B424D22C192FB400B49E1D /* TriangulationEnvironment.cpp */; };
+		C46EB5BF2D7157A200FF6F9D /* FlipSide.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835791F2AF6B4004E78C0 /* FlipSide.cpp */; };
+		C46EB5C02D7157A200FF6F9D /* MapOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836631F2AF6B5004E78C0 /* MapOverlay.cpp */; };
+		C46EB5C12D7157A200FF6F9D /* Voxels.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835B11F2AF6B5004E78C0 /* Voxels.cpp */; };
+		C46EB5C22D7157A200FF6F9D /* MeroB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835E51F2AF6B5004E78C0 /* MeroB.cpp */; };
+		C46EB5C32D7157A200FF6F9D /* DiskBitFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8364E1F2AF6B5004E78C0 /* DiskBitFile.cpp */; };
+		C46EB5C42D7157A200FF6F9D /* Graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4F134CE2089A31C00AC26BC /* Graphics.cpp */; };
+		C46EB5C52D7157A200FF6F9D /* Bloom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8364B1F2AF6B5004E78C0 /* Bloom.cpp */; };
+		C46EB5C62D7157A200FF6F9D /* GraphEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8357B1F2AF6B4004E78C0 /* GraphEnvironment.cpp */; };
+		C46EB5C72D7157A200FF6F9D /* TopSpinGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835AD1F2AF6B4004E78C0 /* TopSpinGraph.cpp */; };
+		C46EB5C82D7157A200FF6F9D /* Heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835E31F2AF6B5004E78C0 /* Heap.cpp */; };
+		C46EB5C92D7157A200FF6F9D /* GLUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836591F2AF6B5004E78C0 /* GLUtil.cpp */; };
+		C46EB5CA2D7157A200FF6F9D /* FourBitArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836531F2AF6B5004E78C0 /* FourBitArray.cpp */; };
+		C46EB5CB2D7157A200FF6F9D /* CocoaHOG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C837621F3273F2004E78C0 /* CocoaHOG.cpp */; };
+		C46EB5CC2D7157A200FF6F9D /* Graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835DA1F2AF6B5004E78C0 /* Graph.cpp */; };
+		C46EB5CD2D7157A200FF6F9D /* OpenClosedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835661F2AF6B4004E78C0 /* OpenClosedList.cpp */; };
+		C46EB5CE2D7157A200FF6F9D /* MinBloom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836651F2AF6B5004E78C0 /* MinBloom.cpp */; };
+		C46EB5CF2D7157A200FF6F9D /* JPS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835EE1F2AF6B5004E78C0 /* JPS.cpp */; };
+		C46EB5D02D7157A200FF6F9D /* PermutationPuzzleEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835971F2AF6B4004E78C0 /* PermutationPuzzleEnvironment.cpp */; };
+		C46EB5D12D7157A200FF6F9D /* Perceptron.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8366F1F2AF6B5004E78C0 /* Perceptron.cpp */; };
+		C46EB5D22D7157A200FF6F9D /* LinearRegression.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8365B1F2AF6B5004E78C0 /* LinearRegression.cpp */; };
+		C46EB5D32D7157A200FF6F9D /* RC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4F3F4B92698F469001FB029 /* RC.cpp */; };
+		C46EB5D42D7157A200FF6F9D /* PancakeInstances.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835B61F2AF6B5004E78C0 /* PancakeInstances.cpp */; };
+		C46EB5D52D7157A200FF6F9D /* NaryTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835911F2AF6B4004E78C0 /* NaryTree.cpp */; };
+		C46EB5D62D7157A200FF6F9D /* SwapEndian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836801F2AF6B5004E78C0 /* SwapEndian.cpp */; };
+		C46EB5D72D7157A200FF6F9D /* ConfigEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835731F2AF6B4004E78C0 /* ConfigEnvironment.cpp */; };
+		C46EB5D82D7157A200FF6F9D /* gl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835F41F2AF6B5004E78C0 /* gl.cpp */; };
+		C46EB5D92D7157A200FF6F9D /* Map2DConstrainedEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8357F1F2AF6B4004E78C0 /* Map2DConstrainedEnvironment.cpp */; };
+		C46EB5DA2D7157A200FF6F9D /* Map3DGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835851F2AF6B4004E78C0 /* Map3DGrid.cpp */; };
+		C46EB5DB2D7157A200FF6F9D /* MountainCar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8358F1F2AF6B4004E78C0 /* MountainCar.cpp */; };
+		C46EB5DC2D7157A200FF6F9D /* BitMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836471F2AF6B5004E78C0 /* BitMap.cpp */; };
+		C46EB5DD2D7157A200FF6F9D /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8367C1F2AF6B5004E78C0 /* StringUtils.cpp */; };
+		C46EB5DE2D7157A200FF6F9D /* RubiksCubeEdges.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835A11F2AF6B4004E78C0 /* RubiksCubeEdges.cpp */; };
+		C46EB5DF2D7157A200FF6F9D /* Map2DEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835811F2AF6B4004E78C0 /* Map2DEnvironment.cpp */; };
+		C46EB5E02D7157A200FF6F9D /* SequenceAlignment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835A31F2AF6B4004E78C0 /* SequenceAlignment.cpp */; };
+		C46EB5E12D7157A200FF6F9D /* OldSearchEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835641F2AF6B4004E78C0 /* OldSearchEnvironment.cpp */; };
+		C46EB5E22D7157A200FF6F9D /* Fling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835771F2AF6B4004E78C0 /* Fling.cpp */; };
+		C46EB5E32D7157A200FF6F9D /* glut.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835F61F2AF6B5004E78C0 /* glut.cpp */; };
+		C46EB5E42D7157A200FF6F9D /* NBitArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8366B1F2AF6B5004E78C0 /* NBitArray.cpp */; };
+		C46EB5E52D7157A200FF6F9D /* FunctionApproximator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836571F2AF6B5004E78C0 /* FunctionApproximator.cpp */; };
+		C46EB5E62D7157A200FF6F9D /* CanonicalDijkstra.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835EC1F2AF6B5004E78C0 /* CanonicalDijkstra.cpp */; };
+		C46EB5E72D7157A200FF6F9D /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C835F11F2AF6B5004E78C0 /* Common.cpp */; };
+		C46EB5E82D7157A200FF6F9D /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = C4C835471F2AF5C7004E78C0 /* AppDelegate.mm */; };
+		C46EB5E92D7157A200FF6F9D /* RHRUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836241F2AF6B5004E78C0 /* RHRUnit.cpp */; };
+		C46EB5EB2D7157A200FF6F9D /* GridHeuristics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C40E8A522A2691400041936F /* GridHeuristics.cpp */; };
+		C46EB5EC2D7157A200FF6F9D /* AStarOpenClosed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8355C1F2AF6B4004E78C0 /* AStarOpenClosed.cpp */; };
+		C46EB5ED2D7157A200FF6F9D /* Racetrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4F3F36F26935EEE001FB029 /* Racetrack.cpp */; };
+		C46EB5EE2D7157A200FF6F9D /* CanonicalGraphEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8356F1F2AF6B4004E78C0 /* CanonicalGraphEnvironment.cpp */; };
+		C46EB5EF2D7157A200FF6F9D /* BurnedPancakePuzzle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8356D1F2AF6B4004E78C0 /* BurnedPancakePuzzle.cpp */; };
+		C46EB5F02D7157A200FF6F9D /* TextOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836821F2AF6B5004E78C0 /* TextOverlay.cpp */; };
+		C46EB5F12D7157A200FF6F9D /* GenericAStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C8355F1F2AF6B4004E78C0 /* GenericAStar.cpp */; };
+		C46EB5F22D7157A200FF6F9D /* MonoFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4F3F38B26979531001FB029 /* MonoFont.cpp */; };
+		C46EB5F52D7157A200FF6F9D /* DrawView.xib in Resources */ = {isa = PBXBuildFile; fileRef = C4C8375D1F2E9634004E78C0 /* DrawView.xib */; };
+		C46EB5F62D7157A200FF6F9D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C4C8354F1F2AF5C7004E78C0 /* Assets.xcassets */; };
+		C46EB5F72D7157A200FF6F9D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4C835511F2AF5C7004E78C0 /* Main.storyboard */; };
+		C46EB6002D7157E000FF6F9D /* Driver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C46EB5FF2D7157DF00FF6F9D /* Driver.cpp */; };
+		C46EB6032D72113F00FF6F9D /* FileUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C46EB6012D72113E00FF6F9D /* FileUtil.cpp */; };
 		C472A48C21E3114B00A1B41E /* BitVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836491F2AF6B5004E78C0 /* BitVector.cpp */; };
 		C472A48D21E3114B00A1B41E /* Colors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C837301F2D5604004E78C0 /* Colors.cpp */; };
 		C472A48E21E3114B00A1B41E /* Plot2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4C836711F2AF6B5004E78C0 /* Plot2D.cpp */; };
@@ -3225,6 +3332,13 @@
 		C4667FDF22420DB900E1070F /* STP copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "STP copy-Info.plist"; path = "../../../../../../nathanst/hog2/build/XCode/hog2 mac native demos/STP copy-Info.plist"; sourceTree = SOURCE_ROOT; };
 		C4667FE122420DF300E1070F /* Driver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Driver.cpp; sourceTree = "<group>"; };
 		C4667FE222420DF300E1070F /* Driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Driver.h; sourceTree = "<group>"; };
+		C46EB5892D71578000FF6F9D /* AStarIDA copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "AStarIDA copy-Info.plist"; path = "/Users/nathanst/Documents/GitHub/hog2/build/XCode/hog2 mac native demos/AStarIDA copy-Info.plist"; sourceTree = "<absolute>"; };
+		C46EB5FB2D7157A200FF6F9D /* Dynamic Phi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Dynamic Phi.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C46EB5FC2D7157A300FF6F9D /* AStarIDA copy2-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "AStarIDA copy2-Info.plist"; path = "/Users/nathanst/Documents/GitHub/hog2/build/XCode/hog2 mac native demos/AStarIDA copy2-Info.plist"; sourceTree = "<absolute>"; };
+		C46EB5FE2D7157DF00FF6F9D /* Driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Driver.h; sourceTree = "<group>"; };
+		C46EB5FF2D7157DF00FF6F9D /* Driver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Driver.cpp; sourceTree = "<group>"; };
+		C46EB6012D72113E00FF6F9D /* FileUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileUtil.cpp; sourceTree = "<group>"; };
+		C46EB6022D72113F00FF6F9D /* FileUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileUtil.h; sourceTree = "<group>"; };
 		C472A4F821E3114B00A1B41E /* STP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = STP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C472A4F921E3114D00A1B41E /* IDAStar copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "IDAStar copy-Info.plist"; path = "../../../../../../nathanst/hog2/build/XCode/hog2 mac native demos/IDAStar copy-Info.plist"; sourceTree = SOURCE_ROOT; };
 		C472A4FB21E3121600A1B41E /* Driver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Driver.cpp; sourceTree = "<group>"; };
@@ -3670,6 +3784,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C46EB5F32D7157A200FF6F9D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C472A4F021E3114B00A1B41E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -3938,6 +4059,16 @@
 			path = ../../../demos/fastmap;
 			sourceTree = "<group>";
 		};
+		C46EB5FD2D7157DF00FF6F9D /* dynamic-phi */ = {
+			isa = PBXGroup;
+			children = (
+				C46EB5FE2D7157DF00FF6F9D /* Driver.h */,
+				C46EB5FF2D7157DF00FF6F9D /* Driver.cpp */,
+			);
+			name = "dynamic-phi";
+			path = "../../../demos/dynamic-phi";
+			sourceTree = "<group>";
+		};
 		C472A4FA21E3121600A1B41E /* STP */ = {
 			isa = PBXGroup;
 			children = (
@@ -4082,6 +4213,8 @@
 				C4A5018B2B1114F8006C0331 /* BOBAStar copy-Info.plist */,
 				C4B424CD2C192E1600B49E1D /* ACA copy-Info.plist */,
 				C4838CE62CF2B1FA00836F4A /* Triangulation copy-Info.plist */,
+				C46EB5892D71578000FF6F9D /* AStarIDA copy-Info.plist */,
+				C46EB5FC2D7157A300FF6F9D /* AStarIDA copy2-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -4118,6 +4251,7 @@
 				C4A5018A2B1114F8006C0331 /* ACA.app */,
 				C4B424CC2C192E1600B49E1D /* Triangulation.app */,
 				C4838CE52CF2B1FA00836F4A /* AStarIDA.app */,
+				C46EB5FB2D7157A200FF6F9D /* Dynamic Phi.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4510,6 +4644,8 @@
 		C4C836461F2AF6B5004E78C0 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				C46EB6012D72113E00FF6F9D /* FileUtil.cpp */,
+				C46EB6022D72113F00FF6F9D /* FileUtil.h */,
 				C4F3F38B26979531001FB029 /* MonoFont.cpp */,
 				C4F3F38C26979532001FB029 /* MonoFont.h */,
 				C48E6F9223A9A3060024D214 /* Combinations.h */,
@@ -4590,6 +4726,7 @@
 		C4C837681F32778F004E78C0 /* demos */ = {
 			isa = PBXGroup;
 			children = (
+				C46EB5FD2D7157DF00FF6F9D /* dynamic-phi */,
 				C4838CE72CF2B53A00836F4A /* astarida */,
 				C4B424CE2C192E4300B49E1D /* triangulation */,
 				C4A5018C2B111539006C0331 /* ACA */,
@@ -4871,6 +5008,23 @@
 			name = FastMap;
 			productName = "hog2 mac native demos";
 			productReference = C4667FDE22420DB700E1070F /* FastMap.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C46EB58A2D7157A200FF6F9D /* Dynamic Phi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C46EB5F82D7157A200FF6F9D /* Build configuration list for PBXNativeTarget "Dynamic Phi" */;
+			buildPhases = (
+				C46EB58B2D7157A200FF6F9D /* Sources */,
+				C46EB5F32D7157A200FF6F9D /* Frameworks */,
+				C46EB5F42D7157A200FF6F9D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Dynamic Phi";
+			productName = "hog2 mac native demos";
+			productReference = C46EB5FB2D7157A200FF6F9D /* Dynamic Phi.app */;
 			productType = "com.apple.product-type.application";
 		};
 		C472A48A21E3114B00A1B41E /* STP */ = {
@@ -5255,6 +5409,7 @@
 				C4A5011A2B1114F8006C0331 /* ACA */,
 				C4B4245C2C192E1600B49E1D /* Triangulation */,
 				C4838C742CF2B1FA00836F4A /* AStarIDA */,
+				C46EB58A2D7157A200FF6F9D /* Dynamic Phi */,
 			);
 		};
 /* End PBXProject section */
@@ -5367,6 +5522,16 @@
 				C4667FD822420DB700E1070F /* DrawView.xib in Resources */,
 				C4667FD922420DB700E1070F /* Assets.xcassets in Resources */,
 				C4667FDA22420DB700E1070F /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C46EB5F42D7157A200FF6F9D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C46EB5F52D7157A200FF6F9D /* DrawView.xib in Resources */,
+				C46EB5F62D7157A200FF6F9D /* Assets.xcassets in Resources */,
+				C46EB5F72D7157A200FF6F9D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6754,6 +6919,117 @@
 				C4667FD322420DB700E1070F /* BurnedPancakePuzzle.cpp in Sources */,
 				C4667FD422420DB700E1070F /* TextOverlay.cpp in Sources */,
 				C4667FD522420DB700E1070F /* GenericAStar.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C46EB58B2D7157A200FF6F9D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C46EB58C2D7157A200FF6F9D /* BitVector.cpp in Sources */,
+				C46EB58D2D7157A200FF6F9D /* Colors.cpp in Sources */,
+				C46EB58E2D7157A200FF6F9D /* Plot2D.cpp in Sources */,
+				C46EB58F2D7157A200FF6F9D /* SFBDPancakePuzzle.cpp in Sources */,
+				C46EB5902D7157A200FF6F9D /* VoxelTriangleExtraction.cpp in Sources */,
+				C46EB5912D7157A200FF6F9D /* MNPuzzle.cpp in Sources */,
+				C46EB5922D7157A200FF6F9D /* RubiksCubeCorners.cpp in Sources */,
+				C46EB5932D7157A200FF6F9D /* MapGenerators.cpp in Sources */,
+				C46EB5942D7157A200FF6F9D /* TopSpin.cpp in Sources */,
+				C46EB5952D7157A200FF6F9D /* OpenListB.cpp in Sources */,
+				C46EB5962D7157A200FF6F9D /* TextBox.cpp in Sources */,
+				C46EB5972D7157A200FF6F9D /* Airplane.cpp in Sources */,
+				C46EB5982D7157A200FF6F9D /* VoxelGrid.cpp in Sources */,
+				C46EB5992D7157A200FF6F9D /* Trackball.cpp in Sources */,
+				C46EB59A2D7157A200FF6F9D /* ScenarioLoader.cpp in Sources */,
+				C46EB59B2D7157A200FF6F9D /* ViewController.mm in Sources */,
+				C46EB59C2D7157A200FF6F9D /* FPUtil.cpp in Sources */,
+				C46EB59D2D7157A200FF6F9D /* StatCollection.cpp in Sources */,
+				C46EB59E2D7157A200FF6F9D /* SteeringEnvironment.cpp in Sources */,
+				C46EB6032D72113F00FF6F9D /* FileUtil.cpp in Sources */,
+				C46EB59F2D7157A200FF6F9D /* FloydWarshall.cpp in Sources */,
+				C46EB5A02D7157A200FF6F9D /* Map2DHeading.cpp in Sources */,
+				C46EB5A12D7157A200FF6F9D /* MNAgentPuzzle.cpp in Sources */,
+				C46EB5A22D7157A200FF6F9D /* Timer.cpp in Sources */,
+				C46EB5A32D7157A200FF6F9D /* main.m in Sources */,
+				C46EB5A42D7157A200FF6F9D /* Map.cpp in Sources */,
+				C46EB5A52D7157A200FF6F9D /* DrawView.mm in Sources */,
+				C46EB5A62D7157A200FF6F9D /* Propagation.cpp in Sources */,
+				C46EB5A72D7157A200FF6F9D /* RoboticArm.cpp in Sources */,
+				C46EB5A82D7157A200FF6F9D /* MMapUtil.cpp in Sources */,
+				C46EB5A92D7157A200FF6F9D /* LogisticRegression.cpp in Sources */,
+				C46EB5AA2D7157A200FF6F9D /* NQueens.cpp in Sources */,
+				C46EB5AB2D7157A200FF6F9D /* GraphAlgorithm.cpp in Sources */,
+				C46EB5AC2D7157A200FF6F9D /* Directional2DEnvironment.cpp in Sources */,
+				C46EB5AD2D7157A200FF6F9D /* RubiksCube.cpp in Sources */,
+				C46EB5AE2D7157A200FF6F9D /* MinimalSectorAbstraction.cpp in Sources */,
+				C46EB5AF2D7157A200FF6F9D /* EnvUtil.cpp in Sources */,
+				C46EB5B02D7157A200FF6F9D /* Transit.cpp in Sources */,
+				C46EB5B12D7157A200FF6F9D /* NN.cpp in Sources */,
+				C46EB5B22D7157A200FF6F9D /* RubiksCube7Edges.cpp in Sources */,
+				C46EB5B32D7157A200FF6F9D /* MR1Permutation.cpp in Sources */,
+				C46EB5B42D7157A200FF6F9D /* MapUnit.cpp in Sources */,
+				C46EB5B52D7157A200FF6F9D /* SVGUtil.cpp in Sources */,
+				C46EB5B62D7157A200FF6F9D /* RandomUnits.cpp in Sources */,
+				C46EB5B72D7157A200FF6F9D /* StatUtil.cpp in Sources */,
+				C46EB5B82D7157A200FF6F9D /* CanonicalGrid.cpp in Sources */,
+				C46EB5B92D7157A200FF6F9D /* AStarDelay.cpp in Sources */,
+				C46EB5BA2D7157A200FF6F9D /* Path.cpp in Sources */,
+				C46EB5BB2D7157A200FF6F9D /* GenericIDAStar.cpp in Sources */,
+				C46EB5BC2D7157A200FF6F9D /* RangeCompression.cpp in Sources */,
+				C46EB5BD2D7157A200FF6F9D /* Map2DSectorAbstractionEnvironment.cpp in Sources */,
+				C46EB5BE2D7157A200FF6F9D /* TriangulationEnvironment.cpp in Sources */,
+				C46EB5BF2D7157A200FF6F9D /* FlipSide.cpp in Sources */,
+				C46EB5C02D7157A200FF6F9D /* MapOverlay.cpp in Sources */,
+				C46EB5C12D7157A200FF6F9D /* Voxels.cpp in Sources */,
+				C46EB5C22D7157A200FF6F9D /* MeroB.cpp in Sources */,
+				C46EB5C32D7157A200FF6F9D /* DiskBitFile.cpp in Sources */,
+				C46EB5C42D7157A200FF6F9D /* Graphics.cpp in Sources */,
+				C46EB5C52D7157A200FF6F9D /* Bloom.cpp in Sources */,
+				C46EB5C62D7157A200FF6F9D /* GraphEnvironment.cpp in Sources */,
+				C46EB5C72D7157A200FF6F9D /* TopSpinGraph.cpp in Sources */,
+				C46EB5C82D7157A200FF6F9D /* Heap.cpp in Sources */,
+				C46EB5C92D7157A200FF6F9D /* GLUtil.cpp in Sources */,
+				C46EB5CA2D7157A200FF6F9D /* FourBitArray.cpp in Sources */,
+				C46EB5CB2D7157A200FF6F9D /* CocoaHOG.cpp in Sources */,
+				C46EB5CC2D7157A200FF6F9D /* Graph.cpp in Sources */,
+				C46EB5CD2D7157A200FF6F9D /* OpenClosedList.cpp in Sources */,
+				C46EB5CE2D7157A200FF6F9D /* MinBloom.cpp in Sources */,
+				C46EB5CF2D7157A200FF6F9D /* JPS.cpp in Sources */,
+				C46EB5D02D7157A200FF6F9D /* PermutationPuzzleEnvironment.cpp in Sources */,
+				C46EB5D12D7157A200FF6F9D /* Perceptron.cpp in Sources */,
+				C46EB5D22D7157A200FF6F9D /* LinearRegression.cpp in Sources */,
+				C46EB5D32D7157A200FF6F9D /* RC.cpp in Sources */,
+				C46EB5D42D7157A200FF6F9D /* PancakeInstances.cpp in Sources */,
+				C46EB5D52D7157A200FF6F9D /* NaryTree.cpp in Sources */,
+				C46EB5D62D7157A200FF6F9D /* SwapEndian.cpp in Sources */,
+				C46EB5D72D7157A200FF6F9D /* ConfigEnvironment.cpp in Sources */,
+				C46EB5D82D7157A200FF6F9D /* gl.cpp in Sources */,
+				C46EB5D92D7157A200FF6F9D /* Map2DConstrainedEnvironment.cpp in Sources */,
+				C46EB5DA2D7157A200FF6F9D /* Map3DGrid.cpp in Sources */,
+				C46EB5DB2D7157A200FF6F9D /* MountainCar.cpp in Sources */,
+				C46EB5DC2D7157A200FF6F9D /* BitMap.cpp in Sources */,
+				C46EB5DD2D7157A200FF6F9D /* StringUtils.cpp in Sources */,
+				C46EB5DE2D7157A200FF6F9D /* RubiksCubeEdges.cpp in Sources */,
+				C46EB5DF2D7157A200FF6F9D /* Map2DEnvironment.cpp in Sources */,
+				C46EB5E02D7157A200FF6F9D /* SequenceAlignment.cpp in Sources */,
+				C46EB5E12D7157A200FF6F9D /* OldSearchEnvironment.cpp in Sources */,
+				C46EB5E22D7157A200FF6F9D /* Fling.cpp in Sources */,
+				C46EB5E32D7157A200FF6F9D /* glut.cpp in Sources */,
+				C46EB5E42D7157A200FF6F9D /* NBitArray.cpp in Sources */,
+				C46EB6002D7157E000FF6F9D /* Driver.cpp in Sources */,
+				C46EB5E52D7157A200FF6F9D /* FunctionApproximator.cpp in Sources */,
+				C46EB5E62D7157A200FF6F9D /* CanonicalDijkstra.cpp in Sources */,
+				C46EB5E72D7157A200FF6F9D /* Common.cpp in Sources */,
+				C46EB5E82D7157A200FF6F9D /* AppDelegate.mm in Sources */,
+				C46EB5E92D7157A200FF6F9D /* RHRUnit.cpp in Sources */,
+				C46EB5EB2D7157A200FF6F9D /* GridHeuristics.cpp in Sources */,
+				C46EB5EC2D7157A200FF6F9D /* AStarOpenClosed.cpp in Sources */,
+				C46EB5ED2D7157A200FF6F9D /* Racetrack.cpp in Sources */,
+				C46EB5EE2D7157A200FF6F9D /* CanonicalGraphEnvironment.cpp in Sources */,
+				C46EB5EF2D7157A200FF6F9D /* BurnedPancakePuzzle.cpp in Sources */,
+				C46EB5F02D7157A200FF6F9D /* TextOverlay.cpp in Sources */,
+				C46EB5F12D7157A200FF6F9D /* GenericAStar.cpp in Sources */,
+				C46EB5F22D7157A200FF6F9D /* MonoFont.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -9215,6 +9491,40 @@
 			};
 			name = Release;
 		};
+		C46EB5F92D7157A200FF6F9D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_SHADOW = YES;
+				INFOPLIST_FILE = "AStarIDA copy2-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				OTHER_CFLAGS = "-DNO_OPENGL";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ns-software.hog2-mac-native-demos";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		C46EB5FA2D7157A200FF6F9D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_SHADOW = YES;
+				INFOPLIST_FILE = "AStarIDA copy2-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				OTHER_CFLAGS = "-DNO_OPENGL";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ns-software.hog2-mac-native-demos";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		C472A4F621E3114B00A1B41E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -10048,6 +10358,15 @@
 			buildConfigurations = (
 				C4667FDC22420DB700E1070F /* Debug */,
 				C4667FDD22420DB700E1070F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C46EB5F82D7157A200FF6F9D /* Build configuration list for PBXNativeTarget "Dynamic Phi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C46EB5F92D7157A200FF6F9D /* Debug */,
+				C46EB5FA2D7157A200FF6F9D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

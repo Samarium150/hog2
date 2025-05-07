@@ -184,6 +184,9 @@ namespace Colors
 	const rgbColor cb3    = {230/255.0f, 159/255.0f, 0};   // orange
 	const rgbColor cb4    = {86/255.0f, 180/255.0f, 233/255.0f};  // sky blue
 	const rgbColor cb5    = {213/255.0f, 94/255.0f, 0};   // vermillion
+	const rgbColor cb_green  = {26/255.0f, 255/255.0f, 26/255.0f};
+	const rgbColor cb_purple  = {75/255.0f,0,146/255.0f};
+
 }
 
 

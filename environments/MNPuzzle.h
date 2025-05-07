@@ -22,6 +22,15 @@
 #include <array>
 #include "LexPermutationPDB.h"
 
+enum puzzleWeight {
+    kDWSTP,
+    kUnitWeight,
+    kSquared,
+    kSquareRoot,
+    kSquarePlusOneRoot,
+    kUnitPlusFrac
+};
+
 template <int width, int height>
 class MNPuzzleState {
 public:
@@ -57,6 +66,8 @@ public:
 
 	unsigned int blank;
 	std::array<int, width*height> puzzle;
+
+	puzzleWeight weight;
 };
 
 namespace std {
@@ -125,20 +136,16 @@ static bool operator!=(const MNPuzzleState<width, height> &l1, const MNPuzzleSta
 	return !(l1 == l2);
 }
 
-enum puzzleWeight {
-	kUnitWeight,
-	kSquared,
-	kSquareRoot,
-	kSquarePlusOneRoot,
-	kUnitPlusFrac
-};
-
 template <int width, int height>
 class MNPuzzle : public PermutationPuzzle::PermutationPuzzleEnvironment<MNPuzzleState<width, height>, slideDir> {
 public:
 	MNPuzzle();
 	MNPuzzle(const std::vector<slideDir> op_order); // used to set action order
 	~MNPuzzle();
+	void SetMiddleState(MNPuzzleState<width, height> &s);
+    void SetPuzzleWeight(int puzzleW);
+    void SetTerrainSize(double s);
+    void SetInputWeight(double w);
 	void SetWeighted(puzzleWeight w) { weight = w; }
 	puzzleWeight GetWeighted() const { return weight; }
 	void GetSuccessors(const MNPuzzleState<width, height> &stateID, std::vector<MNPuzzleState<width, height>> &neighbors) const;
@@ -253,6 +260,15 @@ private:
 	// stores the heuristic value of each tile-position pair indexed by the tile value (0th index is empty)
 	std::vector<std::vector<unsigned> > h_increment;
 	MNPuzzleState<width, height> goal;
+
+	// stores a random state on the WA* solution path, to create a swamp area on the path using heuristic
+    MNPuzzleState<width, height> middleState;
+
+    // stores the terrain size of the swamped area.
+    double swampedTerrainSize;
+
+    // stores the input weight of the search
+    double inputWeight;
 };
 
 template <int width, int height>
@@ -263,6 +279,68 @@ public:
 private:
 	MNPuzzle<width, height> puzzle;
 };
+
+/*
+This function sets the puzzleWeight.
+*/
+template <int width, int height>
+void MNPuzzle<width, height>::SetPuzzleWeight(int puzzleW){
+    switch (puzzleW)
+    {
+    case 0:
+        weight = kUnitWeight;
+        break;
+    case 1:
+        weight = kSquareRoot;
+        break;
+    case 2:
+        weight = kSquared;
+        break;
+    case 3:
+        weight = kUnitPlusFrac;
+        break;
+    case 4:
+        weight = kSquarePlusOneRoot;
+        break;
+    case 5:
+        weight = kDWSTP;
+        break;
+    
+    default:
+        break;
+    }
+}
+
+/*
+sets the middleState to the random state s on the WA* solution path.
+middleState is used to create a swamp area.
+*/
+template <int width, int height>
+void MNPuzzle<width, height>::SetMiddleState(MNPuzzleState<width, height> &s)
+{
+    for(int i=0; i<width*height; i++) middleState.puzzle[i]=s.puzzle[i];
+    middleState.blank = s.blank;
+    middleState.weight = s.weight;
+}
+
+/*
+sets the swampedTerrainSize to be used later.
+*/
+template <int width, int height>
+void MNPuzzle<width, height>::SetTerrainSize(double s)
+{
+    swampedTerrainSize=s;
+}
+
+/*
+sets the input weight of the search.
+*/
+template <int width, int height>
+void MNPuzzle<width, height>::SetInputWeight(double w)
+{
+    inputWeight=w;
+}
+
 
 template <int width, int height>
 class STPLexPDB : public LexPermutationPDB<MNPuzzleState<width, height>, slideDir, MNPuzzle<width, height>, 8> {
@@ -697,6 +775,7 @@ double MNPuzzle<width, height>::HCost(const MNPuzzleState<width, height> &state1
 					double movingTile = state1.puzzle[x + y*width];
 					switch (weight)
 					{
+						case kDWSTP: man_dist += absDist; break;
 						case kUnitWeight: man_dist += absDist; break;
 						case kUnitPlusFrac: man_dist += absDist*(1.0+1.0/(1.0+movingTile)); break;
 						case kSquared: man_dist += absDist*(movingTile)*(movingTile); break;
@@ -785,6 +864,16 @@ double MNPuzzle<width, height>::GCost(const MNPuzzleState<width, height> &a, con
 	// tile itself
 	switch (weight)
 	{
+		case kDWSTP:
+        {
+            double tmpH = HCost(middleState, b);
+            if(flesseq(tmpH, swampedTerrainSize+5) && fgreatereq(tmpH, swampedTerrainSize-5)){
+                return 2.0*inputWeight-1.0;
+            }
+            else{
+                return 1.0;
+            }
+        }
 		case kUnitWeight: return 1;
 		case kUnitPlusFrac: return (1.0+1.0/(1.0+a.puzzle[b.blank]));
 		case kSquared: return a.puzzle[b.blank]*a.puzzle[b.blank];
@@ -830,6 +919,10 @@ double MNPuzzle<width, height>::GCost(const MNPuzzleState<width, height> &s, con
 {
 	switch (weight)
 	{
+		// case kDWSTP: //TODO: DWSTP, we need new state b, to find its h(mid,b).
+        // {
+        //     return -1;
+        // }
 		case kUnitWeight: return 1;
 		case kUnitPlusFrac:
 		{
@@ -879,7 +972,6 @@ double MNPuzzle<width, height>::GCost(const MNPuzzleState<width, height> &s, con
 
 	return 1;
 }
-
 
 template <int width, int height>
 bool MNPuzzle<width, height>::GoalTest(const MNPuzzleState<width, height> &state, const MNPuzzleState<width, height> &theGoal) const

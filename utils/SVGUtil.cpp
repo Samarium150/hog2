@@ -393,18 +393,29 @@ void DrawLineCommand(const Graphics::Display &disp, const std::vector<Graphics::
 			Graphics::point newEnd = o.end*0.975f+o.start*0.025f;
 			Graphics::point p1 = o.end-o.start;
 			Graphics::point p2 = o.start;
+			Graphics::point p3 = o.end;
+
 			p2.z = 1;
 			p2 = p1*p2;
 			p2.normalise();
 			p2 *= (o.end-newEnd).length();
 			if (viewport == -1)
 			{
-				p2 = disp.ViewportToGlobalHOG(p2, drawCommands[x].viewport, width, height);
+				Graphics::point t1 = disp.ViewportToGlobalHOG(newEnd+p2, drawCommands[x].viewport, width, height);
+				Graphics::point t2 = disp.ViewportToGlobalHOG(newEnd-p2, drawCommands[x].viewport, width, height);
+				Graphics::point end = disp.ViewportToGlobalHOG(o.end, drawCommands[x].viewport, width, height);
+
+				s += SVGAddLinePath(PointToSVG(t1.x, width), PointToSVG(t1.y, height));
+				//								PointToSVG(p3.x, width), PointToSVG(p3.y, height));
+				s += SVGAddLinePath(PointToSVG(t2.x, width), PointToSVG(t2.y, height),
+									PointToSVG(end.x, width), PointToSVG(end.y, height));
 			}
-			s += SVGAddLinePath(PointToSVG(newEnd.x+p2.x, width), PointToSVG(newEnd.y+p2.y, height),
-								PointToSVG(o.end.x, width), PointToSVG(o.end.y, height));
-			s += SVGAddLinePath(PointToSVG(newEnd.x-p2.x, width), PointToSVG(newEnd.y-p2.y, height),
-								PointToSVG(o.end.x, width), PointToSVG(o.end.y, height));
+			else {
+				s += SVGAddLinePath(PointToSVG(newEnd.x+p2.x, width), PointToSVG(newEnd.y+p2.y, height));
+				//								PointToSVG(p3.x, width), PointToSVG(p3.y, height));
+				s += SVGAddLinePath(PointToSVG(newEnd.x-p2.x, width), PointToSVG(newEnd.y-p2.y, height),
+									PointToSVG(p3.x, width), PointToSVG(p3.y, height));
+			}
 		}
 		x++;
 	}
