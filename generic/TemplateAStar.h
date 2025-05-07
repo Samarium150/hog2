@@ -733,12 +733,12 @@ void TemplateAStar<state, action,environment,openList>::Draw(Graphics::Display &
 		const auto &data = openClosedList.Lookat(x);
 		if (x == top)
 		{
-			env->SetColor(1.0, 1.0, 0.0, transparency);
+			env->SetColor(1.0, 1.0, 0.0);
 			env->Draw(disp, data.data);
 		}
 		else if ((data.where == kOpenList) && (data.reopened))
 		{
-			env->SetColor(0.0, 0.5, 0.5, transparency);
+			env->SetColor(0.0, 0.5, 0.5);
 			env->Draw(disp, data.data);
 		}
 		else if (data.where == kOpenList)
@@ -748,13 +748,13 @@ void TemplateAStar<state, action,environment,openList>::Draw(Graphics::Display &
 		}
 		else if ((data.where == kClosedList) && (data.reopened))
 		{
-			env->SetColor(0.5, 0.0, 0.5, transparency);
+			env->SetColor(0.5, 0.0, 0.5);
 			env->Draw(disp, data.data);
 		}
 		else if (data.where == kClosedList)
 		{
 			if (data.parentID == x) // Start state
-				env->SetColor(1.0, 0.5, 0.5, transparency);
+				env->SetColor(1.0, 0.5, 0.5);
 			else
 				env->SetColor(rgbColor(1.0,0.35,0.35)); // for better color-blind
 			env->Draw(disp, data.data);
@@ -835,27 +835,27 @@ std::string TemplateAStar<state, action,environment,openList>::SVGDraw() const
 		
 		if (x == top)
 		{
-			env->SetColor(Colors::yellow, transparency);
+			env->SetColor(Colors::yellow);
 			s+=env->SVGDraw(data.data);
 		}
 		else if ((data.where == kOpenList) && (data.reopened))
 		{
-			env->SetColor(0.0, 0.5, 0.5, transparency);
+			env->SetColor(0.0, 0.5, 0.5);
 			s+=env->SVGDraw(data.data);
 		}
 		else if (data.where == kOpenList)
 		{
-			env->SetColor(Colors::green, transparency);
+			env->SetColor(Colors::green);
 			s+=env->SVGDraw(data.data);
 		}
 		else if ((data.where == kClosedList) && (data.reopened))
 		{
-			env->SetColor(0.5, 0.0, 0.5, transparency);
+			env->SetColor(0.5, 0.0, 0.5);
 			s+=env->SVGDraw(data.data);
 		}
 		else if (data.where == kClosedList)
 		{
-			env->SetColor(Colors::gray, transparency); // swapped from red to gray for better color-blind contrast
+			env->SetColor(Colors::gray); // swapped from red to gray for better color-blind contrast
 			s+=env->SVGDraw(data.data);
 		}
 	}
@@ -881,27 +881,27 @@ std::string TemplateAStar<state, action,environment,openList>::SVGDrawDetailed()
 		
 //		if (x == top)
 //		{
-//			env->SetColor(1.0, 1.0, 0.0, transparency);
+//			env->SetColor(1.0, 1.0, 0.0);
 //			s+=env->SVGDraw(data.data);
 //		}
 //		else if ((data.where == kOpenList) && (data.reopened))
 //		{
-//			env->SetColor(0.0, 0.5, 0.5, transparency);
+//			env->SetColor(0.0, 0.5, 0.5);
 //			s+=env->SVGDraw(data.data);
 //		}
 //		else if (data.where == kOpenList)
 //		{
-//			env->SetColor(0.0, 1.0, 0.0, transparency);
+//			env->SetColor(0.0, 1.0, 0.0);
 //			s+=env->SVGDraw(data.data);
 //		}
 //		else if ((data.where == kClosedList) && (data.reopened))
 //		{
-//			env->SetColor(0.5, 0.0, 0.5, transparency);
+//			env->SetColor(0.5, 0.0, 0.5);
 //			s+=env->SVGDraw(data.data);
 //		}
 //		else if (data.where == kClosedList)
 //		{
-//			env->SetColor(1.0, 0.0, 0.0, transparency);
+//			env->SetColor(1.0, 0.0, 0.0);
 //			s+=env->SVGDraw(data.data);
 //		}
 		env->SetColor(0.0, 0.0, 0.0);
