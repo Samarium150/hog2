@@ -60,4 +60,4 @@ endif
 default : all
 
 SRC_CPP = \
-	papers/DSDWA/Driver.cpp \
+	papers/DSWA/Driver.cpp \
