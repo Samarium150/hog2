@@ -16,6 +16,7 @@
 using namespace Graphics;
 
 MapEnvironment::MapEnvironment(Map *_m, bool useOccupancy)
+:TerrainCosts{3, 3, 3, 3}
 {
 	drawParams = kNoOptions;
 	DIAGONAL_COST = ROOT_TWO;
