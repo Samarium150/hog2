@@ -753,7 +753,7 @@ public:
     bool GoalTest(const WitnessState<width, height> &node, const WitnessState<width, height> &goal) const;
 
     bool GoalTest(const WitnessState<width, height> &node) const;
-    
+
     bool GoalTestWithTracking(const WitnessState<width, height> &node) const;
 
     bool RegionTest(const WitnessState<width, height> &node) const;
@@ -2615,7 +2615,9 @@ bool Witness<width, height>::RegionTest(const WitnessState<width, height> &node)
                     {
                         auto [xx, yy] = GetRegionXYFromIndex(rr);
                         const auto &[type, _, color] = regionConstraints[xx][yy];
-                        if (type != kNoRegionConstraint && constraint.color == color)
+                        if (type != kNoRegionConstraint &&
+                            type != kUnknownRegionConstraint &&
+                            constraint.color == color)
                         {
                             if (++count > 2)
                                 return false;
@@ -2659,7 +2661,7 @@ bool Witness<width, height>::RegionTest(const WitnessState<width, height> &node)
             bool hasNegations = false;
             tetrisBlocksInRegion.resize(0);
             uint64_t board = 0;
-            for (auto r: *region)
+            for (const auto& r: *region)
             {
                 auto [x, y] = static_cast<std::pair<uint64_t, uint64_t>>(GetRegionXYFromIndex(r));
 
@@ -2741,7 +2743,9 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
                             continue;
                         auto [xx, yy] = GetRegionXYFromIndex(rr);
                         const auto &[type, _, color] = regionConstraints[xx][yy];
-                        if (type != kNoRegionConstraint && constraint.color == color)
+                        if (type != kNoRegionConstraint &&
+                            type != kUnknownRegionConstraint &&
+                            constraint.color == color)
                         {
                             if (++count > 2)
                                 return false;
@@ -2785,7 +2789,9 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
                     continue;
                 auto [xx, yy] = GetRegionXYFromIndex(rr);
                 const auto &[type, _, color] = regionConstraints[xx][yy];
-                if (type != kNoRegionConstraint && constraint.color == color)
+                if (type != kNoRegionConstraint &&
+                    type != kUnknownRegionConstraint &&
+                    constraint.color == color)
                 {
                     if (++count > 2)
                         return false;
@@ -3026,6 +3032,7 @@ bool Witness<width, height>::GoalTest(const WitnessState<width, height> &node) c
                         int yy = GetRegionFromY(r);
 
                         if (regionConstraints[xx][yy].type != kNoRegionConstraint &&
+                            regionConstraints[xx][yy].type != kUnknownRegionConstraint &&
                             regionConstraints[x][y].color == regionConstraints[xx][yy].color)
                         {
                             count++;
