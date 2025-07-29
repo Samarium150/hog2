@@ -8,12 +8,13 @@
 #include "TemplateAStar.h"
 #include "FileUtil.h"
 #include "SVGUtil.h"
-const int numDisks = 16;
+const int numDisks = 12;
 
 void SaveSVG(Graphics::Display &d, int port);
 
 TOH<numDisks> toh;
 TOHState<numDisks> s, g;
+
 
 IDAStar<TOHState<numDisks>, TOHMove> ida;
 std::vector<TOHMove> solution;
@@ -43,8 +44,14 @@ TOHPDB<numDisks-6, numDisks, 6> pdb4(&absToh1, goal);
 
 Heuristic<TOHState<numDisks>> h;
 
+int selectedPeg = -1; //idk
+int lastClosestPeg = -1; //idk
 bool recording = false;
-bool running = true;
+bool animating = false;
+bool dragging = false;
+
+bool animationVersion2 = true;
+float px;
 
 int main(int argc, char* argv[])
 {
@@ -63,6 +70,7 @@ void InstallHandlers()
 	InstallKeyboardHandler(MyDisplayHandler, "Record", "Record a movie", kAnyModifier, 'r');
 	InstallKeyboardHandler(MyDisplayHandler, "Reset View", "Reset camera to initial view", kAnyModifier, '|');
 	InstallKeyboardHandler(MyDisplayHandler, "Reset state", "Choose a new random initial state", kAnyModifier, 's');
+    InstallKeyboardHandler(MyDisplayHandler, "User", "Let user play", kAnyModifier, 'u');
 
 	InstallCommandLineHandler(MyCLHandler, "-run", "-run", "Runs pre-set experiments.");
 	
@@ -76,8 +84,8 @@ void SolveProblem(bool reset = true)
 	Timer t;
 	if (reset)
 	{
-		s.StandardStart();
-		g.Reset();
+		s.StandardStart(); //the start state
+		g.Reset();         //the solution state
 //		g.counts[2]++;
 //		g.counts[3]--;
 //		g.disks[2][0] = 4;
@@ -182,40 +190,62 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 	}
 }
 
-double v = 1;
+float v = 0.0;
 uint64_t counter = 0;
-const int animationFrames = 20;
+const int animationFrames = 80;
 void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 {
 //	cameraMoveTo(0, -1, -12.5, 0.05);
 //	cameraLookAt(0, 0, 0, 0.2);
 	auto &display = GetContext(windowID)->display;
 	display.FillRect({-1, -1, 1, 1}, Colors::black);
+//    const auto smooth = [](float a, float b, float mix)
+//        { float tmp1 = mix*mix*mix; float tmp2 = (1-mix)*(1-mix)*(1-mix);
+//            mix = (1-mix)*tmp1+mix*(1-tmp2); return (1-mix)*a+mix*b;
+//        };
+
 	toh.Draw(display);
 
-	if (solution.size() != 0 && running)
+   
+	if (solution.size() != 0 && animating)
 	{
-		toh.GetNextState(s, solution[0], g);
-		toh.Draw(display, s);
-		SaveSVG(display, 0);
-//		toh.OpenGLDraw(s, g, float(counter)/animationFrames);
-//		counter = (counter+1)%animationFrames;
-//		if (counter == 0)
-		{
-			toh.ApplyAction(s, solution[0]);
-			solution.erase(solution.begin());
-//			if (solution.size() == 0)
-//				counter = 10;//recording = false;
-		}
+        if (counter == 0) {
+            s = g;
+            toh.GetNextState(s, solution[0], g); //g is the next state
+            solution.erase(solution.begin());
+        }
+        
+//        float test = float(counter)/animationFrames;
+       
+        toh.Draw(display, s, g, float(counter)/animationFrames);
+        counter = (counter+1)%animationFrames;
+      
 	}
+    else if (solution.size() == 0 && animating) // is that "&& animating" part redundant?
+    {
+        toh.Draw(display, g); // after showing solution
+    }
+    else if (dragging && !animationVersion2)
+    {
+        
+        counter = (counter+1)%animationFrames;
+        v = float(counter)/animationFrames;
+        toh.Draw(display, s, g, v);
+    }
+    else if (dragging && animationVersion2)
+    {
+        // have the disk teleport to the top
+        // pass mouse position into Draw and have the disk follow pos.x
+        // once Released, have the disk teleport to the bottom
+        
+        // now it needs to show the vertical animation at the beginning and at the end
+        // while it's in the air, it needs to show an outline of where it's gonna drop down to/on which peg
+        // we could make the peg being hovered over a diff color, and it could be animated to do a glow-fade sort of color thing
+        
+        toh.Draw2(display, s, selectedPeg, px);
+    }
 	else {
-//		if (solution.size() == 0)
-//		{
-//			counter--;
-//			if (counter == 0)
-//				recording = false;
-//		}
-		toh.Draw(display, s);
+		toh.Draw(display, s); //before showing solution, or when user is playing
 	}
 	
 	if (recording && viewport == GetNumPorts(windowID)-1)
@@ -242,17 +272,16 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 	{
 		case '|': //resetCamera(); break;
 		case 'r': recording = !recording; break;
+        case 'u': // y no work?
+            std::cout<<"u";
+            g = s;
+            break;
 		case 's':
 		{
-			//toh.GetStateFromHash(random()%toh.GetNumStates(s), s);
-//			g.Reset();
+            std::cout<<"s";
 			SolveProblem(true);
-//			ida.GetPath(&toh, s, g, solution);
-//			for (auto &m : solution)
-//			{
-//				std::cout << m << " ";
-//			}
-//			std::cout << "\n";
+            g = s;
+            animating = true;
 		}
 			break;
 		case 'v': // value range compression
@@ -375,11 +404,31 @@ Heuristic<TOHState<numDisks>> *BuildPDB(const TOHState<numDisks> &goal)
 	return h;
 }
 
-bool MyClickHandler(unsigned long , int, int, point3d , tButtonType , tMouseEventType )
+bool MyClickHandler(unsigned long , int, int, point3d p, tButtonType , tMouseEventType e)
 {
-	return false;
+    if (e == kMouseDown)
+    {
+        v = 0; // ? when u click and hold on a peg, sometimes the disk animation jumps and starts towards the end of v? or is it idk
+        toh.Click(s, selectedPeg, p.x);
+    }
+    if (e == kMouseDrag)
+    {
+//        dragging = toh.Drag(s, selectedPeg, p, g, v, lastClosestPeg); // reminder this is called per frame (drag drag drag drag...)
+//        counter = v * 30.0f;
+        px = p.x;
+        dragging = toh.Drag(s, selectedPeg);
+        
+    }
+    if (e == kMouseUp)
+    {
+        dragging = false;
+        toh.Release(s, selectedPeg, p, g);
+        
+        s = g; // if g = s isn't done at the start, this makes entire stack teleport to solution
+    }
+    
+	return true;
 }
-
 
 void SaveSVG(Graphics::Display &d, int port)
 {

@@ -172,8 +172,8 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 		mnp.Draw(display, curr);
 	}
 	else {
-		mnp.Draw(display, curr, last, smooth(0, 1, tween));
-//		mnp.Draw(display, curr, last, tween);
+//		mnp.Draw(display, curr, last, smooth(0, 1, tween));
+		mnp.Draw(display, curr, last, tween);
 	}
 
 	if (tween <= 1+rate)

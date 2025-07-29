@@ -1217,11 +1217,14 @@ void MNPuzzle<width, height>::Draw(Graphics::Display &display, const MNPuzzleSta
 					default: assert(!"action not found");
 				}
 				sprintf(txt, "%d", s1.puzzle[x+y*width]);
+                
+                
 				Graphics::rect bound(p1.x*v+p2.x*(1-v), p1.y*v+p2.y*(1-v), p1.x*v+p2.x*(1-v)+squareSize, p1.y*v+p2.y*(1-v)+squareSize);
-				display.FillRect(bound, Colors::white);
-				display.FrameRect(bound, Colors::darkblue, 0.01f*squareSize);
+//                std::cout << p1.x;
+				display.FillRect(bound, Colors::white); //keeps the animated tile white while it's moving
+				display.FrameRect(bound, Colors::darkblue, 0.01f*squareSize); //keeps the dark blue outer border around the tile while it's moving
 				bound = bound.inset(0.02f*squareSize);
-				display.FrameRect(bound, Colors::lightgray, 0.02f*squareSize);
+				display.FrameRect(bound, Colors::lightgray, 0.02f*squareSize); //keeps the light gray inner border around the tile while it's moving
 
 				if (s1.puzzle[x+y*width] > 0)
 				{
