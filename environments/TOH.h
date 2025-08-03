@@ -159,16 +159,18 @@ public:
 	void OpenGLDraw(const TOHState<disks>&, const TOHMove&) const;
 
 	void Draw(Graphics::Display &display) const; //draws the base and lines
-	void Draw(Graphics::Display &display, const TOHState<disks> &s) const; //draws the disks
+	void Draw(Graphics::Display &display, const TOHState<disks> &s) const; //draws the disks when not animating
 	void Draw(Graphics::Display &display, const TOHState<disks>&, TOHMove&) const;
 	void Draw(Graphics::Display &display, const TOHState<disks> &l1, const TOHState<disks> &l2, float v) const;
-    void Draw2(Graphics::Display &display, const TOHState<disks> &l1, int startPeg, float px) const;
+    void Draw(Graphics::Display &display, const TOHState<disks> &l1, int selectedPeg, int nextPeg, float v) const;
+    void Draw(Graphics::Display &display, const TOHState<disks> &l1, int startPeg, float px);
     
-    bool Click(const TOHState<disks> &currState, int &peg, float px);
+    bool Click(int &peg, float px);
+    int getHoveredPeg(const float &px);
     int getClosestPeg(const TOHState<disks> &currState, int peg, point3d loc); //idk
-    bool Drag(const TOHState<disks> &currState, int peg, point3d loc, TOHState<disks> &nextState, float &tween, int lastClosestPeg);
+    bool Drag(const TOHState<disks> &currState, int peg, point3d loc, TOHState<disks> &nextState, float &tween, int &lastClosestPeg);
     bool Drag(const TOHState<disks> &currState, int peg);
-    bool Release(const TOHState<disks> &currState, int &peg, point3d loc, TOHState<disks> &nextState);
+    bool Release(const TOHState<disks> &currState, int &peg, point3d loc, TOHState<disks> &nextState, int &userMoveCount);
 	
 	bool pruneActions;
 protected:
@@ -432,53 +434,37 @@ void TOH<disks>::OpenGLDraw(const TOHState<disks>&, const TOHMove&) const
 }
 
 template <int disks>
-void TOH<disks>::Draw(Graphics::Display &display) const // pegs and base
-{
+void TOH<disks>::Draw(Graphics::Display &display) const
+{ // Draw for pegs and base
 	Graphics::rect r1(-0.75-0.01, 0, -0.75+0.01, 0.9); //peg
 
-	display.FillRect(r1, Colors::lightgray);
-	r1.left += 0.5; r1.right += 0.5; //adds margin of space to the left and right
-	display.FillRect(r1, Colors::lightgray);
+	display.FillRect(r1, Colors::gray);
+    
+	r1.left += 0.5; r1.right += 0.5; // adds margin of space to the left and right
+	display.FillRect(r1, Colors::gray);
 	r1.left += 0.5; r1.right += 0.5;
-	display.FillRect(r1, Colors::lightgray);
+	display.FillRect(r1, Colors::gray);
 	r1.left += 0.5; r1.right += 0.5;
-	display.FillRect(r1, Colors::lightgray);
+	display.FillRect(r1, Colors::gray);
 	r1.left += 0.5; r1.right += 0.5;
     
-//	display.FillRect({-1, 0, 1, 0.12}, {0.6, 0.4, 0.2});  <--- the og line
-    display.FillRect({-1, 0.8, 1, 0.92}, {0.6, 0.4, 0.2}); //brown base
-
-//	glColor3f(0.5, 0.5, 0.5);
-//	DrawCylinder(-0.75, 0, 0, 0, 0.01, 0.8);
-//	DrawCylinder(-0.25, 0, 0, 0, 0.01, 0.8);
-//	DrawCylinder( 0.25, 0, 0, 0, 0.01, 0.8);
-//	DrawCylinder( 0.75, 0, 0, 0, 0.01, 0.8);
-//	glColor3f(0.6, 0.4, 0.2);
-//	glPushMatrix();
-//	glScalef(1.0, 0.05, 0.25);
-//	DrawBox(0, 0.4/0.05+1, 0, 1.0);
-//	glPopMatrix();
-	//	DrawBox(0, 0, 0, 0.5);
+    display.FillRect({-1, 0.8, 1, 0.92}, {0.6, 0.4, 0.2}); // brown base
 }
 
 template <int disks>
 void TOH<disks>::Draw(Graphics::Display &display, const TOHState<disks> &s) const
-{
-	glColor3f(0.0, 0.0, 1.0);
+{ // Draw for still state
 	double offset[4] = {-0.75, -0.25, 0.25, 0.75};
 	for (int x = 0; x < 4; x++)
 	{
 		for (int y = 0; y < s.GetDiskCountOnPeg(x); y++)
 		{
 			int which = s.GetDiskOnPeg(x, y);
-			//glColor3f(0.0, 1.0-float(which)/float(disks), 1.0);
 			rgbColor color(0.0, 1.0-float(which)/float(disks), 1.0);
 			Graphics::rect r(offset[x]-0.04-0.2*which/float(disks),
-							 0/*-0.4/(1+float(disks))*/-y*0.8/(1+float(disks))-0.8/(1+float(disks))+0.8,
+							 -y*0.8/(1+float(disks))-0.8/(1+float(disks))+0.8,
 							 offset[x]+0.04+0.2*which/float(disks),
-							 0/*-0.4/(1+float(disks))*/-y*0.8/(1+float(disks))+0.8);
-//			DrawCylinder(offset[x], 0.4-0.4/(1+float(disks))-y*0.8/(1+float(disks)), 0,
-//						 0.02, 0.04+0.2*which/float(disks), 0.8/(1+float(disks)));
+							 -y*0.8/(1+float(disks))+0.8);
 
 			display.FillRect(r, color);
 		}
@@ -487,15 +473,17 @@ void TOH<disks>::Draw(Graphics::Display &display, const TOHState<disks> &s) cons
 
 template <int disks>
 void TOH<disks>::Draw(Graphics::Display &display, const TOHState<disks> &s, const TOHState<disks> &s2, float v) const
-{
+{ // Draw for animating in animationVersion1
     TOHMove m = this->GetAction(s, s2);
+    
+    // when s == s2, m.source is peg 0 for some reason, and the disk on peg 0 is animated going up and back down instead of the disk on the correct source peg
+    // also idk how to look at the code for GetAction
+    
     int animatingDisk = s.GetSmallestDiskOnPeg(m.source);
-    int initialHeight = s.GetDiskCountOnPeg(m.source)-1;
+//    std::cout << "animatingDisk: " << animatingDisk << "\n";
     int finalHeight = s.GetDiskCountOnPeg(m.dest);
     
-    //	glColor3f(0.0, 0.0, 1.0); //everything drawn will be in this color (blue)
-    float offset[4] = {-0.75, -0.25, 0.25, 0.75};
-    // v = 0;
+    float offset[4] = {-0.75, -0.25, 0.25, 0.75}; // x-positions of the pegs
     for (int x = 0; x < 4; x++)
     {
         for (int y = 0; y < s.GetDiskCountOnPeg(x); y++)
@@ -530,19 +518,8 @@ void TOH<disks>::Draw(Graphics::Display &display, const TOHState<disks> &s, cons
                     r2 = {static_cast<float>(offset[targetPeg]-halfwidth), static_cast<float>(0.8-0.8/(1+float(disks))-finalHeight*0.8/(1+float(disks))), static_cast<float>(offset[targetPeg]+halfwidth), static_cast<float>(0.8-finalHeight*0.8/(1+float(disks)))};
                 }
                 
-                r1.lerp(r2, v);
+                r1.lerp(r2, v); // draw a rectangle v of the way thru the line btwn r1 and r2. (ex: v is 0.2, so a rectangle is drawn one fifth of the way from r1 to r2)
                 display.FillRect(r1, Colors::purple);
-//              ^  glColor3f(0.0, 1.0-float(animatingDisk)/float(disks), 1.0);
-
-
-//                float x1 = offset[m.source];
-//                float x2 = offset[m.dest];
-//                
-//                float y1 = 1 - initialHeight*0.8/(1+float(disks))-0.8/(1+float(disks))+0.8;
-//                float y2 = 1 - finalHeight*0.8/(1+float(disks))-0.8/(1+float(disks))+0.8;
-//                
-//                Graphics::rect bound(x1*(1-v)+x2*v - halfwidth, y1*(1-v)+y2*v, x1*(1-v)+x2*v + halfwidth, y1*(1-v)+y2*v+0.8/(1+float(disks)));
-//                display.FillRect(bound, Colors::white);
             }
         }
     }
@@ -551,18 +528,68 @@ void TOH<disks>::Draw(Graphics::Display &display, const TOHState<disks> &s, cons
 }
 
 template <int disks>
-void TOH<disks>::Draw2(Graphics::Display &display, const TOHState<disks> &s, int startPeg, float px) const
-{
+void TOH<disks>::Draw(Graphics::Display &display, const TOHState<disks> &s, int selectedPeg, int nextPeg, float v) const
+{ // Draw for up and down animation for animationVersion2
+    int animatingDisk = s.GetSmallestDiskOnPeg(selectedPeg);
+//    std::cout << "animatingDisk: " << animatingDisk << "\n";
+    int finalHeight = s.GetDiskCountOnPeg(nextPeg);
     
-    int animatingDisk = s.GetSmallestDiskOnPeg(startPeg);
-//    std::cout << "smallest disk: " << animatingDisk << "\n";
-    
-//    int hoveredPeg = -1;
-//    Click(s, hoveredPeg, px);
-//
     float offset[4] = {-0.75, -0.25, 0.25, 0.75};
-//    Graphics::rect p(offset[hoveredPeg]-0.01, 0, offset[hoveredPeg]+0.01, 0.9);
-//    display.FillRect(p, Colors::purple);
+    for (int x = 0; x < 4; x++)
+    {
+        for (int y = 0; y < s.GetDiskCountOnPeg(x); y++)
+        {
+            int which = s.GetDiskOnPeg(x, y);
+            float halfwidth = 0.04+0.2*which/float(disks);
+            if (which != animatingDisk) //first, draws every disk except for the animating one
+            {
+                display.FillRect({static_cast<float>(offset[x]-halfwidth), static_cast<float>(0.8-0.8/(1+float(disks))-y*0.8/(1+float(disks))), static_cast<float>(offset[x]+halfwidth), static_cast<float>(0.8-y*0.8/(1+float(disks)))}, {0.0, static_cast<float>(1.0-float(which)/float(disks)), 1.0});
+            }
+            else {
+                Graphics::rect r1;
+                Graphics::rect r2;
+                
+                if (v <= 0.333) { // up for the first third
+                    v *= 3;
+                    r1 = {static_cast<float>(offset[x]-halfwidth), static_cast<float>(0.8-0.8/(1+float(disks))-y*0.8/(1+float(disks))), static_cast<float>(offset[x]+halfwidth), static_cast<float>(0.8-y*0.8/(1+float(disks)))};
+                    
+                    r2 = {static_cast<float>(offset[x]-halfwidth), static_cast<float>(-0.5-0.8/(1+float(disks))), static_cast<float>(offset[x]+halfwidth), static_cast<float>(-0.5)};
+                }
+                else { // down for the last third. the second third is animated w Draw(display, s, startPeg, px)
+                    v = (v - 0.666) * 3;
+                    r1 = {static_cast<float>(offset[nextPeg]-halfwidth), static_cast<float>(-0.5-0.8/(1+float(disks))), static_cast<float>(offset[nextPeg]+halfwidth), static_cast<float>(-0.5)};
+                    
+                    r2 = {static_cast<float>(offset[nextPeg]-halfwidth), static_cast<float>(0.8-0.8/(1+float(disks))-finalHeight*0.8/(1+float(disks))), static_cast<float>(offset[nextPeg]+halfwidth), static_cast<float>(0.8-finalHeight*0.8/(1+float(disks)))};
+                }
+                
+                r1.lerp(r2, v);
+                display.FillRect(r1, Colors::purple);
+            }
+        }
+    }
+
+   
+}
+
+template <int disks>
+void TOH<disks>::Draw(Graphics::Display &display, const TOHState<disks> &s, int startPeg, float px)
+{ // Draw for horizontal animation in animationVersion2
+    int animatingDisk = s.GetSmallestDiskOnPeg(startPeg);
+    
+    float offset[4] = {-0.75, -0.25, 0.25, 0.75}; // the x-positions for each peg
+    
+    // if the mouse is hovering over a peg, highlight that peg
+    int hoveredPeg = getHoveredPeg(px);
+    if (hoveredPeg != -1)
+    {
+        Graphics::rect p(offset[hoveredPeg]-0.01, 0, offset[hoveredPeg]+0.01, 0.8);
+        
+        if (s.GetSmallestDiskOnPeg(startPeg) > s.GetSmallestDiskOnPeg(hoveredPeg)) // if it's an invalid peg, highlight it in red
+            display.FillRect(p, Colors::red);
+        else // if it's a valid peg, highlight it in purple
+            display.FillRect(p, Colors::purple);
+        
+    }
 
     for (int x = 0; x < 4; x++)
     {
@@ -576,7 +603,7 @@ void TOH<disks>::Draw2(Graphics::Display &display, const TOHState<disks> &s, int
                 display.FillRect({static_cast<float>(offset[x]-halfwidth), static_cast<float>(0.8-0.8/(1+float(disks))-y*0.8/(1+float(disks))), static_cast<float>(offset[x]+halfwidth), static_cast<float>(0.8-y*0.8/(1+float(disks)))}, {0.0, static_cast<float>(1.0-float(which)/float(disks)), 1.0});
             }
             else
-            {
+            { // draws the animating disk
 //                std::cout << "\n here!! \n";
                 Graphics::rect r1 = {static_cast<float>(px-halfwidth), static_cast<float>(-0.5-0.8/(1+float(disks))), static_cast<float>(px+halfwidth), -0.5f};
                 display.FillRect(r1, Colors::purple);
@@ -593,12 +620,20 @@ void TOH<disks>::Draw(Graphics::Display &display, const TOHState<disks>&, TOHMov
 }
 
 template <int disks>
-bool TOH<disks>::Click(const TOHState<disks> &currState, int &peg, float px) // can i delete currState bc i don't think it's being used
+bool TOH<disks>::Click(int &peg, float px) 
 {
-    // clickable area includes outside of the peg
-    peg = -1;
+    peg = getHoveredPeg(px);
     
-    if (-0.75-0.1 <= px && px <= -0.75+0.1)
+//    std::cout << peg;
+    return true;
+}
+
+template <int disks>
+int TOH<disks>::getHoveredPeg(const float &px)
+{
+    int peg = -1;
+    
+    if (-0.75-0.1 <= px && px <= -0.75+0.1) // area accepted as "peg" goes a little beyond peg boundary
     {
         peg = 0;
     }
@@ -615,10 +650,8 @@ bool TOH<disks>::Click(const TOHState<disks> &currState, int &peg, float px) // 
         peg = 3;
     }
     
-    std::cout << peg;
     return peg;
 }
-
 template <int disks>
 int TOH<disks>::getClosestPeg(const TOHState<disks> &currState, int peg, point3d loc)
 {
@@ -629,7 +662,7 @@ int TOH<disks>::getClosestPeg(const TOHState<disks> &currState, int peg, point3d
     for (int p = 0; p < 4; p++)
     {
         if (currState.GetSmallestDiskOnPeg(peg) < currState.GetSmallestDiskOnPeg(p) && abs(loc.x - px[p]) < distance)
-        { // when there r 2 valid pegs both the same distance away from the mouse, it just stays at the leftmost one
+        { // if it's a valid peg and if it's closer than the current closestPeg is. when there r 2 valid pegs both the same distance away from the mouse, currentPeg just stays at the leftmost one
             distance = abs(loc.x - px[p]);
 //            std::cout << loc.x << ", " << abs(loc.x - px[p]) << ", " << distance << "\n";
             closestPeg = p;
@@ -644,12 +677,9 @@ int TOH<disks>::getClosestPeg(const TOHState<disks> &currState, int peg, point3d
     return closestPeg;
 }
 
-
-// have it acc follow the mouse
-// show where disk will go when u let go
 template <int disks>
-bool TOH<disks>::Drag(const TOHState<disks> &currState, int peg, point3d loc, TOHState<disks> &nextState, float &tween, int lastClosestPeg)
-{
+bool TOH<disks>::Drag(const TOHState<disks> &currState, int peg, point3d loc, TOHState<disks> &nextState, float &tween, int &lastClosestPeg) // i put & next to lastClosestPeg and haven't tested if it's ok yet
+{ // Drag for animationVersion1
     if (peg == -1) // if in empty space
         return false;
     
@@ -666,12 +696,10 @@ bool TOH<disks>::Drag(const TOHState<disks> &currState, int peg, point3d loc, TO
     
     if (tween == 0)
     {
-        nextState = currState; // is this resetting nextState and reupdating it w a possibly diff closestPeg thing alr? bc it feels kinda inefficient but idk
+        nextState = currState;
         TOHMove m = TOHMove(peg, closestPeg);
         ApplyAction(nextState, m);
     }
-    
-    // mbe should pause the animation at the x-cord of the cursor? (so that we don't show a move that hasn't been made yet)
     
     return true;
 }
@@ -679,7 +707,7 @@ bool TOH<disks>::Drag(const TOHState<disks> &currState, int peg, point3d loc, TO
 
 template <int disks>
 bool TOH<disks>::Drag(const TOHState<disks> &currState, int peg)
-{
+{ // Drag for animationVersion2
     if (peg == -1) // if in empty space
         return false;
     
@@ -690,28 +718,30 @@ bool TOH<disks>::Drag(const TOHState<disks> &currState, int peg)
 }
 
 template <int disks>
-bool TOH<disks>::Release(const TOHState<disks> &currState, int &peg, point3d loc, TOHState<disks> &nextState)
+bool TOH<disks>::Release(const TOHState<disks> &currState, int &peg, point3d loc, TOHState<disks> &nextState, int &userMoveCount)
 {
     if (peg == -1) // no disk to release
         return false;
     
-    int nextPeg = -1;
-    
-    Click(currState, nextPeg, loc.x);
+    int nextPeg = getHoveredPeg(loc.x);
     
 //    std::cout << nextPeg;
     
     nextState = currState;
     
+    if (peg == nextPeg)
+        return true;
+        
     if (nextPeg != -1 && currState.GetSmallestDiskOnPeg(peg) < currState.GetSmallestDiskOnPeg(nextPeg)) // if the next peg is actually a valid next peg
     {
         TOHMove m = TOHMove(peg, nextPeg);
         ApplyAction(nextState, m);
+        userMoveCount++;
+        
+        return true;
     }
-
-    peg = -1;
     
-    return true;
+    return false;
 }
 
 

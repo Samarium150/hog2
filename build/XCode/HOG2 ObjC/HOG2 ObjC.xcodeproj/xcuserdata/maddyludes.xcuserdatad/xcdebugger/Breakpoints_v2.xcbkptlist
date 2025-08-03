@@ -14,57 +14,9 @@
             filePath = "../../../apps/TOH/Driver.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "206"
-            endingLineNumber = "206"
+            startingLineNumber = "204"
+            endingLineNumber = "204"
             landmarkName = "MyFrameHandler(windowID, viewport)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "316F60D1-C7AB-4D55-928B-A7CFCD1AF185"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../../apps/TOH/Driver.cpp"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "219"
-            endingLineNumber = "219"
-            landmarkName = "MyFrameHandler(windowID, viewport)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "331957BA-290C-4AC0-9EA1-0191DF5D984A"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../../apps/TOH/Driver.cpp"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "230"
-            endingLineNumber = "230"
-            landmarkName = "MyFrameHandler(windowID, viewport)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "117D6AED-0DE6-424B-8941-9A783B376B14"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../../apps/TOH/Driver.cpp"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "426"
-            endingLineNumber = "426"
-            landmarkName = "MyClickHandler(, p, e)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -78,8 +30,8 @@
             filePath = "../../../environments/TOH.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "669"
-            endingLineNumber = "669"
+            startingLineNumber = "699"
+            endingLineNumber = "699"
             landmarkName = "Drag(currState, peg, loc, nextState, tween, lastClosestPeg)"
             landmarkType = "9">
          </BreakpointContent>
@@ -94,25 +46,25 @@
             filePath = "../../../environments/TOH.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "580"
-            endingLineNumber = "580"
-            landmarkName = "Draw2(display, s, startPeg, px)"
+            startingLineNumber = "607"
+            endingLineNumber = "607"
+            landmarkName = "Draw(display, s, startPeg, px)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "B42D7139-1D0F-413F-AC8E-C0DE8BC5CE0F"
+            uuid = "F19E85BA-ECA9-4635-902F-7B0E7FD9A59D"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../../../environments/TOH.h"
+            filePath = "../../../apps/TOH/Driver.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "556"
-            endingLineNumber = "556"
-            landmarkName = "Draw2(display, s, startPeg, px)"
+            startingLineNumber = "267"
+            endingLineNumber = "267"
+            landmarkName = "MyFrameHandler(windowID, viewport)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

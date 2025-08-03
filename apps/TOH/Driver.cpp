@@ -49,9 +49,11 @@ int lastClosestPeg = -1; //idk
 bool recording = false;
 bool animating = false;
 bool dragging = false;
+bool releasing = false;
+bool animationVersion2 = false;
+float px; // cursor's x-position
+int userMoveCount = 0;
 
-bool animationVersion2 = true;
-float px;
 
 int main(int argc, char* argv[])
 {
@@ -192,62 +194,80 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 
 float v = 0.0;
 uint64_t counter = 0;
-const int animationFrames = 80;
+const int animationFrames = 15;
 void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 {
 //	cameraMoveTo(0, -1, -12.5, 0.05);
 //	cameraLookAt(0, 0, 0, 0.2);
 	auto &display = GetContext(windowID)->display;
-	display.FillRect({-1, -1, 1, 1}, Colors::black);
-//    const auto smooth = [](float a, float b, float mix)
-//        { float tmp1 = mix*mix*mix; float tmp2 = (1-mix)*(1-mix)*(1-mix);
-//            mix = (1-mix)*tmp1+mix*(1-tmp2); return (1-mix)*a+mix*b;
-//        };
+	display.FillRect({-1, -1, 1, 1}, Colors::white);
 
 	toh.Draw(display);
 
-   
-	if (solution.size() != 0 && animating)
-	{
-        if (counter == 0) {
-            s = g;
-            toh.GetNextState(s, solution[0], g); //g is the next state
-            solution.erase(solution.begin());
-        }
-        
-//        float test = float(counter)/animationFrames;
+   if (animating)
+   { // computer is solving
+       if (v == 0)
+       {
+           s = g; // might it be that g is the final solution, s is set at the final solution, so when getnextstate is called, it doesn't work and it bugs out? idk
+           toh.GetNextState(s, solution[0], g); // g is the next state
+           solution.erase(solution.begin());
+       }
+              
+       toh.Draw(display, s, g, v);
+//       v += 1.0/animationFrames;
        
-        toh.Draw(display, s, g, float(counter)/animationFrames);
-        counter = (counter+1)%animationFrames;
-      
-	}
-    else if (solution.size() == 0 && animating) // is that "&& animating" part redundant?
-    {
-        toh.Draw(display, g); // after showing solution
-    }
+       if (solution.size() == 0 && v >= 1 - 1.0/animationFrames)
+       {
+           s = g;
+           animating = false;
+       }
+   }
     else if (dragging && !animationVersion2)
-    {
-        
-        counter = (counter+1)%animationFrames;
-        v = float(counter)/animationFrames;
+    { // user is playing, in animationVersion1
+//        counter = (counter+1)%animationFrames;
+//        v = float(counter)/animationFrames;
+//        v += 1.0/animationFrames;
         toh.Draw(display, s, g, v);
     }
     else if (dragging && animationVersion2)
-    {
-        // have the disk teleport to the top
-        // pass mouse position into Draw and have the disk follow pos.x
-        // once Released, have the disk teleport to the bottom
+    { // user is playing, dragging a disk in animationVersion2
+                
+        if (v < 0.333) // disk animates up
+        {
+            toh.Draw(display, s, selectedPeg, 0, v); // disk on selectedPeg starts going to peg 0 (it doesn't matter if it's a valid move or not because it won't be completed anyways)
+//            v += 1.0/animationFrames;
+        }
+        else {
+            g = s;
+            toh.Draw(display, s, selectedPeg, px); // animation depends on px (cursor x-pos) instead of v (tween)
+        }
         
-        // now it needs to show the vertical animation at the beginning and at the end
-        // while it's in the air, it needs to show an outline of where it's gonna drop down to/on which peg
-        // we could make the peg being hovered over a diff color, and it could be animated to do a glow-fade sort of color thing
+    }
+    else if (releasing && animationVersion2)
+    { // user is playing, releasing a disk in animationVersion2
+        int nextPeg = toh.getHoveredPeg(px);
+        toh.Draw(display, s, selectedPeg, nextPeg, v);
         
-        toh.Draw2(display, s, selectedPeg, px);
+//        v += 1.0/animationFrames;
+        if (v >= 1) // once we're all the way thru v, reset everything
+        {
+//            v = 0;
+            releasing = false;
+            s = g; // the old next state is now the current state
+            selectedPeg = -1;
+        }
     }
 	else {
-		toh.Draw(display, s); //before showing solution, or when user is playing
+		toh.Draw(display, s);
 	}
 	
+    
+    v += 1.0/animationFrames;
+    
+    if (v >= 1)
+        v = 0;
+    
+    
 	if (recording && viewport == GetNumPorts(windowID)-1)
 	{
 //		static int cnt = 0;
@@ -272,7 +292,7 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 	{
 		case '|': //resetCamera(); break;
 		case 'r': recording = !recording; break;
-        case 'u': // y no work?
+        case 'u':
             std::cout<<"u";
             g = s;
             break;
@@ -408,23 +428,43 @@ bool MyClickHandler(unsigned long , int, int, point3d p, tButtonType , tMouseEve
 {
     if (e == kMouseDown)
     {
-        v = 0; // ? when u click and hold on a peg, sometimes the disk animation jumps and starts towards the end of v? or is it idk
-        toh.Click(s, selectedPeg, p.x);
+        v = 0;
+        releasing = false;
+        s = g;
+        toh.Click(selectedPeg, p.x);
     }
     if (e == kMouseDrag)
     {
-//        dragging = toh.Drag(s, selectedPeg, p, g, v, lastClosestPeg); // reminder this is called per frame (drag drag drag drag...)
-//        counter = v * 30.0f;
-        px = p.x;
-        dragging = toh.Drag(s, selectedPeg);
+        if (!animationVersion2)
+        {
+            dragging = toh.Drag(s, selectedPeg, p, g, v, lastClosestPeg); // reminder this is called per frame (drag drag drag drag...)
+//            counter = v * 30.0f;
+
+        }
+        else {
+            px = p.x;
+            dragging = toh.Drag(s, selectedPeg);
+        }
         
     }
     if (e == kMouseUp)
     {
-        dragging = false;
-        toh.Release(s, selectedPeg, p, g);
+        // when releasing on an invalid peg, it doesn't animate properly (whatever?)
         
-        s = g; // if g = s isn't done at the start, this makes entire stack teleport to solution
+        v = 0;
+        dragging = false;
+        releasing = toh.Release(s, selectedPeg, p, g, userMoveCount);
+        std::cout << userMoveCount;
+        
+        if (animationVersion2)
+        {
+            v = 0.667;
+        }
+        else {
+            s = g;
+            selectedPeg = -1;
+        }
+        
     }
     
 	return true;
