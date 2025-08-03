@@ -50,7 +50,6 @@ bool recording = false;
 bool animating = false;
 bool dragging = false;
 bool releasing = false;
-bool animationVersion2 = false;
 float px; // cursor's x-position
 int userMoveCount = 0;
 
@@ -222,14 +221,7 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
            animating = false;
        }
    }
-    else if (dragging && !animationVersion2)
-    { // user is playing, in animationVersion1
-//        counter = (counter+1)%animationFrames;
-//        v = float(counter)/animationFrames;
-//        v += 1.0/animationFrames;
-        toh.Draw(display, s, g, v);
-    }
-    else if (dragging && animationVersion2)
+    else if (dragging)
     { // user is playing, dragging a disk in animationVersion2
                 
         if (v < 0.333) // disk animates up
@@ -238,12 +230,13 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 //            v += 1.0/animationFrames;
         }
         else {
+            v -= 1.0/animationFrames;
             g = s;
             toh.Draw(display, s, selectedPeg, px); // animation depends on px (cursor x-pos) instead of v (tween)
         }
         
     }
-    else if (releasing && animationVersion2)
+    else if (releasing)
     { // user is playing, releasing a disk in animationVersion2
         int nextPeg = toh.getHoveredPeg(px);
         toh.Draw(display, s, selectedPeg, nextPeg, v);
@@ -429,42 +422,23 @@ bool MyClickHandler(unsigned long , int, int, point3d p, tButtonType , tMouseEve
     if (e == kMouseDown)
     {
         v = 0;
-        releasing = false;
+        releasing = false; // necessary?
         s = g;
         toh.Click(selectedPeg, p.x);
     }
     if (e == kMouseDrag)
     {
-        if (!animationVersion2)
-        {
-            dragging = toh.Drag(s, selectedPeg, p, g, v, lastClosestPeg); // reminder this is called per frame (drag drag drag drag...)
-//            counter = v * 30.0f;
-
-        }
-        else {
-            px = p.x;
-            dragging = toh.Drag(s, selectedPeg);
-        }
-        
+        px = p.x;
+        dragging = toh.Drag(s, selectedPeg);
     }
     if (e == kMouseUp)
     {
-        // when releasing on an invalid peg, it doesn't animate properly (whatever?)
-        
-        v = 0;
+//        v = 0;
         dragging = false;
         releasing = toh.Release(s, selectedPeg, p, g, userMoveCount);
         std::cout << userMoveCount;
         
-        if (animationVersion2)
-        {
-            v = 0.667;
-        }
-        else {
-            s = g;
-            selectedPeg = -1;
-        }
-        
+        v = 0.667;
     }
     
 	return true;

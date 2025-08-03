@@ -167,8 +167,8 @@ public:
     
     bool Click(int &peg, float px);
     int getHoveredPeg(const float &px);
-    int getClosestPeg(const TOHState<disks> &currState, int peg, point3d loc); //idk
-    bool Drag(const TOHState<disks> &currState, int peg, point3d loc, TOHState<disks> &nextState, float &tween, int &lastClosestPeg);
+//    int getClosestPeg(const TOHState<disks> &currState, int peg, point3d loc); //idk
+//    bool Drag(const TOHState<disks> &currState, int peg, point3d loc, TOHState<disks> &nextState, float &tween, int &lastClosestPeg);
     bool Drag(const TOHState<disks> &currState, int peg);
     bool Release(const TOHState<disks> &currState, int &peg, point3d loc, TOHState<disks> &nextState, int &userMoveCount);
 	
@@ -652,57 +652,57 @@ int TOH<disks>::getHoveredPeg(const float &px)
     
     return peg;
 }
-template <int disks>
-int TOH<disks>::getClosestPeg(const TOHState<disks> &currState, int peg, point3d loc)
-{
-    double distance = 5.0;
-    int closestPeg = -1;
-    double px[4] = {-0.75, -0.25, 0.25, 0.75};
-    
-    for (int p = 0; p < 4; p++)
-    {
-        if (currState.GetSmallestDiskOnPeg(peg) < currState.GetSmallestDiskOnPeg(p) && abs(loc.x - px[p]) < distance)
-        { // if it's a valid peg and if it's closer than the current closestPeg is. when there r 2 valid pegs both the same distance away from the mouse, currentPeg just stays at the leftmost one
-            distance = abs(loc.x - px[p]);
-//            std::cout << loc.x << ", " << abs(loc.x - px[p]) << ", " << distance << "\n";
-            closestPeg = p;
-        }
-    }
-    
-    if (closestPeg == -1) // only place to go is the original selected peg
-    {
-        closestPeg = peg;
-    }
-    
-    return closestPeg;
-}
+//template <int disks>
+//int TOH<disks>::getClosestPeg(const TOHState<disks> &currState, int peg, point3d loc)
+//{
+//    double distance = 5.0;
+//    int closestPeg = -1;
+//    double px[4] = {-0.75, -0.25, 0.25, 0.75};
+//    
+//    for (int p = 0; p < 4; p++)
+//    {
+//        if (currState.GetSmallestDiskOnPeg(peg) < currState.GetSmallestDiskOnPeg(p) && abs(loc.x - px[p]) < distance)
+//        { // if it's a valid peg and if it's closer than the current closestPeg is. when there r 2 valid pegs both the same distance away from the mouse, currentPeg just stays at the leftmost one
+//            distance = abs(loc.x - px[p]);
+////            std::cout << loc.x << ", " << abs(loc.x - px[p]) << ", " << distance << "\n";
+//            closestPeg = p;
+//        }
+//    }
+//    
+//    if (closestPeg == -1) // only place to go is the original selected peg
+//    {
+//        closestPeg = peg;
+//    }
+//    
+//    return closestPeg;
+//}
 
-template <int disks>
-bool TOH<disks>::Drag(const TOHState<disks> &currState, int peg, point3d loc, TOHState<disks> &nextState, float &tween, int &lastClosestPeg) // i put & next to lastClosestPeg and haven't tested if it's ok yet
-{ // Drag for animationVersion1
-    if (peg == -1) // if in empty space
-        return false;
-    
-    if (currState.GetDiskCountOnPeg(peg) == 0) // if the peg has no disks
-        return false;
-    
-    int closestPeg = getClosestPeg(currState, peg, loc.x);
-    // animate in expectations that we'll go there
-//    std::cout << "closestPeg: " << closestPeg << "\n";
-    
-    if (lastClosestPeg != closestPeg)
-        tween = 0;
-    lastClosestPeg = closestPeg;
-    
-    if (tween == 0)
-    {
-        nextState = currState;
-        TOHMove m = TOHMove(peg, closestPeg);
-        ApplyAction(nextState, m);
-    }
-    
-    return true;
-}
+//template <int disks>
+//bool TOH<disks>::Drag(const TOHState<disks> &currState, int peg, point3d loc, TOHState<disks> &nextState, float &tween, int &lastClosestPeg) // i put & next to lastClosestPeg and haven't tested if it's ok yet
+//{ // Drag for animationVersion1
+//    if (peg == -1) // if in empty space
+//        return false;
+//    
+//    if (currState.GetDiskCountOnPeg(peg) == 0) // if the peg has no disks
+//        return false;
+//    
+//    int closestPeg = getClosestPeg(currState, peg, loc.x);
+//    // animate in expectations that we'll go there
+////    std::cout << "closestPeg: " << closestPeg << "\n";
+//    
+//    if (lastClosestPeg != closestPeg)
+//        tween = 0;
+//    lastClosestPeg = closestPeg;
+//    
+//    if (tween == 0)
+//    {
+//        nextState = currState;
+//        TOHMove m = TOHMove(peg, closestPeg);
+//        ApplyAction(nextState, m);
+//    }
+//    
+//    return true;
+//}
 
 
 template <int disks>
