@@ -193,7 +193,7 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 
 float v = 0.0;
 uint64_t counter = 0;
-const int animationFrames = 15;
+const int animationFrames = 15; // 15
 void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 {
 //	cameraMoveTo(0, -1, -12.5, 0.05);
@@ -207,13 +207,12 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
    { // computer is solving
        if (v == 0)
        {
-           s = g; // might it be that g is the final solution, s is set at the final solution, so when getnextstate is called, it doesn't work and it bugs out? idk
+           s = g;
            toh.GetNextState(s, solution[0], g); // g is the next state
            solution.erase(solution.begin());
        }
               
        toh.Draw(display, s, g, v);
-//       v += 1.0/animationFrames;
        
        if (solution.size() == 0 && v >= 1 - 1.0/animationFrames)
        {
@@ -227,10 +226,9 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
         if (v < 0.333) // disk animates up
         {
             toh.Draw(display, s, selectedPeg, 0, v); // disk on selectedPeg starts going to peg 0 (it doesn't matter if it's a valid move or not because it won't be completed anyways)
-//            v += 1.0/animationFrames;
         }
         else {
-            v -= 1.0/animationFrames;
+            v -= 1.0/animationFrames; // to offset v += 1.0/animationFrames, so the end result is v doesn't change
             g = s;
             toh.Draw(display, s, selectedPeg, px); // animation depends on px (cursor x-pos) instead of v (tween)
         }
@@ -241,10 +239,8 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
         int nextPeg = toh.getHoveredPeg(px);
         toh.Draw(display, s, selectedPeg, nextPeg, v);
         
-//        v += 1.0/animationFrames;
-        if (v >= 1) // once we're all the way thru v, reset everything
+        if (v >= 1 - 1.0/animationFrames) // once we're all the way thru v, reset everything
         {
-//            v = 0;
             releasing = false;
             s = g; // the old next state is now the current state
             selectedPeg = -1;
@@ -254,11 +250,14 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 		toh.Draw(display, s);
 	}
 	
-    
+
     v += 1.0/animationFrames;
     
     if (v >= 1)
+    {
+//        animating = false;
         v = 0;
+    }
     
     
 	if (recording && viewport == GetNumPorts(windowID)-1)
@@ -294,6 +293,7 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
             std::cout<<"s";
 			SolveProblem(true);
             g = s;
+            v = 0;
             animating = true;
 		}
 			break;
@@ -419,6 +419,9 @@ Heuristic<TOHState<numDisks>> *BuildPDB(const TOHState<numDisks> &goal)
 
 bool MyClickHandler(unsigned long , int, int, point3d p, tButtonType , tMouseEventType e)
 {
+    if (animating)
+        return true;
+    
     if (e == kMouseDown)
     {
         v = 0;
