@@ -52,6 +52,11 @@ bool dragging = false;
 bool releasing = false;
 float px; // cursor's x-position
 int userMoveCount = 0;
+int optimalMoveCount = 0;
+float userSolveTime = 0;
+float optimalSolveTime = 0;
+std::string str;
+Timer t;
 
 
 int main(int argc, char* argv[])
@@ -82,7 +87,7 @@ void InstallHandlers()
 
 void SolveProblem(bool reset = true)
 {
-	Timer t;
+	
 	if (reset)
 	{
 		s.StandardStart(); //the start state
@@ -132,12 +137,17 @@ void SolveProblem(bool reset = true)
 	t.StartTimer();
 	astar.GetPath(&toh, s, g, solution);
 	t.EndTimer();
+    
+    optimalSolveTime = t.GetElapsedTime();
+    optimalMoveCount = solution.size();
+    
 	for (auto &m : solution)
 	{
 		std::cout << m << " ";
 	}
-	printf("\n[no prune] %1.2fs elapsed; %llu expanded; %llu generated [%lu]\n", t.GetElapsedTime(), astar.GetNodesExpanded(), astar.GetNodesTouched(), solution.size());
-
+    printf("\n[no prune] %1.2fs elapsed; %llu expanded; %llu generated [%lu]\n", optimalSolveTime, astar.GetNodesExpanded(), astar.GetNodesTouched(), optimalMoveCount);
+    
+    
 }
 
 void SpeedTest()
@@ -215,13 +225,15 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
        toh.Draw(display, s, g, v);
        
        if (solution.size() == 0 && v >= 1 - 1.0/animationFrames)
-       {
+       { // game is solved
            s = g;
            animating = false;
+           str = "Optimal solve is "+std::to_string(optimalMoveCount)+" moves in "+std::to_string(optimalSolveTime)+" seconds";
+           submitTextToBuffer(str.c_str());
        }
    }
-    else if (dragging)
-    { // user is playing, dragging a disk in animationVersion2
+   else if (dragging)
+   { // user is playing, dragging a disk
                 
         if (v < 0.333) // disk animates up
         {
@@ -233,17 +245,42 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
             toh.Draw(display, s, selectedPeg, px); // animation depends on px (cursor x-pos) instead of v (tween)
         }
         
-    }
-    else if (releasing)
-    { // user is playing, releasing a disk in animationVersion2
+   }
+   else if (releasing)
+   { // user is playing, releasing a disk
         int nextPeg = toh.getHoveredPeg(px);
         toh.Draw(display, s, selectedPeg, nextPeg, v);
         
-        if (v >= 1 - 1.0/animationFrames) // once we're all the way thru v, reset everything
-        {
+       if (v >= 1 - 1.0/animationFrames) // once we're all the way thru v, reset everything
+       {
             releasing = false;
             s = g; // the old next state is now the current state
             selectedPeg = -1;
+           
+
+           if (userSolveTime == 0)
+           {
+               t.StartTimer();
+               userSolveTime++; // to prevent the timer from restarting
+           }
+           if (s.GetDiskCountOnPeg(3) == numDisks)
+           { // game is solved
+               t.EndTimer();
+               userSolveTime = t.GetElapsedTime();
+               
+               str = "Congrats! You solved with "+std::to_string(userMoveCount)+" moves in "+std::to_string(userSolveTime)+" seconds; optimal was ";
+               SolveProblem(true);
+               str += std::to_string(optimalMoveCount)+" moves in "+std::to_string(optimalSolveTime)+" seconds";
+               s = g; // set s as the solution state, because SolveProblem(true) resets s to the start state
+           }
+           else if (userMoveCount == 1) {
+               str = "You have taken 1 move so far";
+           }
+           else {
+               str = "You have taken "+std::to_string(userMoveCount)+" moves so far";
+           }
+           submitTextToBuffer(str.c_str());
+           
         }
     }
 	else {
@@ -421,11 +458,13 @@ bool MyClickHandler(unsigned long , int, int, point3d p, tButtonType , tMouseEve
 {
     if (animating)
         return true;
+    if (s.GetDiskCountOnPeg(3) == numDisks) // stop letting the user move disks after the game has been solved
+        return true;
     
     if (e == kMouseDown)
     {
         v = 0;
-        releasing = false; // necessary?
+        releasing = false;
         s = g;
         toh.Click(selectedPeg, p.x);
     }
@@ -436,10 +475,8 @@ bool MyClickHandler(unsigned long , int, int, point3d p, tButtonType , tMouseEve
     }
     if (e == kMouseUp)
     {
-//        v = 0;
         dragging = false;
         releasing = toh.Release(s, selectedPeg, p, g, userMoveCount);
-        std::cout << userMoveCount;
         
         v = 0.667;
     }
