@@ -44,8 +44,7 @@ TOHPDB<numDisks-6, numDisks, 6> pdb4(&absToh1, goal);
 
 Heuristic<TOHState<numDisks>> h;
 
-int selectedPeg = -1; //idk
-int lastClosestPeg = -1; //idk
+int selectedPeg = -1;
 bool recording = false;
 bool animating = false;
 bool dragging = false;
@@ -75,8 +74,8 @@ void InstallHandlers()
 	InstallKeyboardHandler(MyDisplayHandler, "PDB", "Value-Range Compress PDB", kAnyModifier, 'v');
 	InstallKeyboardHandler(MyDisplayHandler, "Record", "Record a movie", kAnyModifier, 'r');
 	InstallKeyboardHandler(MyDisplayHandler, "Reset View", "Reset camera to initial view", kAnyModifier, '|');
-	InstallKeyboardHandler(MyDisplayHandler, "Reset state", "Choose a new random initial state", kAnyModifier, 's');
-    InstallKeyboardHandler(MyDisplayHandler, "User", "Let user play", kAnyModifier, 'u');
+	InstallKeyboardHandler(MyDisplayHandler, "Solve", "Find optimal solution path", kAnyModifier, 's');
+    InstallKeyboardHandler(MyDisplayHandler, "Reset", "Reset the board", kAnyModifier, 'n');
 
 	InstallCommandLineHandler(MyCLHandler, "-run", "-run", "Runs pre-set experiments.");
 	
@@ -195,23 +194,24 @@ void MyWindowHandler(unsigned long windowID, tWindowEventType eType)
 		h.heuristics.push_back(&toh);
 		h.lookups.push_back({kLeafNode, 0, 0});
 		s.StandardStart();
-		g.Reset();
+        g.StandardStart();
+        setTextBufferVisibility(false);
 //		SolveProblem(true);
 //		SpeedTest();
 	}
 }
 
 float v = 0.0;
-uint64_t counter = 0;
-const int animationFrames = 15; // 15
+const int animationFrames = 15;
 void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
 {
 //	cameraMoveTo(0, -1, -12.5, 0.05);
 //	cameraLookAt(0, 0, 0, 0.2);
 	auto &display = GetContext(windowID)->display;
-	display.FillRect({-1, -1, 1, 1}, Colors::white);
+	display.FillRect({-1, -1, 1, 1}, Colors::white); // background
 
-	toh.Draw(display);
+	toh.Draw(display); // pegs, base
+    toh.Draw(display, str); // text area
 
    if (animating)
    { // computer is solving
@@ -229,35 +229,38 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
            s = g;
            animating = false;
            str = "Optimal solve is "+std::to_string(optimalMoveCount)+" moves in "+std::to_string(optimalSolveTime)+" seconds";
-           submitTextToBuffer(str.c_str());
        }
    }
    else if (dragging)
    { // user is playing, dragging a disk
-                
         if (v < 0.333) // disk animates up
         {
-            toh.Draw(display, s, selectedPeg, 0, v); // disk on selectedPeg starts going to peg 0 (it doesn't matter if it's a valid move or not because it won't be completed anyways)
+            toh.Draw(display, s, selectedPeg, 0, v); // disk on selectedPeg starts going to peg 0 (it doesn't matter if peg 0 is valid because only the first third of the move is shown)
         }
         else {
             v -= 1.0/animationFrames; // to offset v += 1.0/animationFrames, so the end result is v doesn't change
             g = s;
-            toh.Draw(display, s, selectedPeg, px); // animation depends on px (cursor x-pos) instead of v (tween)
+            toh.Draw(display, s, selectedPeg, px);
         }
         
    }
    else if (releasing)
    { // user is playing, releasing a disk
-        int nextPeg = toh.getHoveredPeg(px);
+        int nextPeg = toh.GetHoveredPeg(px);
         toh.Draw(display, s, selectedPeg, nextPeg, v);
         
-       if (v >= 1 - 1.0/animationFrames) // once we're all the way thru v, reset everything
+       if (v >= 1 - 1.0/animationFrames) // once we're all the way through v, reset everything
        {
             releasing = false;
             s = g; // the old next state is now the current state
             selectedPeg = -1;
            
-
+           if (userSolveTime == 1)
+           {
+               t.EndTimer();
+               userSolveTime = t.GetElapsedTime();
+           }
+               
            if (userSolveTime == 0)
            {
                t.StartTimer();
@@ -267,20 +270,15 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
            { // game is solved
                t.EndTimer();
                userSolveTime = t.GetElapsedTime();
+               userSolveTime = std::round(userSolveTime*10);
+               int timeDec = static_cast<int>(userSolveTime) % 10; // tenth place digit of userSolveTime rounded to the nearest tenth
+               int timeInt = (static_cast<int>(userSolveTime) - timeDec) / 10; // integer part of userSolveTime
                
-               str = "Congrats! You solved with "+std::to_string(userMoveCount)+" moves in "+std::to_string(userSolveTime)+" seconds; optimal was ";
-               SolveProblem(true);
-               str += std::to_string(optimalMoveCount)+" moves in "+std::to_string(optimalSolveTime)+" seconds";
-               s = g; // set s as the solution state, because SolveProblem(true) resets s to the start state
-           }
-           else if (userMoveCount == 1) {
-               str = "You have taken 1 move so far";
+               str = "Congrats! You solved with "+std::to_string(userMoveCount)+" moves in "+std::to_string(timeInt)+"."+std::to_string(timeDec)+" seconds";
            }
            else {
-               str = "You have taken "+std::to_string(userMoveCount)+" moves so far";
+               str = "moves taken: "+std::to_string(userMoveCount);
            }
-           submitTextToBuffer(str.c_str());
-           
         }
     }
 	else {
@@ -291,10 +289,7 @@ void MyFrameHandler(unsigned long windowID, unsigned int viewport, void *)
     v += 1.0/animationFrames;
     
     if (v >= 1)
-    {
-//        animating = false;
         v = 0;
-    }
     
     
 	if (recording && viewport == GetNumPorts(windowID)-1)
@@ -321,19 +316,24 @@ void MyDisplayHandler(unsigned long windowID, tKeyboardModifier mod, char key)
 	{
 		case '|': //resetCamera(); break;
 		case 'r': recording = !recording; break;
-        case 'u':
-            std::cout<<"u";
-            g = s;
-            break;
 		case 's':
 		{
-            std::cout<<"s";
 			SolveProblem(true);
             g = s;
             v = 0;
+            str = "";
             animating = true;
 		}
 			break;
+        case 'n':
+            s.StandardStart();
+            g.StandardStart();
+            userMoveCount = 0;
+            userSolveTime = 0;
+            animating = false;
+            releasing = false;
+            str = "";
+            break;
 		case 'v': // value range compression
 		{
 			goal.Reset();
@@ -458,7 +458,7 @@ bool MyClickHandler(unsigned long , int, int, point3d p, tButtonType , tMouseEve
 {
     if (animating)
         return true;
-    if (s.GetDiskCountOnPeg(3) == numDisks) // stop letting the user move disks after the game has been solved
+    if (s.GetDiskCountOnPeg(3) == numDisks) // stops letting the user move disks after the game has been solved
         return true;
     
     if (e == kMouseDown)
@@ -468,12 +468,12 @@ bool MyClickHandler(unsigned long , int, int, point3d p, tButtonType , tMouseEve
         s = g;
         toh.Click(selectedPeg, p.x);
     }
-    if (e == kMouseDrag)
+    else if (e == kMouseDrag)
     {
         px = p.x;
         dragging = toh.Drag(s, selectedPeg);
     }
-    if (e == kMouseUp)
+    else if (e == kMouseUp)
     {
         dragging = false;
         releasing = toh.Release(s, selectedPeg, p, g, userMoveCount);
