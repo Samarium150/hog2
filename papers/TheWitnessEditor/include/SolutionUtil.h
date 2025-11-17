@@ -39,7 +39,7 @@ int CountSolutions(const Witness<width, height> &w,
     int count = 0;
     for (auto x: forbidden)
     {
-        if (w.GoalTest(allSolutions[x])) 
+        if (w.GoalTest(allSolutions[x]))
             return 0;
     }
     for (auto x = 0; x < allSolutions.size(); ++x)

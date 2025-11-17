@@ -638,6 +638,8 @@ public:
         std::chrono::time_point<std::chrono::system_clock> timePoint;
         WitnessActionType type;
         WitnessAction action;
+        Trace(std::chrono::time_point<std::chrono::system_clock> timePoint,
+              WitnessActionType type, WitnessAction action): timePoint(timePoint), type(type), action(action) {}
     };
     friend std::ostream &operator<<(std::ostream &os, const Trace &trace) {
         const auto t = std::chrono::system_clock::to_time_t(trace.timePoint);
@@ -646,7 +648,7 @@ public:
            << static_cast<unsigned>(trace.action) << "}";
         return os;
     }
-    std::vector<Trace> trace;
+    std::vector<Trace> trace{};
 
     Witness() // :separationConstraints(width*height), separationCount(0), tetrisConstraints(width*height),
     // tetrisCount(0)
