@@ -20,11 +20,12 @@ struct AdversaryEntropyInfo
     bool onSolutionPath;
 };
 
-template<int width, int height>
-class WitnessPuzzleEntropy : public Entropy<WitnessState<width, height>, WitnessAction>
+template <int width, int height>
+class WitnessPuzzleEntropy final : public Entropy<WitnessState<width, height>, WitnessAction>
 {
     using H = Entropy<WitnessState<width, height>, WitnessAction>;
-    vectorCache<AdversaryEntropyInfo> advEntropyInfoCache;
+    mutable vectorCache<AdversaryEntropyInfo> adv_entropy_info_cache_;
+
 public:
 
     AdversaryEntropyInfo CalculateAdversaryEntropy(
@@ -168,6 +169,82 @@ public:
                                                         }));
         H::doubleCache.returnItem(&children);
         return information;
+    }
+
+    double CalculateTotalSolutionInformation(
+        const Witness<width, height>& env,
+        const std::vector<WitnessState<width, height>>& solutions,
+        const std::span<const size_t> solution_indices = {}) const
+    {
+        const std::vector<SolutionTreeNode> solution_tree =
+            BuildTree(env, solutions, solution_indices);
+
+        std::vector node_information(solution_tree.size(), -1.0);
+        std::vector<int> path;
+        path.reserve(32);
+        path.push_back(0);
+
+        auto state = WitnessState<width, height>();
+        env.ApplyAction(state, kStart);
+
+        std::vector<double> children_info;
+        children_info.reserve(4);
+
+        while (!path.empty()) {
+            const int index = path.back();
+            const auto& node = solution_tree[index];
+
+            if (node.children[kEnd] != -1) {
+                node_information[index] = 0.0;
+                env.UndoAction(state, node.action);
+                path.pop_back();
+                continue;
+            }
+
+            // Check if we need to visit children
+            bool all_children_processed = true;
+            int unprocessed_child = -1;
+            WitnessAction unprocessed_action = kStart;
+
+            // Quick scan: find first unprocessed child without getting actions
+            for (size_t i = 0; i < node.children.size() && all_children_processed; ++i) {
+                if (const int child_index = node.children[i];
+                    child_index != -1 && node_information[child_index] < 0) {
+                    all_children_processed = false;
+                    unprocessed_child = child_index;
+                    unprocessed_action = static_cast<WitnessAction>(i);
+                }
+            }
+
+            // Visit unprocessed child
+            if (!all_children_processed) {
+                env.ApplyAction(state, unprocessed_action);
+                path.push_back(unprocessed_child);
+                continue;
+            }
+
+            // All children processed - calculate information
+            children_info.clear();
+            auto& actions = *H::actCache.getItem();
+            env.GetActions(state, actions);
+            H::ruleSet.FilterActions(env, state, actions);
+
+            for (const auto& action : actions) {
+                const int child_idx = node.children[static_cast<size_t>(action)];
+                children_info.push_back(child_idx != -1 ? node_information[child_idx] : H::inf);
+            }
+            H::actCache.returnItem(&actions);
+
+            node_information[index] = std::log2(
+                children_info.size() / std::accumulate(children_info.cbegin(), children_info.cend(),
+                                                       0.0, [](const auto& sum, const auto& info) {
+                                                           return sum + std::exp2(-info);
+                                                       }));
+            env.UndoAction(state, node.action);
+            path.pop_back();
+        }
+
+        return node_information[0];
     }
 };
 

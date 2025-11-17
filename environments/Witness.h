@@ -45,16 +45,38 @@ int GetEdgeHash(int x1, int y1, int x2, int y2)
     assert(false);
 }
 
+enum WitnessAction {
+    kUp,
+    kDown,
+    kLeft,
+    kRight,
+    kStart,
+    kEnd,
+    kWitnessActionCount
+};
+
+enum WitnessActionType {
+    kApply,
+    kUndo
+};
+
+struct LeftRightRegion {
+    WitnessAction action = kStart;
+    std::pair<int, int> l = {-1, -1};
+    std::pair<int, int> r = {-1, -1};
+};
+
 template<int width, int height>
 class WitnessState {
 public:
     std::vector<std::pair<int, int>> path;
     std::bitset<(width + 1) * (height + 1)> occupiedCorners;
-    std::bitset<(width + 1) * (height) + (width) * (height + 1)> occupiedEdges;
-    mutable std::unordered_set<int> lhs;
-    mutable std::unordered_set<int> rhs;
-    mutable std::pair<int, int> lShouldCheck = {-1, -1};
-    mutable std::pair<int, int> rShouldCheck = {-1, -1};
+    std::bitset<(width + 1) * height + width * (height + 1)> occupiedEdges;
+    std::vector<LeftRightRegion> leftRightRegions;
+    mutable std::vector<int> lhs;
+    mutable std::bitset<width * height> left;
+    mutable std::vector<int> rhs;
+    mutable std::bitset<width * height> right;
 
     WitnessState() { Reset(); }
 
@@ -67,11 +89,10 @@ public:
 
     void Reset()
     {
-        path.resize(0);
+        path.clear();
         occupiedCorners.reset();
         occupiedEdges.reset();
-        lhs.reserve(width * height - 1);
-        rhs.reserve(width * height - 1);
+        leftRightRegions.clear();
     }
 
     bool Occupied(int which)
@@ -202,16 +223,6 @@ public:
     {
         return path.empty();
     }
-};
-
-enum WitnessAction {
-    kUp,
-    kDown,
-    kLeft,
-    kRight,
-    kStart,
-    kEnd,
-    kWitnessActionCount
 };
 
 inline std::ostream& operator<<(std::ostream &os, const WitnessAction &action)
@@ -623,6 +634,20 @@ public:
     //	int triangleCount;
     std::array<std::pair<Graphics::point, Graphics::rect>, width*height> regionConstraintLocations;
 
+    struct Trace {
+        std::chrono::time_point<std::chrono::system_clock> timePoint;
+        WitnessActionType type;
+        WitnessAction action;
+    };
+    friend std::ostream &operator<<(std::ostream &os, const Trace &trace) {
+        const auto t = std::chrono::system_clock::to_time_t(trace.timePoint);
+        os << R"({"timestamp": ")" << std::put_time(std::gmtime(&t), "%Y-%m-%dT%H:%M:%SZ")
+           << R"(", "category": )" << static_cast<unsigned>(trace.type) << R"(, "action": )"
+           << static_cast<unsigned>(trace.action) << "}";
+        return os;
+    }
+    std::vector<Trace> trace;
+
     Witness() // :separationConstraints(width*height), separationCount(0), tetrisConstraints(width*height),
     // tetrisCount(0)
     {
@@ -712,6 +737,7 @@ public:
                         std::make_pair(p, Graphics::rect{p, 0.05});
             }
         }
+        trace.clear();
     }
 
     void Reset()
@@ -1979,166 +2005,34 @@ void Witness<width, height>::GetActions(
 template<int width, int height>
 void Witness<width, height>::GetLeftRightRegions(const WitnessState<width, height> &state) const
 {
-    const auto &path = state.path;
-    auto &lhs = state.lhs;
-    auto &rhs = state.rhs;
-    auto &lShouldCheck = state.lShouldCheck;
-    auto &rShouldCheck = state.rShouldCheck;
-    lhs.clear();
-    rhs.clear();
-    auto [x0, y0] = path[0];
-    auto checkStart = true;
-    auto prevAction = kStart;
-    auto r = -1;
-    for (auto i = 1; i < path.size(); ++i)
-    {
-        auto [x1, y1] = path[i];
-        if (!(x0 == 0 || x0 == width || y0 == 0 || y0 == height) && checkStart)
+    constexpr auto SetFiltered = [](std::bitset<width * height>& set, const std::pair<int,int>& side) {
+        if (side.first != -1)
         {
-            x0 = x1;
-            y0 = y1;
-            continue;
+            set.set(static_cast<size_t>(side.first));
         }
-        checkStart = false;
-        assert(!(x1 == x0 + 1 && y1 == y0 + 1));
-        if (x1 == x0 + 1) // right
+        if (side.second != -1)
         {
-            if (y0 < height)
-            {
-                r = GetRegionIndex(x0, y0);
-                lhs.emplace(r);
-                lShouldCheck.second = r;
-                if (prevAction == kUp && x0 > 0)
-                {
-                    r = GetRegionIndex(x0 - 1, y0);
-                    lhs.emplace(r);
-                    lShouldCheck.first = r;
-                } else
-                {
-                    lShouldCheck.first = -1;
-                }
-            }
-            if (y0 > 0)
-            {
-                r = GetRegionIndex(x0, y0 - 1);
-                rhs.emplace(r);
-                rShouldCheck.second = r;
-                if (prevAction == kDown && x0 > 0)
-                {
-                    r = GetRegionIndex(x0 - 1, y0 - 1);
-                    rhs.emplace(r);
-                    rShouldCheck.first = r;
-                } else
-                {
-                    rShouldCheck.first = -1;
-                }
-            }
-            prevAction = kRight;
+            set.set(static_cast<size_t>(side.second));
         }
-        if (x1 == x0 - 1) // left
+    };
+    state.lhs.clear();
+    state.rhs.clear();
+    state.left.reset();
+    state.right.reset();
+    std::for_each(state.leftRightRegions.begin(), state.leftRightRegions.end(),
+        [&](const LeftRightRegion& region) {
+            SetFiltered(state.left, region.l);
+            SetFiltered(state.right, region.r);
+    });
+    for (size_t i = 0; i < state.left.size(); ++i) {
+        if (state.left.test(i))
         {
-            if (y0 > 0)
-            {
-                r = GetRegionIndex(x0 - 1, y0 - 1);
-                lhs.emplace(r);
-                lShouldCheck.second = r;
-                if (prevAction == kDown && x0 < width)
-                {
-                    r = GetRegionIndex(x0, y0 - 1);
-                    lhs.emplace(r);
-                    lShouldCheck.first = r;
-                } else
-                {
-                    lShouldCheck.first = -1;
-                }
-            }
-            if (y0 < height)
-            {
-                r = GetRegionIndex(x0 - 1, y0);
-                rhs.emplace(r);
-                rShouldCheck.second = r;
-                if (prevAction == kUp && x0 < width)
-                {
-                    r = GetRegionIndex(x0, y0);
-                    rhs.emplace(r);
-                    rShouldCheck.first = r;
-                } else
-                {
-                    rShouldCheck.first = -1;
-                }
-            }
-            prevAction = kLeft;
+            state.lhs.emplace_back(i);
         }
-        if (y1 == y0 + 1) // up
+        if (state.right.test(i))
         {
-            if (x0 > 0)
-            {
-                r = GetRegionIndex(x0 - 1, y0);
-                lhs.emplace(r);
-                lShouldCheck.second = r;
-                if (prevAction == kLeft && y0 > 0)
-                {
-                    r = GetRegionIndex(x0 - 1, y0 - 1);
-                    lhs.emplace(r);
-                    lShouldCheck.first = r;
-                } else
-                {
-                    lShouldCheck.first = -1;
-                }
-            }
-            if (x0 < width)
-            {
-                r = GetRegionIndex(x0, y0);
-                rhs.emplace(r);
-                rShouldCheck.second = r;
-                if (prevAction == kRight && y0 > 0)
-                {
-                    r = GetRegionIndex(x0, y0 - 1);
-                    rhs.emplace(r);
-                    rShouldCheck.first = r;
-                } else
-                {
-                    rShouldCheck.first = -1;
-                }
-            }
-            prevAction = kUp;
+            state.rhs.emplace_back(i);
         }
-        if (y1 == y0 - 1) // down
-        {
-            if (x0 < width)
-            {
-                r = GetRegionIndex(x0, y0 - 1);
-                lhs.emplace(r);
-                lShouldCheck.second = r;
-                if (prevAction == kRight && y0 < height)
-                {
-                    r = GetRegionIndex(x0, y0);
-                    lhs.emplace(r);
-                    lShouldCheck.first = r;
-                } else
-                {
-                    lShouldCheck.first = -1;
-                }
-            }
-            if (x0 > 0)
-            {
-                r = GetRegionIndex(x0 - 1, y0 - 1);
-                rhs.emplace(r);
-                rShouldCheck.second = r;
-                if (prevAction == kLeft && y0 < height)
-                {
-                    r = GetRegionIndex(x0 - 1, y0);
-                    rhs.emplace(r);
-                    rShouldCheck.first = r;
-                } else
-                {
-                    rShouldCheck.first = -1;
-                }
-            }
-            prevAction = kDown;
-        }
-        x0 = x1;
-        y0 = y1;
     }
 }
 
@@ -2271,6 +2165,8 @@ void Witness<width, height>::ApplyAction(std::pair<int, int> &s, WitnessAction a
 template<int width, int height>
 void Witness<width, height>::ApplyAction(WitnessState<width, height> &s, WitnessAction a) const
 {
+    const auto &prevAction = s.leftRightRegions.back().action;
+    auto leftRightRegion = LeftRightRegion{a};
     switch (a)
     {
         case kEnd:
@@ -2291,42 +2187,115 @@ void Witness<width, height>::ApplyAction(WitnessState<width, height> &s, Witness
         case kUp:
         {
             auto p = s.path.back();
+            auto [x0, y0] = p;
             ++p.second;
+            auto [x1, y1] = p;
             s.Occupy(p);
             s.OccupyEdge(p, s.path.back());
             s.path.push_back(p);
+            if (x0 > 0)
+            {
+                leftRightRegion.l.second = GetRegionIndex(x0 - 1, y0);
+                if (prevAction == kLeft && y0 > 0)
+                {
+                    leftRightRegion.l.first = GetRegionIndex(x0 - 1, y0 - 1);
+                }
+            }
+            if (x0 < width)
+            {
+                leftRightRegion.r.second = GetRegionIndex(x0, y0);
+                if (prevAction == kRight && y0 > 0)
+                {
+                    leftRightRegion.r.first = GetRegionIndex(x0, y0 - 1);
+                }
+            }
             break;
         }
         case kRight:
         {
             auto p = s.path.back();
+            auto [x0, y0] = p;
             ++p.first;
+            auto [x1, y1] = p;
             s.Occupy(p);
             s.OccupyEdge(p, s.path.back());
             s.path.push_back(p);
+            if (y0 < height)
+            {
+                leftRightRegion.l.second = GetRegionIndex(x0, y0);
+                if (prevAction == kUp && x0 > 0)
+                {
+                    leftRightRegion.l.first = GetRegionIndex(x0 - 1, y0);
+                }
+            }
+            if (y0 > 0)
+            {
+                leftRightRegion.r.second = GetRegionIndex(x0, y0 - 1);
+                if (prevAction == kDown && x0 > 0)
+                {
+                    leftRightRegion.r.first = GetRegionIndex(x0 - 1, y0 - 1);
+                }
+            }
             break;
         }
         case kDown:
         {
             auto p = s.path.back();
+            auto [x0, y0] = p;
             --p.second;
+            auto [x1, y1] = p;
             s.Occupy(p);
             s.OccupyEdge(p, s.path.back());
             s.path.push_back(p);
+            if (x0 < width)
+            {
+                leftRightRegion.l.second = GetRegionIndex(x0, y0 - 1);
+                if (prevAction == kRight && y0 < height)
+                {
+                    leftRightRegion.l.first = GetRegionIndex(x0, y0);
+                }
+            }
+            if (x0 > 0)
+            {
+                leftRightRegion.r.second = GetRegionIndex(x0 - 1, y0 - 1);
+                if (prevAction == kLeft && y0 < height)
+                {
+                    leftRightRegion.r.first = GetRegionIndex(x0 - 1, y0);
+                }
+            }
             break;
         }
         case kLeft:
         {
             auto p = s.path.back();
+            auto [x0, y0] = p;
             --p.first;
+            auto [x1, y1] = p;
             s.Occupy(p);
             s.OccupyEdge(p, s.path.back());
             s.path.push_back(p);
+            if (y0 > 0)
+            {
+                leftRightRegion.l.second = GetRegionIndex(x0 - 1, y0 - 1);
+                if (prevAction == kDown && x0 < width)
+                {
+                    leftRightRegion.l.first = GetRegionIndex(x0, y0 - 1);
+                }
+            }
+            if (y0 < height)
+            {
+                leftRightRegion.r.second = GetRegionIndex(x0 - 1, y0);
+                if (prevAction == kUp && x0 < width)
+                {
+                    leftRightRegion.r.first = GetRegionIndex(x0, y0);
+                }
+            }
             break;
         }
         default:
             break;
     }
+    s.leftRightRegions.push_back(leftRightRegion);
 }
 
 template<int width, int height>
@@ -2337,9 +2306,12 @@ void Witness<width, height>::UndoAction(WitnessState<width, height> &s, WitnessA
     {
         s.Unoccupy(p);
         if (s.path.size() > 1)
+        {
             s.UnoccupyEdge(p, s.path[s.path.size() - 2]);
+        }
     }
     s.path.pop_back();
+    s.leftRightRegions.pop_back();
 }
 
 template<int width, int height>
@@ -2713,22 +2685,23 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
             rgs.insert(rgs.end(), region->cbegin(), region->cend());
     });
     GetLeftRightRegions(node);
-    const auto checkNewlyAdded = [&](const std::vector<int>& targets, const std::unordered_set<int> &side) {
-        for (auto r: targets)
+    constexpr auto CheckNewlyAdded = [](const Witness* self, const std::vector<int>& regions,
+        const std::pair<int, int>& targets, const std::vector<int> &side) {
+        for (auto r: {targets.first, targets.second})
         {
-            if (r == -1 || std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
+            if (r == -1 || std::find(regions.cbegin(), regions.cend(), r) == regions.cend())
                 continue;
-            auto [x, y] = GetRegionXYFromIndex(r);
-            const auto &constraint = regionConstraints[x][y];
+            auto [x, y] = self->GetRegionXYFromIndex(r);
+            const auto &constraint = self->regionConstraints[x][y];
             switch (constraint.type) {
                 case kSeparation:
                 {
                     for (auto rr: side)
                     {
-                        if (std::find(rgs.cbegin(), rgs.cend(), rr) == rgs.cend() || rr == r)
+                        if (std::find(regions.cbegin(), regions.cend(), rr) == regions.cend() || rr == r)
                             continue;
-                        auto [xx, yy] = GetRegionXYFromIndex(rr);
-                        const auto &[type, _, color] = regionConstraints[xx][yy];
+                        auto [xx, yy] = self->GetRegionXYFromIndex(rr);
+                        const auto &[type, _, color] = self->regionConstraints[xx][yy];
                         if (type == kSeparation && color != constraint.color)
                             return false;
                     }
@@ -2739,10 +2712,10 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
                     unsigned count = 0;
                     for (auto rr: side)
                     {
-                        if (std::find(rgs.cbegin(), rgs.cend(), rr) == rgs.cend())
+                        if (std::find(regions.cbegin(), regions.cend(), rr) == regions.cend())
                             continue;
-                        auto [xx, yy] = GetRegionXYFromIndex(rr);
-                        const auto &[type, _, color] = regionConstraints[xx][yy];
+                        auto [xx, yy] = self->GetRegionXYFromIndex(rr);
+                        const auto &[type, _, color] = self->regionConstraints[xx][yy];
                         if (type != kNoRegionConstraint &&
                             type != kUnknownRegionConstraint &&
                             constraint.color == color)
@@ -2753,29 +2726,19 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
                     }
                     break;
                 }
-                case kTriangle:
-                {
-                    auto e = static_cast<unsigned>(node.OccupiedEdge(x, y, x, y + 1)) +
-                            static_cast<unsigned>(node.OccupiedEdge(x, y + 1, x + 1, y + 1)) +
-                            static_cast<unsigned>(node.OccupiedEdge(x + 1, y + 1, x + 1, y)) +
-                            static_cast<unsigned>(node.OccupiedEdge(x + 1, y, x, y));
-                    if (e > constraint.parameter)
-                        return false;
-                    break;
-                }
                 default:
                     break;
             }
         }
         return true;
     };
-    const auto checkAllStars = [&](const std::unordered_set<int>& side) {
+    constexpr auto CheckAllStars = [](const Witness *self, const std::vector<int>& regions, const std::vector<int>& side) {
         for (auto r: side)
         {
-            if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
+            if (std::find(regions.cbegin(), regions.cend(), r) == regions.cend())
                 continue;
-            auto [x, y] = GetRegionXYFromIndex(r);
-            const auto &constraint = regionConstraints[x][y];
+            auto [x, y] = self->GetRegionXYFromIndex(r);
+            const auto &constraint = self->regionConstraints[x][y];
             if (constraint.type != kStar)
                 continue;
             rgbColor finishedColor(1.0 / 512.0, 1.0 / 512.0, 1.0 / 512.0);
@@ -2785,10 +2748,10 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
             unsigned count = 0;
             for (auto rr: side)
             {
-                if (std::find(rgs.cbegin(), rgs.cend(), rr) == rgs.cend())
+                if (std::find(regions.cbegin(), regions.cend(), rr) == regions.cend())
                     continue;
-                auto [xx, yy] = GetRegionXYFromIndex(rr);
-                const auto &[type, _, color] = regionConstraints[xx][yy];
+                auto [xx, yy] = self->GetRegionXYFromIndex(rr);
+                const auto &[type, _, color] = self->regionConstraints[xx][yy];
                 if (type != kNoRegionConstraint &&
                     type != kUnknownRegionConstraint &&
                     constraint.color == color)
@@ -2800,27 +2763,25 @@ bool Witness<width, height>::PathTest(const WitnessState<width, height> &node) c
         }
         return true;
     };
-    std::vector<int> added = {node.lShouldCheck.first, node.lShouldCheck.second};
-    auto ret = checkNewlyAdded(added, node.lhs);
+    auto ret = CheckNewlyAdded(this, rgs, node.leftRightRegions.back().l, node.lhs);
     if (!ret)
     {
         regionCache.returnItem(&rgs);
         return false;
     }
-    ret = checkAllStars(node.lhs);
+    ret = CheckAllStars(this, rgs, node.lhs);
     if (!ret)
     {
         regionCache.returnItem(&rgs);
         return false;
     }
-    added = std::vector<int>{node.rShouldCheck.first, node.rShouldCheck.second};
-    ret = checkNewlyAdded(added, node.rhs);
+    ret = CheckNewlyAdded(this, rgs, node.leftRightRegions.back().r, node.rhs);
     if (!ret)
     {
         regionCache.returnItem(&rgs);
         return false;
     }
-    ret = checkAllStars(node.rhs);
+    ret = CheckAllStars(this, rgs, node.rhs);
     regionCache.returnItem(&rgs);
     return ret;
 }
@@ -2849,7 +2810,7 @@ bool Witness<width, height>::PathTestStrict(const WitnessState<width, height> &n
     int found = 0;
     rgbColor c{};
     GetLeftRightRegions(node);
-    const auto check = [&](const std::unordered_set<int>& side) {
+    const auto check = [&](const std::vector<int>& side) {
         for (auto r: side)
         {
             if (std::find(rgs.cbegin(), rgs.cend(), r) == rgs.cend())
@@ -4036,6 +3997,7 @@ void Witness<width, height>::Move(Graphics::point mouseLoc, InteractiveWitnessSt
             // 2. Add to target location
             iws.target = iws.ws.path.back();
             ApplyAction(iws.target, a);
+            trace.emplace_back(std::chrono::system_clock::now(), kApply, a);
             iws.targetAct = a;
 
             // 3. Change state
@@ -4051,6 +4013,7 @@ void Witness<width, height>::Move(Graphics::point mouseLoc, InteractiveWitnessSt
                 InvertAction(iws.targetAct);
                 iws.frac = 1.0;
                 UndoAction(iws.ws, a);
+                trace.emplace_back(std::chrono::system_clock::now(), kUndo, a);
                 // printf("Switched from kInPoint to kBetweenPoints [backwards]\n");
                 iws.currState = InteractiveWitnessState<width, height>::kBetweenPoints;
             }
@@ -4069,6 +4032,7 @@ void Witness<width, height>::Move(Graphics::point mouseLoc, InteractiveWitnessSt
         {
             iws.currState = InteractiveWitnessState<width, height>::kInPoint;
             ApplyAction(iws.ws, iws.targetAct);
+            trace.emplace_back(std::chrono::system_clock::now(), kApply, iws.targetAct);
             //			printf("Switched from kBetweenPoints to kInPoint [1]\n");
         }
         else if (from.x == to.x && (mouseLoc.y - from.y) / (to.y - from.y) > 0.9 &&
@@ -4076,6 +4040,7 @@ void Witness<width, height>::Move(Graphics::point mouseLoc, InteractiveWitnessSt
         {
             iws.currState = InteractiveWitnessState<width, height>::kInPoint;
             ApplyAction(iws.ws, iws.targetAct);
+            trace.emplace_back(std::chrono::system_clock::now(), kApply, iws.targetAct);
             //			printf("Switched from kBetweenPoints to kInPoint [2]\n");
         }
         else if (from.y == to.y && (mouseLoc.x - from.x) / (to.x - from.x) > 0.9 &&
@@ -4083,6 +4048,7 @@ void Witness<width, height>::Move(Graphics::point mouseLoc, InteractiveWitnessSt
         {
             iws.currState = InteractiveWitnessState<width, height>::kInPoint;
             ApplyAction(iws.ws, iws.targetAct);
+            trace.emplace_back(std::chrono::system_clock::now(), kApply, iws.targetAct);
             //			printf("Switched from kBetweenPoints to kInPoint [3]\n");
         }
             // entered start
