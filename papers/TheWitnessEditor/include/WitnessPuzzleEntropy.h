@@ -20,11 +20,12 @@ struct AdversaryEntropyInfo
     bool onSolutionPath;
 };
 
-template<int width, int height>
-class WitnessPuzzleEntropy : public Entropy<WitnessState<width, height>, WitnessAction>
+template <int width, int height>
+class WitnessPuzzleEntropy final : public Entropy<WitnessState<width, height>, WitnessAction>
 {
     using H = Entropy<WitnessState<width, height>, WitnessAction>;
-    vectorCache<AdversaryEntropyInfo> advEntropyInfoCache;
+    mutable vectorCache<AdversaryEntropyInfo> advEntropyInfoCache;
+
 public:
 
     AdversaryEntropyInfo CalculateAdversaryEntropy(

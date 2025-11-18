@@ -27,21 +27,21 @@ class Entropy
 {
 protected:
     static constexpr double inf = std::numeric_limits<double>::max();
-    vectorCache<Action> actCache;
-    vectorCache<EntropyInfo> entropyInfoCache;
-    vectorCache<double> doubleCache;
+    mutable vectorCache<Action> actCache;
+    mutable vectorCache<EntropyInfo> entropyInfoCache;
+    mutable vectorCache<double> doubleCache;
     bool isRelative = false;
     bool base2 = false;
 
-    void Softmin(const std::vector<double> &vars, std::vector<double> &ret)
+    void Softmin(const std::vector<double> &vars, std::vector<double> &ret) const
     {
         const double sum = std::accumulate(vars.cbegin(), vars.cend(), 0.0,
-            [=](const double r, const double i) {
+            [&](const double r, const double i) {
                 return r + (base2 ? std::exp2(-i) : std::exp(-i));
         });
         ret.reserve(vars.size());
         std::transform(vars.cbegin(), vars.cend(), std::back_inserter(ret),
-            [=](const double i) {
+            [&](const double i) {
                 return (base2 ? std::exp2(-i) : std::exp(-i)) / sum;
         });
     }
@@ -61,7 +61,7 @@ protected:
 
     double ImmediateEntropy(const std::vector<Action> &actions,
                             const std::vector<double> &childEntropy,
-                            std::optional<Action> prevAction)
+                            std::optional<Action> prevAction) const
     {
         const auto size = actions.size();
         if (!isRelative)
@@ -115,7 +115,7 @@ public:
     }
 
     virtual EntropyInfo Calculate(const SearchEnvironment<State, Action> &env, State &state,
-                                  unsigned lookahead, std::optional<Action> prevAction)
+                                  unsigned lookahead, std::optional<Action> prevAction) const
     {
         if (env.GoalTest(state))
             return { 0.0, 0 };
